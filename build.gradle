@@ -1,0 +1,57 @@
+buildscript {
+    ext.version_kotlin = '1.0.3'
+    ext.version_vertx = '3.2.1'
+    ext.version_log4j = '2.5'
+    ext.version_thymeleaf = '2.1.4.RELEASE'
+    ext.version_guice = '4.0'
+
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$version_kotlin"
+    }
+}
+
+apply plugin: "kotlin"
+apply plugin: "application"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$version_kotlin"
+
+    // redirect all logs to log4j2
+    compile "org.apache.logging.log4j:log4j-core:$version_log4j"
+    compile "org.apache.logging.log4j:log4j-jcl:$version_log4j"
+    compile "org.apache.logging.log4j:log4j-slf4j-impl:$version_log4j"
+    compile "org.apache.logging.log4j:log4j-1.2-api:$version_log4j"
+    compile "org.apache.logging.log4j:log4j-jul:$version_log4j"
+
+    compile "com.squareup.retrofit2:retrofit:2.1.0"
+    compile group: 'com.squareup.retrofit2', name: 'converter-jackson', version: '2.1.0'
+    compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.7.2"
+
+    testCompile 'junit:junit:4.11'
+    testCompile "org.jetbrains.kotlin:kotlin-test-junit:$version_kotlin"
+}
+
+mainClassName = 'io.vertx.core.Launcher'
+
+task createStartScripts(type: CreateStartScripts) {
+    applicationName = 'rundeck'
+}
+
+applicationDistribution.from("templates/") {
+    into "templates"
+}
+
+applicationDistribution.from("static/") {
+    into "static"
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = "2.13"
+}
