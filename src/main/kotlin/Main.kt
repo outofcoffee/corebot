@@ -17,7 +17,6 @@ import retrofit2.http.Path
 interface RundeckApi {
     @POST("/api/14/job/{jobId}/run")
     fun runJob(@Header("Accept") accept: String = "application/json",
-               @Header("Content-Type") contentType: String = "application/json",
                @Header("X-Rundeck-Auth-Token") authToken: String,
                @Path("jobId") jobId: String,
                @Body executionOptions: ExecutionOptions): Call<ExecutionDetails>

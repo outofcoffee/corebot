@@ -1,0 +1,22 @@
+<joblist>
+    <job>
+        <context>
+            <options preserveOrder='true'>
+                <option name='foo' value='bar' />
+            </options>
+        </context>
+        <description></description>
+        <executionEnabled>true</executionEnabled>
+        <id>9374f1c8-7b3f-4145-8556-6b55551fb60f</id>
+        <loglevel>INFO</loglevel>
+        <name>deploy</name>
+        <scheduleEnabled>false</scheduleEnabled>
+        <sequence keepgoing='false' strategy='node-first'>
+            <command>
+                <script><![CDATA[echo "Value of RD_OPTION_FOO=$RD_OPTION_FOO"]]></script>
+                <scriptargs />
+            </command>
+        </sequence>
+        <uuid>9374f1c8-7b3f-4145-8556-6b55551fb60f</uuid>
+    </job>
+</joblist>
