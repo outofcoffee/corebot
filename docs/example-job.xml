@@ -2,7 +2,8 @@
     <job>
         <context>
             <options preserveOrder='true'>
-                <option name='foo' value='bar' />
+                <option name='environment' value='foo' />
+                <option name='version' value='bar' />
             </options>
         </context>
         <description></description>
@@ -13,7 +14,7 @@
         <scheduleEnabled>false</scheduleEnabled>
         <sequence keepgoing='false' strategy='node-first'>
             <command>
-                <script><![CDATA[echo "Value of RD_OPTION_FOO=$RD_OPTION_FOO"]]></script>
+                <script><![CDATA[echo "Value of RD_OPTION_VERSION=$RD_OPTION_VERSION"]]></script>
                 <scriptargs />
             </command>
         </sequence>
