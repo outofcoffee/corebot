@@ -73,7 +73,7 @@ class ChatService {
                         "Hmm, something went wrong :(\r\n```${throwable.message}```")
             } else {
                 session.sendMessage(event.channel,
-                        "Job status is: ${executionDetails.status}\r\nDetails: ${executionDetails.permalink}")
+                        "Status of job is: ${executionDetails.status}\r\nDetails: ${executionDetails.permalink}")
             }
         }
     }

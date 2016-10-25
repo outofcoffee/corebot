@@ -1,0 +1,19 @@
+version: '2'
+
+services:
+  rundeck-slackbot:
+    image: outofcoffee/rundeck-slackbot
+    build: .
+    environment:
+      SLACK_AUTH_TOKEN: "CHANGEME"
+      SLACK_CHANNEL_NAME: "rundeck-slackbot"
+      RUNDECK_API_TOKEN: "CHANGEME"
+      RUNDECK_BASE_URL: "http://rundeck:4440"
+
+  rundeck:
+    image: jordan/rundeck
+    container_name: rundeck
+    environment:
+      SERVER_URL: "http://localhost:4440"
+    ports:
+      - "4440:4440"

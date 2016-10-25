@@ -27,7 +27,7 @@ class DeploymentService {
     interface RundeckApi {
         @POST("/api/14/job/{jobId}/run")
         fun runJob(@Header("Accept") accept: String = "application/json",
-                   @Header("X-Rundeck-Auth-Token") authToken: String,
+                   @Header("X-Rundeck-Auth-Token") apiToken: String,
                    @Path("jobId") jobId: String,
                    @Body executionOptions: ExecutionOptions): Call<ExecutionDetails>
     }
@@ -66,7 +66,7 @@ class DeploymentService {
                     .create(RundeckApi::class.java)
 
             val call = rundeckApi.runJob(
-                    authToken = config.deployment.authToken,
+                    apiToken = config.deployment.apiToken,
                     jobId = jobId,
                     executionOptions = ExecutionOptions(argString = buildArgString(jobArgs))
             )

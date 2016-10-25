@@ -2,8 +2,9 @@ buildscript {
     ext.version_kotlin = '1.0.4'
     ext.version_vertx = '3.2.1'
     ext.version_log4j = '2.5'
-    ext.version_thymeleaf = '2.1.4.RELEASE'
-    ext.version_guice = '4.0'
+    ext.version_jackson = '2.7.2'
+    ext.version_retrofit = '2.1.0'
+    ext.version_slackapi = '0.6.0'
 
     repositories {
         mavenCentral()
@@ -31,11 +32,11 @@ dependencies {
     compile "org.apache.logging.log4j:log4j-1.2-api:$version_log4j"
     compile "org.apache.logging.log4j:log4j-jul:$version_log4j"
 
-    compile "com.squareup.retrofit2:retrofit:2.1.0"
-    compile group: 'com.squareup.retrofit2', name: 'converter-jackson', version: '2.1.0'
-    compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.7.2"
+    compile "com.squareup.retrofit2:retrofit:$version_retrofit"
+    compile "com.squareup.retrofit2:converter-jackson:$version_retrofit"
+    compile "com.fasterxml.jackson.module:jackson-module-kotlin:$version_jackson"
 
-    compile ('com.github.ullink:simple-slack-api:0.6.0') {
+    compile ("com.github.ullink:simple-slack-api:$version_slackapi") {
         exclude module: 'logback-classic'
     }
 
@@ -43,18 +44,10 @@ dependencies {
     testCompile "org.jetbrains.kotlin:kotlin-test-junit:$version_kotlin"
 }
 
-mainClassName = 'io.vertx.core.Launcher'
+mainClassName = 'com.gatehill.rundeckbot.MainKt'
 
 task createStartScripts(type: CreateStartScripts) {
-    applicationName = 'rundeck'
-}
-
-applicationDistribution.from("templates/") {
-    into "templates"
-}
-
-applicationDistribution.from("static/") {
-    into "static"
+    applicationName = 'rundeck-slackbot'
 }
 
 task wrapper(type: Wrapper) {
