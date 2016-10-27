@@ -9,11 +9,13 @@ import com.ullink.slack.simpleslackapi.listeners.SlackMessagePostedListener
 import org.apache.logging.log4j.LogManager
 
 class ChatService {
-    data class Task(val jobId: String, val jobName: String, val version: String, val environment: String)
+    data class Task(val jobName: String,
+                    val version: String,
+                    val environment: String)
 
-    val logger = LogManager.getLogger(ChatService::class.java)!!
-    val config = Config()
-    val deploymentService = DeploymentService()
+    private val logger = LogManager.getLogger(ChatService::class.java)!!
+    private val config = Config()
+    private val deploymentService = DeploymentService()
 
     fun listenForEvents() {
         val session = SlackSessionFactory.createWebSocketSlackSession(config.chat.authToken)
@@ -65,7 +67,7 @@ class ChatService {
                 Pair("version", task.version)
         )
 
-        val future = deploymentService.triggerJob(task.jobId, jobArgs)
+        val future = deploymentService.triggerJob(task.jobName, jobArgs)
 
         future.whenComplete { executionDetails, throwable ->
             if (future.isCompletedExceptionally) {
@@ -94,8 +96,6 @@ _@${session.sessionPersona().userName} *deploy* <project name> <version> *to* <e
         }
 
         val jobName = splitCmd[2]
-        val jobId = convertJobNameToId(jobName)
-
         val version = splitCmd[3]
 
         if (splitCmd[4] != "to") {
@@ -104,10 +104,6 @@ _@${session.sessionPersona().userName} *deploy* <project name> <version> *to* <e
 
         val environment = splitCmd[5]
 
-        return Task(jobId, jobName, version, environment)
-    }
-
-    private fun convertJobNameToId(jobName: String): String {
-        return "9374f1c8-7b3f-4145-8556-6b55551fb60f"
+        return Task(jobName, version, environment)
     }
 }

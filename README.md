@@ -16,6 +16,7 @@ The quickest way to get up and running is to use the Docker image:
             --env SLACK_CHANNEL_NAME="rundeck-slackbot" \
             --env RUNDECK_API_TOKEN="CHANGEME" \
             --env RUNDECK_BASE_URL="http://rundeck:4440" \
+            -v /path/to/config/dir:/opt/rundeck-slackbot/config \
             outofcoffee/rundeck-slackbot
 
 Note: the container doesn't require any inbound ports to be exposed.
@@ -71,5 +72,5 @@ As an example, here is an unofficial Rundeck Docker image: https://hub.docker.co
 ## Roadmap
 
 * Lock/unlock command (with confirmation if unlocking another user's lock)
-* Mapping file for job ID to job alias at `$CONFIG_DIR/jobs.json`
 * Last deployment query (what version, who triggered it etc.)
+* Job config templates, using placeholders for job options

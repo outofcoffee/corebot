@@ -4,6 +4,7 @@
             <options preserveOrder='true'>
                 <option name='environment' value='foo' />
                 <option name='version' value='bar' />
+                <option name='myOption' value='baz' />
             </options>
         </context>
         <description></description>
@@ -14,7 +15,7 @@
         <scheduleEnabled>false</scheduleEnabled>
         <sequence keepgoing='false' strategy='node-first'>
             <command>
-                <script><![CDATA[echo "Value of RD_OPTION_VERSION=$RD_OPTION_VERSION"]]></script>
+                <script><![CDATA[echo "Value of VERSION option=$RD_OPTION_VERSION"]]></script>
                 <scriptargs />
             </command>
         </sequence>
