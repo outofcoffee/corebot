@@ -1,6 +1,7 @@
 package com.gatehill.rundeckbot.chat
 
-import com.gatehill.rundeckbot.Config
+import com.gatehill.rundeckbot.config.ConfigService
+import com.gatehill.rundeckbot.config.Settings
 import com.gatehill.rundeckbot.deployment.DeploymentService
 import com.ullink.slack.simpleslackapi.SlackSession
 import com.ullink.slack.simpleslackapi.events.SlackMessagePosted
@@ -8,21 +9,27 @@ import com.ullink.slack.simpleslackapi.impl.SlackSessionFactory
 import com.ullink.slack.simpleslackapi.listeners.SlackMessagePostedListener
 import org.apache.logging.log4j.LogManager
 
+/**
+ * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
+ */
 class ChatService {
-    data class Task(val jobName: String,
-                    val version: String,
-                    val environment: String)
+    /**
+     * Represents a task to perform.
+     */
+    data class Task(val job: ConfigService.JobConfig,
+                    val jobArgs: Map<String, String>)
 
     private val logger = LogManager.getLogger(ChatService::class.java)!!
-    private val config = Config()
+    private val settings = Settings()
     private val deploymentService = DeploymentService()
+    private val templateService = TemplateService()
 
     fun listenForEvents() {
-        val session = SlackSessionFactory.createWebSocketSlackSession(config.chat.authToken)
+        val session = SlackSessionFactory.createWebSocketSlackSession(settings.chat.authToken)
         session.connect()
         session.addMessagePostedListener(SlackMessagePostedListener { event, theSession ->
             // filter out messages from other channels
-            val theChannel = theSession.findChannelByName(config.chat.channelName)
+            val theChannel = theSession.findChannelByName(settings.chat.channelName)
             if (theChannel.id != event.channel.id) {
                 return@SlackMessagePostedListener
             }
@@ -59,15 +66,20 @@ class ChatService {
     private fun handleTask(session: SlackSession, event: SlackMessagePosted, task: Task) {
         logger.info("Handling task: {}", task)
 
-        session.sendMessage(event.channel,
-                "OK, I'm deploying ${task.jobName} version ${task.version} to ${task.environment}.")
+        // respond with acknowledgement
+        val msg = StringBuilder()
+        msg.append("OK, I'm deploying *${task.job.name}*")
+        if (task.jobArgs.size > 0) {
+            msg.append(" with these options:")
+            task.jobArgs.forEach { arg -> msg.append("\r\n- ${arg.key}: _${arg.value}_") }
 
-        val jobArgs = mapOf(
-                Pair("environment", task.environment),
-                Pair("version", task.version)
-        )
+        } else {
+            msg.append(".")
+        }
+        session.sendMessage(event.channel, msg.toString())
 
-        val future = deploymentService.triggerJob(task.jobName, jobArgs)
+        // schedule job execution
+        val future = deploymentService.triggerJob(task.job, task.jobArgs)
 
         future.whenComplete { executionDetails, throwable ->
             if (future.isCompletedExceptionally) {
@@ -75,35 +87,50 @@ class ChatService {
                         "Hmm, something went wrong :(\r\n```${throwable.message}```")
             } else {
                 session.sendMessage(event.channel,
-                        "Status of job is: ${executionDetails.status}\r\nDetails: ${executionDetails.permalink}")
+                        "*Status of job is:* ${executionDetails.status}\r\n*Details:* ${executionDetails.permalink}")
             }
         }
     }
 
     private fun printUsage(event: SlackMessagePosted, session: SlackSession) {
-        session.sendMessage(event.channel, """Sorry, I didn't understand :slightly_frowning_face: Try something like this:
+        session.sendMessage(event.channel,
+                """Sorry, I didn't understand :slightly_frowning_face: Try something like this:
 _@${session.sessionPersona().userName} *deploy* <project name> <version> *to* <environment>_
 """)
     }
 
-    fun parseMessage(splitCmd: List<String>): Task? {
-        if (splitCmd.size < 6) {
+    /**
+     * Determine the Task to perform based on the provided command.
+     */
+    private fun parseMessage(splitCmd: List<String>): Task? {
+        val joinedMessage = splitCmd.joinToString()
+        try {
+            val context = templateService.fetchCandidates()
+
+            // skip element 0, which contains the bot's username
+            splitCmd.subList(1, splitCmd.size).forEach {
+                token ->
+                templateService.process(context, token)
+            }
+
+            when (context.candidates.size) {
+                0 -> throw IllegalStateException("No candidates found for command: $joinedMessage")
+
+                1 -> {
+                    val candidate = context.candidates[0]
+
+                    if (candidate.tokens.size > 0)
+                        throw IllegalStateException("Too few tokens for candidate: ${candidate.job.template}")
+
+                    return Task(candidate.job, candidate.placeholderValues)
+                }
+
+                else -> throw IllegalStateException("Could not find unique matching candidate for command: $joinedMessage")
+            }
+
+        } catch(e: IllegalStateException) {
+            logger.warn("Unable to parse message: {} - {}", joinedMessage, e.message)
             return null
         }
-
-        if (splitCmd[1] != "deploy") {
-            return null
-        }
-
-        val jobName = splitCmd[2]
-        val version = splitCmd[3]
-
-        if (splitCmd[4] != "to") {
-            return null
-        }
-
-        val environment = splitCmd[5]
-
-        return Task(jobName, version, environment)
     }
 }

@@ -73,4 +73,3 @@ As an example, here is an unofficial Rundeck Docker image: https://hub.docker.co
 
 * Lock/unlock command (with confirmation if unlocking another user's lock)
 * Last deployment query (what version, who triggered it etc.)
-* Job config templates, using placeholders for job options

@@ -3,7 +3,8 @@ package com.gatehill.rundeckbot.deployment
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import com.gatehill.rundeckbot.Config
+import com.gatehill.rundeckbot.config.Settings
+import com.gatehill.rundeckbot.config.ConfigService
 import org.apache.logging.log4j.LogManager
 import retrofit2.Call
 import retrofit2.Callback
@@ -14,16 +15,14 @@ import retrofit2.http.Body
 import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Path
-import java.io.File
 import java.util.concurrent.CompletableFuture
 
 /**
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
-
 class DeploymentService {
     /**
-     * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
+     * Represents the RPC to trigger a job.
      */
     interface RundeckApi {
         @POST("/api/14/job/{jobId}/run")
@@ -49,43 +48,29 @@ class DeploymentService {
                                 val permalink: String,
                                 val status: String)
 
-    /**
-     * Top level job config file wrapper.
-     */
-    data class JobConfigWrapper(val version: String?,
-                                val jobs: Map<String, JobConfig>?)
-
-    /**
-     * Models a job configuration.
-     */
-    data class JobConfig(val jobId: String?,
-                         val options: Map<String, String>?)
-
-    private val configFileVersion = "1"
     private val logger = LogManager.getLogger(DeploymentService::class.java)!!
-    private val config = Config()
+    private val settings = Settings()
     private val objectMapper = ObjectMapper().registerKotlinModule()
 
     /**
      * Trigger the specified job with the given arguments.
      */
-    fun triggerJob(jobName: String, executionArgs: Map<String, String>): CompletableFuture<ExecutionDetails> {
+    fun triggerJob(job: ConfigService.JobConfig, executionArgs: Map<String, String>): CompletableFuture<ExecutionDetails> {
         val future = CompletableFuture<ExecutionDetails>()
         try {
-            val job = loadJobs()[jobName] ?: throw RuntimeException("No job config found with name '${jobName}")
-            val jobId = job.jobId ?: throw RuntimeException("No ID found for job with name '${jobName}")
+            val jobId = job.jobId ?: throw RuntimeException("No ID found for job '${job.name}")
 
             val allArgs = executionArgs.plus(job.options ?: emptyMap())
-            logger.info("Triggering job: {} ({}) with args: {}", jobName, jobId, allArgs)
+            logger.info("Triggering job: {} ({}) with args: {}", job.name, jobId, allArgs)
 
             val rundeckApi = Retrofit.Builder()
-                    .baseUrl(config.deployment.baseUrl)
+                    .baseUrl(settings.deployment.baseUrl)
                     .addConverterFactory(JacksonConverterFactory.create(objectMapper))
                     .build()
                     .create(RundeckApi::class.java)
 
             val call = rundeckApi.runJob(
-                    apiToken = config.deployment.apiToken,
+                    apiToken = settings.deployment.apiToken,
                     jobId = jobId,
                     executionOptions = ExecutionOptions(argString = buildArgString(allArgs))
             )
@@ -112,19 +97,6 @@ class DeploymentService {
         }
 
         return future
-    }
-
-    private fun loadJobs(): Map<String, JobConfig> {
-        val jobConfigFile = File(config.configDir, "jobs.json")
-
-        val jobConfig = objectMapper.readValue(jobConfigFile, JobConfigWrapper::class.java) ?:
-                throw RuntimeException("Job configuration at ${jobConfigFile} was null")
-
-        assert(configFileVersion == jobConfig.version) {
-            "Unsupported job config version: ${jobConfig.version} (expected '${configFileVersion}')"
-        }
-
-        return jobConfig.jobs ?: throw IllegalStateException("No jobs section found in configuration")
     }
 
     private fun buildArgString(args: Map<String, String>): String {
