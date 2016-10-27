@@ -1,5 +1,16 @@
 # Rundeck Slack bot
 
+## Usage
+
+Example:
+
+    @rundeckbot deploy user-service 1.0 to staging
+    
+    > rundeckbot:
+    > OK, I'm deploying user-service version 1.0 to staging.
+    > Status of job is: running
+    > Details: http://rundeck/jobs/abc/123
+
 ## Instructions
 
 * As a Slack admin, create a Slack bot user and obtain its auth token 
@@ -20,17 +31,6 @@ The quickest way to get up and running is to use the Docker image:
             outofcoffee/rundeck-slackbot
 
 Note: the container doesn't require any inbound ports to be exposed.
-
-## Usage
-
-Example:
-
-    @rundeckbot deploy user-service 1.0 to staging
-    
-    > rundeckbot:
-    > OK, I'm deploying user-service version 1.0 to staging.
-    > Status of job is: running
-    > Details: http://rundeck/jobs/abc/123
 
 ## Build
 

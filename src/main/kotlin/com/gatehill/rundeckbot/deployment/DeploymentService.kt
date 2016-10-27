@@ -92,7 +92,7 @@ class DeploymentService {
 
             call.enqueue(object : Callback<ExecutionDetails> {
                 override fun onFailure(call: Call<ExecutionDetails>, t: Throwable) {
-                    logger.info("Error triggering job: {} with args: {}", jobId, allArgs, t)
+                    logger.error("Error triggering job: {} with args: {}", jobId, allArgs, t)
                     future.completeExceptionally(t)
                 }
 
