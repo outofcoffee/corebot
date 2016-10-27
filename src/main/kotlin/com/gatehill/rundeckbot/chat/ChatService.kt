@@ -16,8 +16,10 @@ class ChatService {
     /**
      * Represents a task to perform.
      */
-    data class Task(val job: ConfigService.JobConfig,
-                    val jobArgs: Map<String, String>)
+    data class Task(val action: ConfigService.TaskAction,
+                    val job: ConfigService.JobConfig,
+                    val jobArgs: Map<String, String>,
+                    val actionMessage: String)
 
     private val logger = LogManager.getLogger(ChatService::class.java)!!
     private val settings = Settings()
@@ -68,24 +70,15 @@ class ChatService {
         logger.info("Handling task: {}", task)
 
         // respond with acknowledgement
-        val msg = StringBuilder()
-        msg.append("OK, I'm deploying *${task.job.name}*")
-        if (task.jobArgs.size > 0) {
-            msg.append(" with these options:")
-            task.jobArgs.forEach { arg -> msg.append("\r\n- ${arg.key}: _${arg.value}_") }
-
-        } else {
-            msg.append(".")
-        }
-        session.sendMessage(event.channel, msg.toString())
+        session.sendMessage(event.channel, task.actionMessage)
 
         // schedule job execution
-        val future = deploymentService.triggerJob(task.job, task.jobArgs)
+        val future = deploymentService.perform(task.action, event.sender.userName, task.job, task.jobArgs)
 
         future.whenComplete { executionDetails, throwable ->
             if (future.isCompletedExceptionally) {
                 session.sendMessage(event.channel,
-                        "Hmm, something went wrong :(\r\n```${throwable.message}```")
+                        "Hmm, something went wrong :face_with_head_bandage:\r\n```${throwable.message}```")
             } else {
                 session.sendMessage(event.channel,
                         "*Status of job is:* ${executionDetails.status}\r\n*Details:* ${executionDetails.permalink}")
@@ -94,16 +87,18 @@ class ChatService {
     }
 
     private fun printUsage(event: SlackMessagePosted, session: SlackSession) {
-        val msg = StringBuilder("Sorry, I didn't understand :slightly_frowning_face:")
+        val msg = StringBuilder()
 
-        val jobs = configService.loadJobs().values
-        if (jobs.size > 0) {
-            msg.append(" Try something like this:")
-            jobs.forEach { job ->
-                msg.append("\r\n_@${session.sessionPersona().userName} ${job.template}_")
-            }
+        if (configService.loadJobs().isEmpty()) {
+            msg.append("Oops :broken_heart: you don't have any jobs configured - add some to _${configService.jobConfigFileName}_")
+
         } else {
-            msg.append(" Try adding some jobs to _${configService.jobConfigFileName}_")
+            msg.append("Sorry, I didn't understand :slightly_frowning_face: Try one of these:")
+
+            templateService.fetchCandidates().candidates.forEach { candidate ->
+                val template = candidate.tokens.joinToString(" ")
+                msg.append("\r\n_@${session.sessionPersona().userName} ${template}_")
+            }
         }
 
         session.sendMessage(event.channel, msg.toString())
@@ -120,7 +115,8 @@ class ChatService {
 
             // skip element 0, which contains the bot's username
             splitCmd.subList(1, splitCmd.size).forEach {
-                token -> templateService.process(context, token)
+                token ->
+                templateService.process(context, token)
             }
 
             when (context.candidates.size) {
@@ -130,7 +126,7 @@ class ChatService {
                     if (candidate.tokens.size > 0)
                         throw IllegalStateException("Too few tokens for candidate: ${candidate.job.template}")
 
-                    return Task(candidate.job, candidate.placeholderValues)
+                    return Task(candidate.action, candidate.job, candidate.placeholderValues, candidate.buildMessage())
                 }
 
                 0 -> throw IllegalStateException("No candidates found for command: $joinedMessage")

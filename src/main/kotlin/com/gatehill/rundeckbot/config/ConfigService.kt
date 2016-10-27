@@ -22,6 +22,14 @@ class ConfigService {
                          val options: Map<String, String>?,
                          val template: String?)
 
+    enum class TaskAction {
+        TRIGGER,
+        ENABLE,
+        DISABLE,
+        LOCK,
+        UNLOCK
+    }
+
     private val configFileVersion = "1"
     private val objectMapper = ObjectMapper().registerKotlinModule()
     private val settings = Settings()
@@ -32,7 +40,7 @@ class ConfigService {
         val jobConfigFile = File(settings.configDir, jobConfigFileName)
 
         val jobConfig = objectMapper.readValue(jobConfigFile, JobConfigWrapper::class.java) ?:
-                throw RuntimeException("Job configuration at ${jobConfigFile} was null")
+                throw IllegalStateException("Job configuration at ${jobConfigFile} was null")
 
         assert(configFileVersion == jobConfig.version) {
             "Unsupported job settings version: ${jobConfig.version} (expected '${configFileVersion}')"
@@ -40,7 +48,10 @@ class ConfigService {
 
         val jobs = jobConfig.jobs ?: throw IllegalStateException("No jobs section found in configuration")
 
-        jobs.forEach { job -> job.value.name = job.key }
+        jobs.forEach { job ->
+            job.value.name = job.key
+            job.value.jobId ?: throw IllegalStateException("No ID found for job '${job.value.name}")
+        }
 
         return jobs
     }
