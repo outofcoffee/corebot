@@ -23,6 +23,7 @@ class ChatService {
     private val settings = Settings()
     private val deploymentService = DeploymentService()
     private val templateService = TemplateService()
+    private val configService = ConfigService()
 
     fun listenForEvents() {
         val session = SlackSessionFactory.createWebSocketSlackSession(settings.chat.authToken)
@@ -93,10 +94,19 @@ class ChatService {
     }
 
     private fun printUsage(event: SlackMessagePosted, session: SlackSession) {
-        session.sendMessage(event.channel,
-                """Sorry, I didn't understand :slightly_frowning_face: Try something like this:
-_@${session.sessionPersona().userName} *deploy* <project name> <version> *to* <environment>_
-""")
+        val msg = StringBuilder("Sorry, I didn't understand :slightly_frowning_face:")
+
+        val jobs = configService.loadJobs().values
+        if (jobs.size > 0) {
+            msg.append(" Try something like this:")
+            jobs.forEach { job ->
+                msg.append("\r\n_@${session.sessionPersona().userName} ${job.template}_")
+            }
+        } else {
+            msg.append(" Try adding some jobs to _${configService.jobConfigFileName}_")
+        }
+
+        session.sendMessage(event.channel, msg.toString())
     }
 
     /**
@@ -104,18 +114,16 @@ _@${session.sessionPersona().userName} *deploy* <project name> <version> *to* <e
      */
     private fun parseMessage(splitCmd: List<String>): Task? {
         val joinedMessage = splitCmd.joinToString()
+
         try {
             val context = templateService.fetchCandidates()
 
             // skip element 0, which contains the bot's username
             splitCmd.subList(1, splitCmd.size).forEach {
-                token ->
-                templateService.process(context, token)
+                token -> templateService.process(context, token)
             }
 
             when (context.candidates.size) {
-                0 -> throw IllegalStateException("No candidates found for command: $joinedMessage")
-
                 1 -> {
                     val candidate = context.candidates[0]
 
@@ -125,6 +133,7 @@ _@${session.sessionPersona().userName} *deploy* <project name> <version> *to* <e
                     return Task(candidate.job, candidate.placeholderValues)
                 }
 
+                0 -> throw IllegalStateException("No candidates found for command: $joinedMessage")
                 else -> throw IllegalStateException("Could not find unique matching candidate for command: $joinedMessage")
             }
 

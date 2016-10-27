@@ -26,8 +26,10 @@ class ConfigService {
     private val objectMapper = ObjectMapper().registerKotlinModule()
     private val settings = Settings()
 
+    val jobConfigFileName = "jobs.json"
+
     fun loadJobs(): Map<String, JobConfig> {
-        val jobConfigFile = File(settings.configDir, "jobs.json")
+        val jobConfigFile = File(settings.configDir, jobConfigFileName)
 
         val jobConfig = objectMapper.readValue(jobConfigFile, JobConfigWrapper::class.java) ?:
                 throw RuntimeException("Job configuration at ${jobConfigFile} was null")

@@ -48,10 +48,10 @@ class TemplateService {
     private val templatedJobs: MutableList<ConfigService.JobConfig> = ArrayList()
 
     constructor() {
-        configService.loadJobs().forEach { job ->
-            val template = job.value.template
+        configService.loadJobs().values.forEach { job ->
+            val template = job.template
             if (null != template) {
-                templatedJobs.add(job.value)
+                templatedJobs.add(job)
             }
         }
         logger.debug("Loaded ${templatedJobs.size} templated jobs")
