@@ -71,9 +71,9 @@ class DeploymentService {
      * Trigger the specified job with the given arguments.
      */
     fun perform(action: ConfigService.TaskAction, sender: String, job: ConfigService.JobConfig,
-                executionArgs: Map<String, String>): CompletableFuture<ExecutionDetails> {
+                executionArgs: Map<String, String>): CompletableFuture<String> {
 
-        val future = CompletableFuture<ExecutionDetails>()
+        val future = CompletableFuture<String>()
         try {
             when (action) {
                 ConfigService.TaskAction.TRIGGER -> trigger(future, job, executionArgs)
@@ -88,7 +88,7 @@ class DeploymentService {
         return future
     }
 
-    private fun trigger(future: CompletableFuture<ExecutionDetails>, job: ConfigService.JobConfig, executionArgs: Map<String, String>) {
+    private fun trigger(future: CompletableFuture<String>, job: ConfigService.JobConfig, executionArgs: Map<String, String>) {
         val jobId = job.jobId!!
 
         val lock = locks[jobId]
@@ -114,8 +114,11 @@ class DeploymentService {
 
             override fun onResponse(call: Call<ExecutionDetails>, response: Response<ExecutionDetails>) {
                 if (response.isSuccessful) {
-                    logger.info("Successfully triggered job: {} with args: {} - response: {}", jobId, args, response.body())
-                    future.complete(response.body())
+                    val executionDetails = response.body()
+                    logger.info("Successfully triggered job: {} with args: {} - response: {}", jobId, args, executionDetails)
+                    future.complete("""*Job status:* ${executionDetails.status}${ if (executionDetails.status == "running") " :thumbsup:" else "" }
+*Details:* ${executionDetails.permalink}""")
+
                 } else {
                     val errorBody = response.errorBody().string()
                     logger.error("Unsuccessfully triggered job: {} with args: {} - response: {}", jobId, args, errorBody)
@@ -125,7 +128,7 @@ class DeploymentService {
         })
     }
 
-    private fun enableExecutions(future: CompletableFuture<ExecutionDetails>, job: ConfigService.JobConfig, enable : Boolean) {
+    private fun enableExecutions(future: CompletableFuture<String>, job: ConfigService.JobConfig, enable : Boolean) {
         logger.info("Setting job: {} ({}) enabled to {}", job.name, job.jobId, enable)
 
         val call: Call<HashMap<String, Any>>
@@ -150,9 +153,7 @@ class DeploymentService {
             override fun onResponse(call: Call<HashMap<String, Any>>, response: Response<HashMap<String, Any>>) {
                 if (response.isSuccessful) {
                     logger.info("Successfully enabled job: {} - response: {}", job.jobId, response.body())
-
-                    // TODO improve status reporting
-                    future.complete(ExecutionDetails(0, "", ""))
+                    future.complete("I've ${ if (enable) "enabled" else "disabled" } *${job.name}*.")
 
                 } else {
                     val errorBody = response.errorBody().string()
@@ -163,38 +164,40 @@ class DeploymentService {
         })
     }
 
-    private fun acquireLock(future: CompletableFuture<ExecutionDetails>, job: ConfigService.JobConfig, sender: String) {
+    private fun acquireLock(future: CompletableFuture<String>, job: ConfigService.JobConfig, sender: String) {
         val jobId = job.jobId!!
 
         val lock = locks[jobId]
         if (null != lock) {
-            // already locked
-            future.completeExceptionally(IllegalStateException("Lock for ${job.name} is already owned by @${lock.owner}"))
+            if (lock.owner == sender) {
+                // already locked by self
+                future.complete("BTW, you already had the lock for *${job.name}* :wink:")
+
+            } else {
+                // locked by someone else
+                future.completeExceptionally(IllegalStateException(
+                        "The lock for ${job.name} is already held by @${lock.owner}"))
+            }
 
         } else{
             // acquire
             locks[jobId] = Lock(sender)
-
-            // TODO improve status reporting
-            future.complete(ExecutionDetails(0, "", ""))
+            future.complete("OK, you've locked *${job.name}*.")
         }
     }
 
-    private fun unlock(future: CompletableFuture<ExecutionDetails>, job: ConfigService.JobConfig) {
+    private fun unlock(future: CompletableFuture<String>, job: ConfigService.JobConfig) {
         val jobId = job.jobId!!
 
         val lock = locks[jobId]
         if (null != lock) {
             // unlock
             locks.remove(jobId)
-
-            // TODO improve status reporting
-            future.complete(ExecutionDetails(0, "", ""))
+            future.complete("OK, you've unlocked *${job.name}*.")
 
         } else{
             // already unlocked
-            // TODO improve status reporting
-            future.complete(ExecutionDetails(0, "", ""))
+            future.complete("BTW, *${job.name}* was already unlocked :wink:")
         }
     }
 

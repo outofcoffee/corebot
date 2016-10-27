@@ -71,5 +71,5 @@ As an example, here is an unofficial Rundeck Docker image: https://hub.docker.co
 
 ## Roadmap
 
-* Lock/unlock command (with confirmation if unlocking another user's lock)
+* Notify lock owner on unlock
 * Last deployment query (what version, who triggered it etc.)

@@ -75,13 +75,12 @@ class ChatService {
         // schedule job execution
         val future = deploymentService.perform(task.action, event.sender.userName, task.job, task.jobArgs)
 
-        future.whenComplete { executionDetails, throwable ->
+        future.whenComplete { resultMessage, throwable ->
             if (future.isCompletedExceptionally) {
                 session.sendMessage(event.channel,
                         "Hmm, something went wrong :face_with_head_bandage:\r\n```${throwable.message}```")
             } else {
-                session.sendMessage(event.channel,
-                        "*Status of job is:* ${executionDetails.status}\r\n*Details:* ${executionDetails.permalink}")
+                session.sendMessage(event.channel, resultMessage)
             }
         }
     }
