@@ -1,18 +1,28 @@
-package com.gatehill.rundeckbot.chat
+package com.gatehill.rundeckbot.action
 
 import com.gatehill.rundeckbot.config.ConfigService
+import com.gatehill.rundeckbot.config.JobConfig
 import java.util.*
 
+enum class ActionType {
+    TRIGGER,
+    ENABLE,
+    DISABLE,
+    LOCK,
+    UNLOCK,
+    STATUS
+}
+
 interface ActionTemplate {
-    val action: ConfigService.TaskAction
-    val job: ConfigService.JobConfig
+    val action: ActionType
+    val job: JobConfig
     val tokens: Queue<String>
     val placeholderValues: Map<String, String>
 
     fun accept(input: String): Boolean
 
     /**
-     * The response message sent when this action is fired.
+     * The response message sent when this actionType is fired.
      */
     fun buildMessage(): String {
         return "Just a min :clock1: I'm working on *${job.name}*..."
@@ -43,12 +53,12 @@ abstract class AbstractActionTemplate : ActionTemplate {
 }
 
 /**
- * Represents a boolean operation (on/off) for a job.
+ * Represents a simple operation for a job.
  */
-abstract class TogglableActionTemplate : AbstractActionTemplate() {
+abstract class GenericActionTemplate : AbstractActionTemplate() {
     protected val jobNamePlaceholder = "job name"
 
-    override lateinit var job: ConfigService.JobConfig
+    override lateinit var job: JobConfig
 
     override fun accept(input: String): Boolean {
         val accepted = super.accept(input)
@@ -71,11 +81,11 @@ abstract class TogglableActionTemplate : AbstractActionTemplate() {
  * Template to trigger job execution.
  */
 class TriggerActionTemplate : AbstractActionTemplate {
-    override val action: ConfigService.TaskAction = ConfigService.TaskAction.TRIGGER
-    override var job: ConfigService.JobConfig
+    override val action: ActionType = ActionType.TRIGGER
+    override var job: JobConfig
     override val tokens: Queue<String>
 
-    constructor(job: ConfigService.JobConfig) {
+    constructor(job: JobConfig) {
         this.job = job
         tokens = LinkedList(job.template!!.split("\\s".toRegex()))
     }
@@ -95,22 +105,27 @@ class TriggerActionTemplate : AbstractActionTemplate {
     }
 }
 
-class EnableActionTemplate : TogglableActionTemplate() {
-    override val action: ConfigService.TaskAction = ConfigService.TaskAction.ENABLE
+class EnableActionTemplate : GenericActionTemplate() {
+    override val action: ActionType = ActionType.ENABLE
     override val tokens: Queue<String> = LinkedList(listOf("enable", "{${jobNamePlaceholder}}"))
 }
 
-class DisableActionTemplate : TogglableActionTemplate() {
-    override val action: ConfigService.TaskAction = ConfigService.TaskAction.DISABLE
+class DisableActionTemplate : GenericActionTemplate() {
+    override val action: ActionType = ActionType.DISABLE
     override val tokens: Queue<String> = LinkedList(listOf("disable", "{${jobNamePlaceholder}}"))
 }
 
-class LockActionTemplate : TogglableActionTemplate() {
-    override val action: ConfigService.TaskAction = ConfigService.TaskAction.LOCK
+class LockActionTemplate : GenericActionTemplate() {
+    override val action: ActionType = ActionType.LOCK
     override val tokens: Queue<String> = LinkedList(listOf("lock", "{${jobNamePlaceholder}}"))
 }
 
-class UnlockActionTemplate : TogglableActionTemplate() {
-    override val action: ConfigService.TaskAction = ConfigService.TaskAction.UNLOCK
+class UnlockActionTemplate : GenericActionTemplate() {
+    override val action: ActionType = ActionType.UNLOCK
     override val tokens: Queue<String> = LinkedList(listOf("unlock", "{${jobNamePlaceholder}}"))
+}
+
+class StatusActionTemplate : GenericActionTemplate() {
+    override val action: ActionType = ActionType.STATUS
+    override val tokens: Queue<String> = LinkedList(listOf("status", "{${jobNamePlaceholder}}"))
 }

@@ -1,8 +1,10 @@
 package com.gatehill.rundeckbot.chat
 
+import com.gatehill.rundeckbot.action.ActionType
 import com.gatehill.rundeckbot.config.ConfigService
+import com.gatehill.rundeckbot.config.JobConfig
 import com.gatehill.rundeckbot.config.Settings
-import com.gatehill.rundeckbot.deployment.DeploymentService
+import com.gatehill.rundeckbot.action.ActionService
 import com.ullink.slack.simpleslackapi.SlackSession
 import com.ullink.slack.simpleslackapi.events.SlackMessagePosted
 import com.ullink.slack.simpleslackapi.impl.SlackSessionFactory
@@ -14,16 +16,16 @@ import org.apache.logging.log4j.LogManager
  */
 class ChatService {
     /**
-     * Represents a task to perform.
+     * Represents an action to perform.
      */
-    data class Task(val action: ConfigService.TaskAction,
-                    val job: ConfigService.JobConfig,
-                    val jobArgs: Map<String, String>,
-                    val actionMessage: String)
+    data class Action(val actionType: com.gatehill.rundeckbot.action.ActionType,
+                      val job: JobConfig,
+                      val jobArgs: Map<String, String>,
+                      val actionMessage: String)
 
     private val logger = LogManager.getLogger(ChatService::class.java)!!
     private val settings = Settings()
-    private val deploymentService = DeploymentService()
+    private val deploymentService = ActionService()
     private val templateService = TemplateService()
     private val configService = ConfigService()
 
@@ -66,14 +68,14 @@ class ChatService {
         })
     }
 
-    private fun handleTask(session: SlackSession, event: SlackMessagePosted, task: Task) {
-        logger.info("Handling task: {}", task)
+    private fun handleTask(session: SlackSession, event: SlackMessagePosted, action: Action) {
+        logger.info("Handling action: {}", action)
 
         // respond with acknowledgement
-        session.sendMessage(event.channel, task.actionMessage)
+        session.sendMessage(event.channel, action.actionMessage)
 
         // schedule job execution
-        val future = deploymentService.perform(task.action, event.sender.userName, task.job, task.jobArgs)
+        val future = deploymentService.perform(action.actionType, event.sender.userName, action.job, action.jobArgs)
 
         future.whenComplete { resultMessage, throwable ->
             if (future.isCompletedExceptionally) {
@@ -104,9 +106,9 @@ class ChatService {
     }
 
     /**
-     * Determine the Task to perform based on the provided command.
+     * Determine the Action to perform based on the provided command.
      */
-    private fun parseMessage(splitCmd: List<String>): Task? {
+    private fun parseMessage(splitCmd: List<String>): Action? {
         val joinedMessage = splitCmd.joinToString()
 
         try {
@@ -123,13 +125,11 @@ class ChatService {
                     val candidate = context.candidates[0]
 
                     if (candidate.tokens.size > 0)
-                        throw IllegalStateException("Too few tokens for candidate: ${candidate.job.template}")
+                        throw IllegalStateException("Too few tokens for action: ${candidate.job.template}")
 
-                    return Task(candidate.action, candidate.job, candidate.placeholderValues, candidate.buildMessage())
+                    return Action(candidate.action, candidate.job, candidate.placeholderValues, candidate.buildMessage())
                 }
-
-                0 -> throw IllegalStateException("No candidates found for command: $joinedMessage")
-                else -> throw IllegalStateException("Could not find unique matching candidate for command: $joinedMessage")
+                else -> throw IllegalStateException("Could not find a unique matching action for command: $joinedMessage")
             }
 
         } catch(e: IllegalStateException) {

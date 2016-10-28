@@ -1,6 +1,8 @@
 package com.gatehill.rundeckbot.chat
 
+import com.gatehill.rundeckbot.action.*
 import com.gatehill.rundeckbot.config.ConfigService
+import com.gatehill.rundeckbot.config.JobConfig
 import org.apache.logging.log4j.LogManager
 import java.util.*
 
@@ -11,11 +13,11 @@ class TemplateService {
     /**
      * Holds candidate templates.
      */
-    data class TemplateContext(var candidates: MutableList<ActionTemplate>)
+    data class TemplateContext(var candidates: MutableList<com.gatehill.rundeckbot.action.ActionTemplate>)
 
     private val logger = LogManager.getLogger(ChatService::class.java)!!
     private val configService = ConfigService()
-    private val templatedJobs: MutableList<ConfigService.JobConfig> = ArrayList()
+    private val templatedJobs: MutableList<JobConfig> = ArrayList()
 
     constructor() {
         configService.loadJobs().values.forEach { job ->
@@ -34,6 +36,7 @@ class TemplateService {
         candidates.add(UnlockActionTemplate())
         candidates.add(EnableActionTemplate())
         candidates.add(DisableActionTemplate())
+        candidates.add(StatusActionTemplate())
 
         return TemplateContext(candidates)
     }

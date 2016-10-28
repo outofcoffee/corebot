@@ -1,9 +1,11 @@
-package com.gatehill.rundeckbot.deployment
+package com.gatehill.rundeckbot.action
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import com.gatehill.rundeckbot.action.ActionType
 import com.gatehill.rundeckbot.config.ConfigService
+import com.gatehill.rundeckbot.config.JobConfig
 import com.gatehill.rundeckbot.config.Settings
 import org.apache.logging.log4j.LogManager
 import retrofit2.Call
@@ -21,7 +23,7 @@ import java.util.concurrent.CompletableFuture
 /**
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
-class DeploymentService {
+class ActionService {
     /**
      * Represents the RPC to trigger a job.
      */
@@ -63,24 +65,25 @@ class DeploymentService {
 
     private val locks: MutableMap<String, Lock> = mutableMapOf()
 
-    private val logger = LogManager.getLogger(DeploymentService::class.java)!!
+    private val logger = LogManager.getLogger(ActionService::class.java)!!
     private val settings = Settings()
     private val objectMapper = ObjectMapper().registerKotlinModule()
 
     /**
      * Trigger the specified job with the given arguments.
      */
-    fun perform(action: ConfigService.TaskAction, sender: String, job: ConfigService.JobConfig,
+    fun perform(action: com.gatehill.rundeckbot.action.ActionType, sender: String, job: JobConfig,
                 executionArgs: Map<String, String>): CompletableFuture<String> {
 
         val future = CompletableFuture<String>()
         try {
             when (action) {
-                ConfigService.TaskAction.TRIGGER -> trigger(future, job, executionArgs)
-                ConfigService.TaskAction.ENABLE -> enableExecutions(future, job, false)
-                ConfigService.TaskAction.DISABLE -> enableExecutions(future, job, true)
-                ConfigService.TaskAction.LOCK -> acquireLock(future, job, sender)
-                ConfigService.TaskAction.UNLOCK -> unlock(future, job)
+                com.gatehill.rundeckbot.action.ActionType.TRIGGER -> trigger(future, job, executionArgs)
+                com.gatehill.rundeckbot.action.ActionType.ENABLE -> enableExecutions(future, job, false)
+                com.gatehill.rundeckbot.action.ActionType.DISABLE -> enableExecutions(future, job, true)
+                com.gatehill.rundeckbot.action.ActionType.LOCK -> acquireLock(future, job, sender)
+                com.gatehill.rundeckbot.action.ActionType.UNLOCK -> unlock(future, job)
+                com.gatehill.rundeckbot.action.ActionType.STATUS -> showStatus(future, job)
             }
         } catch(e: Exception) {
             future.completeExceptionally(e)
@@ -88,7 +91,7 @@ class DeploymentService {
         return future
     }
 
-    private fun trigger(future: CompletableFuture<String>, job: ConfigService.JobConfig, executionArgs: Map<String, String>) {
+    private fun trigger(future: CompletableFuture<String>, job: JobConfig, executionArgs: Map<String, String>) {
         val jobId = job.jobId!!
 
         val lock = locks[jobId]
@@ -128,7 +131,7 @@ class DeploymentService {
         })
     }
 
-    private fun enableExecutions(future: CompletableFuture<String>, job: ConfigService.JobConfig, enable : Boolean) {
+    private fun enableExecutions(future: CompletableFuture<String>, job: JobConfig, enable : Boolean) {
         logger.info("Setting job: {} ({}) enabled to {}", job.name, job.jobId, enable)
 
         val call: Call<HashMap<String, Any>>
@@ -164,7 +167,7 @@ class DeploymentService {
         })
     }
 
-    private fun acquireLock(future: CompletableFuture<String>, job: ConfigService.JobConfig, sender: String) {
+    private fun acquireLock(future: CompletableFuture<String>, job: JobConfig, sender: String) {
         val jobId = job.jobId!!
 
         val lock = locks[jobId]
@@ -182,23 +185,36 @@ class DeploymentService {
         } else{
             // acquire
             locks[jobId] = Lock(sender)
-            future.complete("OK, you've locked *${job.name}*.")
+            future.complete("OK, you've locked :lock: *${job.name}*.")
         }
     }
 
-    private fun unlock(future: CompletableFuture<String>, job: ConfigService.JobConfig) {
+    private fun unlock(future: CompletableFuture<String>, job: JobConfig) {
         val jobId = job.jobId!!
 
         val lock = locks[jobId]
         if (null != lock) {
             // unlock
             locks.remove(jobId)
-            future.complete("OK, you've unlocked *${job.name}*.")
+            future.complete("OK, you've unlocked :unlock: *${job.name}*.")
 
         } else{
             // already unlocked
             future.complete("BTW, *${job.name}* was already unlocked :wink:")
         }
+    }
+
+    private fun showStatus(future: CompletableFuture<String>, job: JobConfig) {
+        val  msg = StringBuilder("Status of *${job.name}*: ")
+
+        val lock = locks[job.jobId!!]
+        if (null != lock) {
+            msg.append("locked :lock: by @${lock.owner}")
+        } else{
+            msg.append("unlocked :unlock:")
+        }
+
+        future.complete(msg.toString())
     }
 
     private fun buildRundeckApi(): RundeckApi {

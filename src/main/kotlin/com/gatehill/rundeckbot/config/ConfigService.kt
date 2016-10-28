@@ -14,22 +14,6 @@ class ConfigService {
     data class JobConfigWrapper(val version: String?,
                                 val jobs: Map<String, JobConfig>?)
 
-    /**
-     * Models a job configuration.
-     */
-    data class JobConfig(var name: String?,
-                         val jobId: String?,
-                         val options: Map<String, String>?,
-                         val template: String?)
-
-    enum class TaskAction {
-        TRIGGER,
-        ENABLE,
-        DISABLE,
-        LOCK,
-        UNLOCK
-    }
-
     private val configFileVersion = "1"
     private val objectMapper = ObjectMapper().registerKotlinModule()
     private val settings = Settings()
