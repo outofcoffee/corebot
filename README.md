@@ -71,13 +71,117 @@ Once built, set the following environment variables in `docker-compose.yml`:
     RUNDECK_BASE_URL: "http://rundeck:4440"
     BOT_CONFIG: "/path/to/actions.yaml"
     
-> Note: the default path for _BOT_CONFIG_ is `/opt/rundeck-slackbot/actions.yml`
+> Note: the default path for `BOT_CONFIG` is `/opt/rundeck-slackbot/actions.yml`
 
 Then run with:
 
     docker-compose up
 
 If you change anything, don't forget to rebuild before running again.
+
+## Actions and configuration
+
+The bot has both built-in actions and custom actions. Examples of built in actions are the lock/unlock actions. Custom actions are triggers for your Rundeck jobs, configured using a configuration file, typically called `actions.yml`.
+
+### Action configuration file
+
+> Note: the default path for `BOT_CONFIG` is `/opt/rundeck-slackbot/actions.yml`
+
+_Example:_
+```
+version: '1'
+actions:
+  services:
+    jobId: 9374f1c8-7b3f-4145-8556-6b55551fb60f
+    template: deploy services {version} to {environment}
+```
+
+File structure:
+
+* All files must specify version ‘1’
+* All actions must sit under a top level `actions` block
+* Each action must have a name (it’s `services` in this example)
+* Each action must have a Rundeck job ID (obtain this from Rundeck)
+* Each action must have a template - more details below
+* Each action may optionally specify a map of default options
+* Each action may optionally specify a list of tags
+
+#### Action template
+
+An action template provides the syntax for invoking the command. 
+
+_Example:_
+
+	deploy services
+
+A template also allows you to specify job options as placeholders, such as:
+
+	deploy services {version} to {environment}
+
+In this example both _version_ and _environment_ are captured from the command, such as:
+
+	@rundeckbot deploy services 1.0 to UAT
+
+This will result in the action being fired, passing the following options:
+
+- version=1.0
+- environment=UAT
+
+#### Default options
+
+Sometimes you might want to pass an option to a job by default, and not require the user to provide it. You can do this with the `options` action block:
+
+```
+version: '1'
+actions:
+  services:
+    jobId: 9374f1c8-7b3f-4145-8556-6b55551fb60f
+    template: deploy services {version} to {environment}
+    options:
+	    myOption: someValue
+```
+
+This will result in the action being fired, passing the following options:
+
+- version=1.0
+- environment=UAT
+- _myOption=someValue_
+
+#### Tags and multiple job actions
+
+Sometimes actions can be run on multiple jobs. To do this, set the `tags` block:
+
+```
+version: '1'
+actions:
+  deploy-services:
+    jobId: 9374f1c8-7b3f-4145-8556-6b55551fb60f
+    template: deploy services {version} to {environment}
+    tags:
+	    - services
+	    
+  restart-services:
+    jobId: e9d12eec-abff-4780-89cd-56a48b8c67be
+    template: restart services in {environment}
+    tags:
+	    - services
+```
+
+Here, two actions are defined: `deploy-services` and `restart-services`, both tagged with `services`. This means you can do things like:
+
+	@rundeckbot lock services
+
+…and both actions will be locked.
+
+### Built-in actions
+
+There are a number of built in actions, such as:
+
+* `@rundeckbot lock {job name}` - lock an action to prevent being accidentally trigger.
+* `@rundeckbot unlock {job name}` - unlock a locked action.
+* `@rundeckbot status {job name}` - show status of an action, such as whether it’s locked.
+* `@rundeckbot enable {job name}` - set the Rundeck execution status for a job - *Note:* this requires the Rundeck ACL to enable the API user to set the execution status of a job.
+* `@rundeckbot disable {job name}` - set the Rundeck execution status for a job - *Note:* this requires the Rundeck ACL to enable the API user to set the execution status of a job.
 
 ## More info
 
@@ -98,8 +202,9 @@ As an example, here is an unofficial Rundeck Docker image: https://hub.docker.co
 
 ## Roadmap
 
-* Notify lock owner on unlock
-* Last deployment query (what version, who triggered it etc.)
+* Notify lock owner on unlock.
+* Last deployment query (what version, who triggered it etc.).
+* Status check should query Rundeck job status.
 
 ## Contributing
 

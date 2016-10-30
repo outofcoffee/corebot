@@ -68,8 +68,6 @@ class ActionService {
     }
 
     private fun trigger(future: CompletableFuture<String>, action: ActionConfig, args: Map<String, String>) {
-        val jobId = action.jobId!!
-
         val lock = locks[action]
         if (null != lock) {
             future.completeExceptionally(IllegalStateException("The '${action.name}' action is locked by @${lock.owner}"))
@@ -77,30 +75,30 @@ class ActionService {
         }
 
         val allArgs = args.plus(action.options ?: emptyMap())
-        logger.info("Triggering action: {} with job ID: {} and args: {}", action.name, jobId, allArgs)
+        logger.info("Triggering action: {} with job ID: {} and args: {}", action.name, action.jobId, allArgs)
 
         val call = buildRundeckApi().runJob(
                 apiToken = settings.deployment.apiToken,
-                jobId = jobId,
+                jobId = action.jobId,
                 executionOptions = ExecutionOptions(argString = buildArgString(allArgs))
         )
 
         call.enqueue(object : Callback<ExecutionDetails> {
             override fun onFailure(call: Call<ExecutionDetails>, t: Throwable) {
-                logger.error("Error triggering job with ID: {} and args: {}", jobId, allArgs, t)
+                logger.error("Error triggering job with ID: {} and args: {}", action.jobId, allArgs, t)
                 future.completeExceptionally(t)
             }
 
             override fun onResponse(call: Call<ExecutionDetails>, response: Response<ExecutionDetails>) {
                 if (response.isSuccessful) {
                     val executionDetails = response.body()
-                    logger.info("Successfully triggered job with ID: {} and args: {} - response: {}", jobId, allArgs, executionDetails)
+                    logger.info("Successfully triggered job with ID: {} and args: {} - response: {}", action.jobId, allArgs, executionDetails)
                     future.complete("""*Job status:* ${executionDetails.status}${if (executionDetails.status == "running") " :thumbsup:" else ""}
 *Details:* ${executionDetails.permalink}""")
 
                 } else {
                     val errorBody = response.errorBody().string()
-                    logger.error("Unsuccessfully triggered job with ID: {} and args: {} - response: {}", jobId, allArgs, errorBody)
+                    logger.error("Unsuccessfully triggered job with ID: {} and args: {} - response: {}", action.jobId, allArgs, errorBody)
                     future.completeExceptionally(RuntimeException(errorBody))
                 }
             }
@@ -110,17 +108,16 @@ class ActionService {
     private fun enableExecutions(future: CompletableFuture<String>, action: ActionConfig, enable: Boolean) {
         logger.info("Setting action: {} with job ID: {} enabled status to {}", action.name, action.jobId, enable)
 
-        val jobId = action.jobId!!
         val call: Call<HashMap<String, Any>>
         if (enable) {
             call = buildRundeckApi().enableExecution(
                     apiToken = settings.deployment.apiToken,
-                    jobId = jobId
+                    jobId = action.jobId
             )
         } else {
             call = buildRundeckApi().disableExecution(
                     apiToken = settings.deployment.apiToken,
-                    jobId = jobId
+                    jobId = action.jobId
             )
         }
 

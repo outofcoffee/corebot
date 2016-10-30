@@ -1,4 +1,4 @@
-# Example configuration
+# Multiple actions withs tags.
 ---
 version: '1'
 
@@ -12,7 +12,7 @@ actions:
       - services
 
   restart-services:
-    jobId: 9374f1c8-7b3f-4145-8556-6b55551fb60f
+    jobId: e9d12eec-abff-4780-89cd-56a48b8c67be
     template: restart services in {environment}
     options:
       myOption: someValue

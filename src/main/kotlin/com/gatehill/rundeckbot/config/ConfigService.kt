@@ -3,6 +3,7 @@ package com.gatehill.rundeckbot.config
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import org.apache.logging.log4j.LogManager
 import java.io.File
 
 /**
@@ -18,6 +19,7 @@ class ConfigService {
     private val configFileVersion = "1"
     private val objectMapper = ObjectMapper(YAMLFactory()).registerKotlinModule()
     private val settings = Settings()
+    private val logger = LogManager.getLogger(ConfigService::class.java)!!
 
     fun loadActions(): Map<String, ActionConfig> {
         val actionConfigFile = File(settings.configFile)
@@ -33,8 +35,9 @@ class ConfigService {
 
         actions.forEach { action ->
             action.value.name = action.key
-            action.value.jobId ?: throw IllegalStateException("No job ID found for action '${action.value.name}")
         }
+
+        logger.debug("Loaded ${actions.size} actions")
 
         return actions
     }
