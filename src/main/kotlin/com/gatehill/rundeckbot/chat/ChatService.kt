@@ -27,6 +27,7 @@ class ChatService {
     private val deploymentService = ActionService()
     private val templateService = TemplateService()
     private val configService = ConfigService()
+    private val chatLines = ChatLines()
 
     fun listenForEvents() {
         val session = SlackSessionFactory.createWebSocketSlackSession(settings.chat.authToken)
@@ -51,6 +52,7 @@ class ChatService {
                 if (splitCmd.size > 0 && splitCmd[0] == "<@${session.sessionPersona().id}>") {
                     val actions = parseMessage(splitCmd)
                     if (actions.size > 0) {
+                        session.sendMessage(event.channel, "${chatLines.pleaseWait()} :clock1:")
                         logger.info("Handling command '{}' from {}", messageContent, event.sender.userName)
                         actions.forEach { action -> handleAction(theSession, event, action) }
 
@@ -141,4 +143,18 @@ class ChatService {
             return emptyList()
         }
     }
+}
+
+class ChatLines {
+    private fun Array<String>.chooseOne() = this[(Math.random() * (this.size - 1)).toInt()]
+
+    fun pleaseWait() = arrayOf(
+            "Just a min",
+            "Hang on",
+            "Hold on",
+            "One moment",
+            "One min",
+            "Just a moment",
+            "Give me a min"
+    ).chooseOne()
 }

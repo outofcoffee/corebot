@@ -24,7 +24,7 @@ interface ActionTemplate {
      * The response message sent when this actionType is fired.
      */
     fun buildMessage(action: ActionConfig): String {
-        return "Just a min :clock1: I'm working on *${action.name}*..."
+        return "I'm working on *${action.name}*..."
     }
 }
 
@@ -112,7 +112,7 @@ class TriggerJobTemplate : AbstractActionTemplate {
 
     override fun buildMessage(action: ActionConfig): String {
         val msg = StringBuilder()
-        msg.append("Just a min :clock1: I'm running *${action.name}*")
+        msg.append("I'm running *${action.name}*")
 
         if (placeholderValues.size > 0) {
             msg.append(" with these options:")
