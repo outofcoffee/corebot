@@ -1,8 +1,8 @@
 # Rundeck Slack bot
 
-## Usage
+Trigger your [Rundeck](http://rundeck.org) jobs from [Slack](https://slack.com).
 
-Example:
+_Example:_
 
     @rundeckbot deploy user-service 1.0 to staging
     
@@ -10,6 +10,30 @@ Example:
     > OK, I'm deploying user-service version 1.0 to staging.
     > Status of job is: running
     > Details: http://rundeck/jobs/abc/123
+    
+> Why would you want this? Check out [ChatOps](http://blogs.atlassian.com/2016/01/what-is-chatops-adoption-guide/).
+
+## What can it do?
+
+##### Trigger your deployment jobs
+
+<img alt="Deploy" src="https://github.com/outofcoffee/rundeck-slackbot/raw/master/docs/images/deploy.png" width="467">
+
+##### Trigger your other custom jobs
+
+<img alt="Restart" src="https://github.com/outofcoffee/rundeck-slackbot/raw/master/docs/images/restart.png" width="472">
+
+##### Lock things to prevent accidental deployment
+
+<img alt="Lock deployment failure" src="https://github.com/outofcoffee/rundeck-slackbot/raw/master/docs/images/lock_deploy_fail.png" width="371">
+
+##### Unlock things you've locked
+
+<img alt="Unlock job" src="https://github.com/outofcoffee/rundeck-slackbot/raw/master/docs/images/unlock.png" width="336">
+
+##### Get help
+
+<img alt="Help" src="https://github.com/outofcoffee/rundeck-slackbot/raw/master/docs/images/unknown.png" width="389">
 
 ## Instructions
 
@@ -76,3 +100,11 @@ As an example, here is an unofficial Rundeck Docker image: https://hub.docker.co
 
 * Notify lock owner on unlock
 * Last deployment query (what version, who triggered it etc.)
+
+## Contributing
+
+Pull requests are welcome.
+
+## Author
+
+Pete Cornish (outofcoffee@gmail.com)
