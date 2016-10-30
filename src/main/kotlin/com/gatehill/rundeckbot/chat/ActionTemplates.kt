@@ -76,7 +76,7 @@ abstract class GenericActionTemplate : AbstractActionTemplate() {
         // has action been set?
         if (accepted && tokens.isEmpty()) {
             val actionName = placeholderValues[actionPlaceholder]
-            val actionConfigs = ConfigService().loadActions()
+            val actionConfigs = ConfigService.loadActions()
 
             val actionConfig = actionConfigs[actionName]
             if (null != actionConfig) {
@@ -86,7 +86,7 @@ abstract class GenericActionTemplate : AbstractActionTemplate() {
             } else {
                 // check tags
                 actionConfigs.values.forEach { action ->
-                    action.tags?.filter { tag -> tag == "all" || tag == actionName }?.forEach { tag -> actions.add(action) }
+                    action.tags?.filter { tag -> tag == actionName || actionName == "all" }?.forEach { tag -> actions.add(action) }
                 }
 
                 return (actions.size > 0)

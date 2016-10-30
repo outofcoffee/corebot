@@ -9,7 +9,7 @@ import java.io.File
 /**
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
-class ConfigService {
+object ConfigService {
     /**
      * Top level action settings file wrapper.
      */
@@ -18,11 +18,10 @@ class ConfigService {
 
     private val configFileVersion = "1"
     private val objectMapper = ObjectMapper(YAMLFactory()).registerKotlinModule()
-    private val settings = Settings()
     private val logger = LogManager.getLogger(ConfigService::class.java)!!
 
     fun loadActions(): Map<String, ActionConfig> {
-        val actionConfigFile = File(settings.configFile)
+        val actionConfigFile = File(Settings.configFile)
 
         val actionConfig = objectMapper.readValue(actionConfigFile, ActionConfigWrapper::class.java) ?:
                 throw IllegalStateException("Action configuration at ${actionConfigFile} was null")

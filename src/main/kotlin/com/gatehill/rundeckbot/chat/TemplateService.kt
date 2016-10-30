@@ -5,13 +5,13 @@ import com.gatehill.rundeckbot.config.ConfigService
 /**
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
-class TemplateService {
+object TemplateService {
     /**
      * Holds candidate templates.
      */
     data class TemplateContext(var candidates: MutableList<ActionTemplate>)
 
-    private val configService = ConfigService()
+    private val configService by lazy { ConfigService }
 
     fun fetchCandidates(): TemplateContext {
         val candidates: MutableList<ActionTemplate> = configService.loadActions().values

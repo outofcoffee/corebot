@@ -1,22 +1,18 @@
 package com.gatehill.rundeckbot.action
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.gatehill.rundeckbot.action.model.ExecutionDetails
+import com.gatehill.rundeckbot.action.model.ExecutionInfo
+import com.gatehill.rundeckbot.action.model.ExecutionOptions
 import retrofit2.Call
-import retrofit2.http.Body
-import retrofit2.http.Header
-import retrofit2.http.POST
-import retrofit2.http.Path
+import retrofit2.http.*
 import java.util.*
 
 /**
- * Models Rundeck REST API.
+ * Models the Rundeck REST API.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 interface RundeckApi {
-    @POST("/api/14/job/{jobId}/run")
-    fun runJob(@Header("Accept") accept: String = "application/json",
-               @Header("X-Rundeck-Auth-Token") apiToken: String,
-               @Path("jobId") jobId: String,
-               @Body executionOptions: ActionService.ExecutionOptions): Call<ActionService.ExecutionDetails>
-
     @POST("/api/14/job/{jobId}/execution/enable")
     fun enableExecution(@Header("Accept") accept: String = "application/json",
                         @Header("X-Rundeck-Auth-Token") apiToken: String,
@@ -26,4 +22,15 @@ interface RundeckApi {
     fun disableExecution(@Header("Accept") accept: String = "application/json",
                          @Header("X-Rundeck-Auth-Token") apiToken: String,
                          @Path("jobId") jobId: String): Call<HashMap<String, Any>>
+
+    @POST("/api/14/job/{jobId}/run")
+    fun runJob(@Header("Accept") accept: String = "application/json",
+               @Header("X-Rundeck-Auth-Token") apiToken: String,
+               @Path("jobId") jobId: String,
+               @Body executionOptions: ExecutionOptions): Call<ExecutionDetails>
+
+    @GET("/api/14/execution/{executionId}")
+    fun fetchExecutionInfo(@Header("Accept") accept: String = "application/json",
+                           @Header("X-Rundeck-Auth-Token") apiToken: String,
+                           @Path("executionId") executionId: String): Call<ExecutionInfo>
 }

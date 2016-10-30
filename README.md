@@ -37,8 +37,8 @@ _Example:_
 
 ## Instructions
 
-* As a Slack admin, create a Slack bot user and obtain its auth token 
-* As a Rundeck admin, generate a Rundeck API token
+* As a Slack admin, create a Slack bot user and obtain its access token - [instructions](https://my.slack.com/services/new/bot)
+* As a Rundeck admin, generate a Rundeck API token - [instructions](http://rundeck.org/2.6.9/api/index.html#token-authentication)
 * Set environment variables
 * Run!
 
@@ -173,15 +173,17 @@ Here, two actions are defined: `deploy-services` and `restart-services`, both ta
 
 …and both actions will be locked.
 
+> Tip: There is a special tag set on all actions, named 'all'. This means you can do things like `@rundeckbot lock all`.
+
 ### Built-in actions
 
 There are a number of built in actions, such as:
 
-* `@rundeckbot lock {job name}` - lock an action to prevent being accidentally trigger.
-* `@rundeckbot unlock {job name}` - unlock a locked action.
-* `@rundeckbot status {job name}` - show status of an action, such as whether it’s locked.
-* `@rundeckbot enable {job name}` - set the Rundeck execution status for a job - *Note:* this requires the Rundeck ACL to enable the API user to set the execution status of a job.
-* `@rundeckbot disable {job name}` - set the Rundeck execution status for a job - *Note:* this requires the Rundeck ACL to enable the API user to set the execution status of a job.
+* `@rundeckbot lock {action name or tag}` - lock action(s) to prevent them being triggered accidentally.
+* `@rundeckbot unlock {action name or tag}` - unlock locked action(s).
+* `@rundeckbot status {action name or tag}` - show status of action(s).
+* `@rundeckbot enable {action name or tag}` - set the Rundeck execution status for a job - *Note:* this requires the Rundeck ACL to permit the API user to set the execution status of a job.
+* `@rundeckbot disable {action name or tag}` - set the Rundeck execution status for a job - *Note:* this requires the Rundeck ACL to permit the API user to set the execution status of a job.
 
 ## More info
 
@@ -205,6 +207,7 @@ As an example, here is an unofficial Rundeck Docker image: https://hub.docker.co
 * Notify lock owner on unlock.
 * Last deployment query (what version, who triggered it etc.).
 * Status check should query Rundeck job status.
+* Add stop/abort action
 
 ## Contributing
 

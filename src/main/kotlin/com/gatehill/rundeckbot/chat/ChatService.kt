@@ -13,7 +13,7 @@ import org.apache.logging.log4j.LogManager
 /**
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
-class ChatService {
+object ChatService {
     /**
      * Represents an action to perform.
      */
@@ -23,18 +23,16 @@ class ChatService {
                       val actionMessage: String)
 
     private val logger = LogManager.getLogger(ChatService::class.java)!!
-    private val settings = Settings()
-    private val deploymentService = ActionService()
-    private val templateService = TemplateService()
-    private val configService = ConfigService()
-    private val chatLines = ChatLines()
+    private val deploymentService by lazy { ActionService }
+    private val templateService by lazy { TemplateService }
+    private val configService by lazy { ConfigService }
 
     fun listenForEvents() {
-        val session = SlackSessionFactory.createWebSocketSlackSession(settings.chat.authToken)
+        val session = SlackSessionFactory.createWebSocketSlackSession(Settings.chat.authToken)
         session.connect()
         session.addMessagePostedListener(SlackMessagePostedListener { event, theSession ->
             // filter out messages from other channels
-            val theChannel = theSession.findChannelByName(settings.chat.channelName)
+            val theChannel = theSession.findChannelByName(Settings.chat.channelName)
             if (theChannel.id != event.channel.id) {
                 return@SlackMessagePostedListener
             }
@@ -50,61 +48,28 @@ class ChatService {
 
                 // is it addressed to the bot?
                 if (splitCmd.size > 0 && splitCmd[0] == "<@${session.sessionPersona().id}>") {
+                    // indicate busy...
+                    session.addReactionToMessage(event.channel, event.timeStamp, "hourglass_flowing_sand")
+
                     val actions = parseMessage(splitCmd)
                     if (actions.size > 0) {
-                        session.sendMessage(event.channel, "${chatLines.pleaseWait()} :clock1:")
                         logger.info("Handling command '{}' from {}", messageContent, event.sender.userName)
                         actions.forEach { action -> handleAction(theSession, event, action) }
 
                     } else {
                         logger.warn("Skipped handling command '{}' from {}", messageContent, event.sender.userName)
+                        session.addReactionToMessage(event.channel, event.timeStamp, "question")
                         printUsage(event, session)
                     }
                 }
 
             } catch(e: Exception) {
-                printUsage(event, session)
                 logger.error("Error parsing message event: {}", event, e)
+                session.addReactionToMessage(event.channel, event.timeStamp, "x")
+                printUsage(event, session)
                 return@SlackMessagePostedListener
             }
         })
-    }
-
-    private fun handleAction(session: SlackSession, event: SlackMessagePosted, action: Action) {
-        logger.info("Handling action: {}", action)
-
-        // respond with acknowledgement
-        session.sendMessage(event.channel, action.actionMessage)
-
-        // schedule action execution
-        val future = deploymentService.perform(action.actionType, event.sender.userName, action.action, action.args)
-
-        future.whenComplete { resultMessage, throwable ->
-            if (future.isCompletedExceptionally) {
-                session.sendMessage(event.channel,
-                        "Hmm, something went wrong :face_with_head_bandage:\r\n```${throwable.message}```")
-            } else {
-                session.sendMessage(event.channel, resultMessage)
-            }
-        }
-    }
-
-    private fun printUsage(event: SlackMessagePosted, session: SlackSession) {
-        val msg = StringBuilder()
-
-        if (configService.loadActions().isEmpty()) {
-            msg.append("Oops :broken_heart: you don't have any actions configured - add some to _${settings.configFile}_")
-
-        } else {
-            msg.append("Sorry, I didn't understand :slightly_frowning_face: Try one of these:")
-
-            templateService.fetchCandidates().candidates.forEach { candidate ->
-                val template = candidate.tokens.joinToString(" ")
-                msg.append("\r\n_@${session.sessionPersona().userName} ${template}_")
-            }
-        }
-
-        session.sendMessage(event.channel, msg.toString())
     }
 
     /**
@@ -127,7 +92,7 @@ class ChatService {
                     val candidate = context.candidates[0]
 
                     if (candidate.tokens.size > 0) {
-                        val actionTemplates = getActionAttribute(candidate.actions, { action -> action.template!! })
+                        val actionTemplates = getActionAttribute(candidate.actions, ActionConfig::template)
                         throw IllegalStateException("Too few tokens for actions: ${actionTemplates}")
                     }
 
@@ -143,18 +108,48 @@ class ChatService {
             return emptyList()
         }
     }
-}
 
-class ChatLines {
-    private fun Array<String>.chooseOne() = this[(Math.random() * (this.size - 1)).toInt()]
+    private fun printUsage(event: SlackMessagePosted, session: SlackSession) {
+        val msg = StringBuilder()
 
-    fun pleaseWait() = arrayOf(
-            "Just a min",
-            "Hang on",
-            "Hold on",
-            "One moment",
-            "One min",
-            "Just a moment",
-            "Give me a min"
-    ).chooseOne()
+        if (configService.loadActions().isEmpty()) {
+            msg.append("Oops :broken_heart: you don't have any actions configured - add some to _${Settings.configFile}_")
+
+        } else {
+            msg.append("Sorry, I didn't understand :slightly_frowning_face: Try one of these:")
+
+            templateService.fetchCandidates().candidates.forEach { candidate ->
+                val template = candidate.tokens.joinToString(" ")
+                msg.append("\r\n_@${session.sessionPersona().userName} ${template}_")
+            }
+        }
+
+        session.sendMessage(event.channel, msg.toString())
+    }
+
+    private fun handleAction(session: SlackSession, event: SlackMessagePosted, action: Action) {
+        logger.info("Handling action: {}", action)
+
+        // respond with acknowledgement
+        session.sendMessage(event.channel, action.actionMessage)
+
+        // schedule action execution
+        val future = deploymentService.perform(session, event, action.actionType, action.action, action.args)
+
+        future.whenComplete { result, throwable ->
+            if (future.isCompletedExceptionally) {
+                session.addReactionToMessage(event.channel, event.timeStamp, "x")
+                session.sendMessage(event.channel,
+                        "Hmm, something went wrong :face_with_head_bandage:\r\n```${throwable.message}```")
+
+            } else {
+                if (result.finalResult) {
+                    session.addReactionToMessage(event.channel, event.timeStamp, "white_check_mark")
+                } else {
+                    session.addReactionToMessage(event.channel, event.timeStamp, "ok")
+                }
+                session.sendMessage(event.channel, result.message)
+            }
+        }
+    }
 }

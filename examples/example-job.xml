@@ -2,8 +2,8 @@
     <job>
         <context>
             <options preserveOrder='true'>
-                <option name='environment' value='foo' />
-                <option name='version' value='bar' />
+                <option name='environment' value='staging' />
+                <option name='version' value='' />
                 <option name='myOption' value='baz' />
             </options>
         </context>
@@ -24,7 +24,7 @@
     <job>
         <context>
             <options preserveOrder='true'>
-                <option name='environment' value='foo' />
+                <option name='environment' value='staging' />
                 <option name='myOption' value='baz' />
             </options>
         </context>
@@ -40,6 +40,6 @@
                 <scriptargs />
             </command>
         </sequence>
-        <uuid>9374f1c8-7b3f-4145-8556-6b55551fb60f</uuid>
+        <uuid>e9d12eec-abff-4780-89cd-56a48b8c67be</uuid>
     </job>
 </joblist>
