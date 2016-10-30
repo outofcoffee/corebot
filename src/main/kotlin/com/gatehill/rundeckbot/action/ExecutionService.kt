@@ -68,14 +68,16 @@ object ExecutionService {
                     logger.info("Successfully triggered job with ID: {} and args: {} - response: {}",
                             action.jobId, allArgs, executionDetails)
 
-                    val reaction = if (executionDetails.status == jobStatusRunning) " :thumbsup:" else ""
+                    val reaction = if (arrayOf(jobStatusRunning, jobStatusSucceeded).contains(executionDetails.status)) " :thumbsup:" else ""
                     future.complete(PerformActionResult(
                             "Job #${executionDetails.id} status: _${executionDetails.status}_${reaction} (${executionDetails.permalink})", false))
 
                     if (executionDetails.status == jobStatusRunning) {
                         pollStatus(session, event, action, executionDetails.id)
+
                     } else {
-                        session.addReactionToMessage(event.channel, event.timeStamp, "x")
+                        // already finished
+                        reactToFinalStatus(session, event, action, executionDetails.id, executionDetails.status)
                     }
 
                 } else {
@@ -167,20 +169,25 @@ object ExecutionService {
             }
 
         } else {
-            // final state
-            val reaction: String
-            val emoji: String
-            if (executionInfo.status == jobStatusSucceeded) {
-                reaction = ChatLines.goodNews()
-                emoji = "white_check_mark"
-            } else {
-                reaction = ChatLines.badNews()
-                emoji = "x"
-            }
-
-            session.addReactionToMessage(event.channel, event.timeStamp, emoji)
-            session.sendMessage(event.channel,
-                    "${reaction} *${action.name}* #${executionId} finished with status: _${executionInfo.status}_.")
+            reactToFinalStatus(session, event, action, executionId, executionInfo.status)
         }
+    }
+
+    private fun reactToFinalStatus(session: SlackSession, event: SlackMessagePosted, action: ActionConfig,
+                                   executionId: Int, executionStatus: String) {
+
+        val reaction: String
+        val emoji: String
+        if (executionStatus == jobStatusSucceeded) {
+            reaction = ChatLines.goodNews()
+            emoji = "white_check_mark"
+        } else {
+            reaction = ChatLines.badNews()
+            emoji = "x"
+        }
+
+        session.addReactionToMessage(event.channel, event.timeStamp, emoji)
+        session.sendMessage(event.channel,
+                "${reaction} *${action.name}* #${executionId} finished with status: _${executionStatus}_.")
     }
 }
