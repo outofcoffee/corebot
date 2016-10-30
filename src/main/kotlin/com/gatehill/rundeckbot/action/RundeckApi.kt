@@ -11,18 +11,18 @@ import java.util.*
  * Models Rundeck REST API.
  */
 interface RundeckApi {
-    @POST("/api/14/action/{jobId}/run")
+    @POST("/api/14/job/{jobId}/run")
     fun runJob(@Header("Accept") accept: String = "application/json",
                @Header("X-Rundeck-Auth-Token") apiToken: String,
                @Path("jobId") jobId: String,
                @Body executionOptions: ActionService.ExecutionOptions): Call<ActionService.ExecutionDetails>
 
-    @POST("/api/14/action/{jobId}/execution/enable")
+    @POST("/api/14/job/{jobId}/execution/enable")
     fun enableExecution(@Header("Accept") accept: String = "application/json",
                         @Header("X-Rundeck-Auth-Token") apiToken: String,
                         @Path("jobId") jobId: String): Call<HashMap<String, Any>>
 
-    @POST("/api/14/action/{jobId}/execution/disable")
+    @POST("/api/14/job/{jobId}/execution/disable")
     fun disableExecution(@Header("Accept") accept: String = "application/json",
                          @Header("X-Rundeck-Auth-Token") apiToken: String,
                          @Path("jobId") jobId: String): Call<HashMap<String, Any>>
