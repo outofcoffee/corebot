@@ -1,8 +1,7 @@
 package com.gatehill.rundeckbot.chat
 
-import com.gatehill.rundeckbot.action.*
+import com.gatehill.rundeckbot.config.ActionConfig
 import com.gatehill.rundeckbot.config.ConfigService
-import com.gatehill.rundeckbot.config.JobConfig
 import org.apache.logging.log4j.LogManager
 import java.util.*
 
@@ -13,30 +12,30 @@ class TemplateService {
     /**
      * Holds candidate templates.
      */
-    data class TemplateContext(var candidates: MutableList<com.gatehill.rundeckbot.action.ActionTemplate>)
+    data class TemplateContext(var candidates: MutableList<ActionTemplate>)
 
     private val logger = LogManager.getLogger(ChatService::class.java)!!
     private val configService = ConfigService()
-    private val templatedJobs: MutableList<JobConfig> = ArrayList()
+    private val templatedActions: MutableList<ActionConfig> = ArrayList()
 
     constructor() {
-        configService.loadJobs().values.forEach { job ->
-            val template = job.template
+        configService.loadActions().values.forEach { action ->
+            val template = action.template
             if (null != template) {
-                templatedJobs.add(job)
+                templatedActions.add(action)
             }
         }
-        logger.debug("Loaded ${templatedJobs.size} templated jobs")
+        logger.debug("Loaded ${templatedActions.size} templated actions")
     }
 
     fun fetchCandidates(): TemplateContext {
-        val candidates: MutableList<ActionTemplate> = templatedJobs.map(::TriggerActionTemplate).toMutableList()
+        val candidates: MutableList<ActionTemplate> = templatedActions.map(::TriggerJobTemplate).toMutableList()
 
         candidates.add(LockActionTemplate())
         candidates.add(UnlockActionTemplate())
-        candidates.add(EnableActionTemplate())
-        candidates.add(DisableActionTemplate())
-        candidates.add(StatusActionTemplate())
+        candidates.add(EnableJobTemplate())
+        candidates.add(DisableJobTemplate())
+        candidates.add(StatusJobTemplate())
 
         return TemplateContext(candidates)
     }

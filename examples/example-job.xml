@@ -7,15 +7,36 @@
                 <option name='myOption' value='baz' />
             </options>
         </context>
-        <description></description>
+        <description>Deploy particular version of services.</description>
         <executionEnabled>true</executionEnabled>
         <id>9374f1c8-7b3f-4145-8556-6b55551fb60f</id>
         <loglevel>INFO</loglevel>
-        <name>deploy</name>
+        <name>deploy-services</name>
         <scheduleEnabled>false</scheduleEnabled>
         <sequence keepgoing='false' strategy='node-first'>
             <command>
                 <script><![CDATA[echo "Value of VERSION option=$RD_OPTION_VERSION"]]></script>
+                <scriptargs />
+            </command>
+        </sequence>
+        <uuid>9374f1c8-7b3f-4145-8556-6b55551fb60f</uuid>
+    </job>
+    <job>
+        <context>
+            <options preserveOrder='true'>
+                <option name='environment' value='foo' />
+                <option name='myOption' value='baz' />
+            </options>
+        </context>
+        <description>Restart services.</description>
+        <executionEnabled>true</executionEnabled>
+        <id>e9d12eec-abff-4780-89cd-56a48b8c67be</id>
+        <loglevel>INFO</loglevel>
+        <name>restart-services</name>
+        <scheduleEnabled>false</scheduleEnabled>
+        <sequence keepgoing='false' strategy='node-first'>
+            <command>
+                <script><![CDATA[echo "Value of ENVIRONMENT option=$RD_OPTION_ENVIRONMENT"]]></script>
                 <scriptargs />
             </command>
         </sequence>

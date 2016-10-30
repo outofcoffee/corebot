@@ -1,0 +1,20 @@
+# Example configuration
+---
+version: '1'
+
+actions:
+  deploy-services:
+    jobId: 9374f1c8-7b3f-4145-8556-6b55551fb60f
+    template: deploy services {version} to {environment}
+    options:
+      myOption: someValue
+    tags:
+      - services
+
+  restart-services:
+    jobId: 9374f1c8-7b3f-4145-8556-6b55551fb60f
+    template: restart services in {environment}
+    options:
+      myOption: someValue
+    tags:
+      - services

@@ -1,10 +1,9 @@
 package com.gatehill.rundeckbot.chat
 
-import com.gatehill.rundeckbot.action.ActionType
-import com.gatehill.rundeckbot.config.ConfigService
-import com.gatehill.rundeckbot.config.JobConfig
-import com.gatehill.rundeckbot.config.Settings
 import com.gatehill.rundeckbot.action.ActionService
+import com.gatehill.rundeckbot.config.ActionConfig
+import com.gatehill.rundeckbot.config.ConfigService
+import com.gatehill.rundeckbot.config.Settings
 import com.ullink.slack.simpleslackapi.SlackSession
 import com.ullink.slack.simpleslackapi.events.SlackMessagePosted
 import com.ullink.slack.simpleslackapi.impl.SlackSessionFactory
@@ -18,9 +17,9 @@ class ChatService {
     /**
      * Represents an action to perform.
      */
-    data class Action(val actionType: com.gatehill.rundeckbot.action.ActionType,
-                      val job: JobConfig,
-                      val jobArgs: Map<String, String>,
+    data class Action(val actionType: ActionType,
+                      val action: ActionConfig,
+                      val args: Map<String, String>,
                       val actionMessage: String)
 
     private val logger = LogManager.getLogger(ChatService::class.java)!!
@@ -50,10 +49,11 @@ class ChatService {
 
                 // is it addressed to the bot?
                 if (splitCmd.size > 0 && splitCmd[0] == "<@${session.sessionPersona().id}>") {
-                    val task = parseMessage(splitCmd)
-                    if (null != task) {
+                    val actions = parseMessage(splitCmd)
+                    if (actions.size > 0) {
                         logger.info("Handling command '{}' from {}", messageContent, event.sender.userName)
-                        handleTask(theSession, event, task)
+                        actions.forEach { action -> handleAction(theSession, event, action) }
+
                     } else {
                         logger.warn("Skipped handling command '{}' from {}", messageContent, event.sender.userName)
                         printUsage(event, session)
@@ -68,14 +68,14 @@ class ChatService {
         })
     }
 
-    private fun handleTask(session: SlackSession, event: SlackMessagePosted, action: Action) {
+    private fun handleAction(session: SlackSession, event: SlackMessagePosted, action: Action) {
         logger.info("Handling action: {}", action)
 
         // respond with acknowledgement
         session.sendMessage(event.channel, action.actionMessage)
 
-        // schedule job execution
-        val future = deploymentService.perform(action.actionType, event.sender.userName, action.job, action.jobArgs)
+        // schedule action execution
+        val future = deploymentService.perform(action.actionType, event.sender.userName, action.action, action.args)
 
         future.whenComplete { resultMessage, throwable ->
             if (future.isCompletedExceptionally) {
@@ -90,8 +90,8 @@ class ChatService {
     private fun printUsage(event: SlackMessagePosted, session: SlackSession) {
         val msg = StringBuilder()
 
-        if (configService.loadJobs().isEmpty()) {
-            msg.append("Oops :broken_heart: you don't have any jobs configured - add some to _${configService.jobConfigFileName}_")
+        if (configService.loadActions().isEmpty()) {
+            msg.append("Oops :broken_heart: you don't have any actions configured - add some to _${settings.configFile}_")
 
         } else {
             msg.append("Sorry, I didn't understand :slightly_frowning_face: Try one of these:")
@@ -108,7 +108,7 @@ class ChatService {
     /**
      * Determine the Action to perform based on the provided command.
      */
-    private fun parseMessage(splitCmd: List<String>): Action? {
+    private fun parseMessage(splitCmd: List<String>): List<Action> {
         val joinedMessage = splitCmd.joinToString()
 
         try {
@@ -124,17 +124,21 @@ class ChatService {
                 1 -> {
                     val candidate = context.candidates[0]
 
-                    if (candidate.tokens.size > 0)
-                        throw IllegalStateException("Too few tokens for action: ${candidate.job.template}")
+                    if (candidate.tokens.size > 0) {
+                        val actionTemplates = getActionAttribute(candidate.actions, { action -> action.template!! })
+                        throw IllegalStateException("Too few tokens for actions: ${actionTemplates}")
+                    }
 
-                    return Action(candidate.action, candidate.job, candidate.placeholderValues, candidate.buildMessage())
+                    return candidate.actions.map { actionConfig ->
+                        Action(candidate.actionType, actionConfig, candidate.placeholderValues, candidate.buildMessage(actionConfig))
+                    }
                 }
                 else -> throw IllegalStateException("Could not find a unique matching action for command: $joinedMessage")
             }
 
         } catch(e: IllegalStateException) {
             logger.warn("Unable to parse message: {} - {}", joinedMessage, e.message)
-            return null
+            return emptyList()
         }
     }
 }

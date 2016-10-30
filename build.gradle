@@ -35,6 +35,7 @@ dependencies {
     compile "com.squareup.retrofit2:retrofit:$version_retrofit"
     compile "com.squareup.retrofit2:converter-jackson:$version_retrofit"
     compile "com.fasterxml.jackson.module:jackson-module-kotlin:$version_jackson"
+    compile "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$version_jackson"
 
     compile ("com.github.ullink:simple-slack-api:$version_slackapi") {
         exclude module: 'logback-classic'

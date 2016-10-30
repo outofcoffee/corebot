@@ -16,5 +16,5 @@ class Settings {
 
     val chat = Chat()
     val deployment = Deployment()
-    val configDir by lazy { System.getenv("BOT_CONFIG_DIR") ?: "/opt/rundeck-slackbot/config" }
+    val configFile by lazy { System.getenv("BOT_CONFIG") ?: "/opt/rundeck-slackbot/actions.yml" }
 }

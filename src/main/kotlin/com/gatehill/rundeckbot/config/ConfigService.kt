@@ -1,6 +1,7 @@
 package com.gatehill.rundeckbot.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import java.io.File
 
@@ -9,34 +10,32 @@ import java.io.File
  */
 class ConfigService {
     /**
-     * Top level job settings file wrapper.
+     * Top level action settings file wrapper.
      */
-    data class JobConfigWrapper(val version: String?,
-                                val jobs: Map<String, JobConfig>?)
+    data class ActionConfigWrapper(val version: String?,
+                                   val actions: Map<String, ActionConfig>?)
 
     private val configFileVersion = "1"
-    private val objectMapper = ObjectMapper().registerKotlinModule()
+    private val objectMapper = ObjectMapper(YAMLFactory()).registerKotlinModule()
     private val settings = Settings()
 
-    val jobConfigFileName = "jobs.json"
+    fun loadActions(): Map<String, ActionConfig> {
+        val actionConfigFile = File(settings.configFile)
 
-    fun loadJobs(): Map<String, JobConfig> {
-        val jobConfigFile = File(settings.configDir, jobConfigFileName)
+        val actionConfig = objectMapper.readValue(actionConfigFile, ActionConfigWrapper::class.java) ?:
+                throw IllegalStateException("Action configuration at ${actionConfigFile} was null")
 
-        val jobConfig = objectMapper.readValue(jobConfigFile, JobConfigWrapper::class.java) ?:
-                throw IllegalStateException("Job configuration at ${jobConfigFile} was null")
-
-        assert(configFileVersion == jobConfig.version) {
-            "Unsupported job settings version: ${jobConfig.version} (expected '${configFileVersion}')"
+        assert(configFileVersion == actionConfig.version) {
+            "Unsupported action settings version: ${actionConfig.version} (expected '${configFileVersion}')"
         }
 
-        val jobs = jobConfig.jobs ?: throw IllegalStateException("No jobs section found in configuration")
+        val actions = actionConfig.actions ?: throw IllegalStateException("No actions section found in configuration")
 
-        jobs.forEach { job ->
-            job.value.name = job.key
-            job.value.jobId ?: throw IllegalStateException("No ID found for job '${job.value.name}")
+        actions.forEach { action ->
+            action.value.name = action.key
+            action.value.jobId ?: throw IllegalStateException("No job ID found for action '${action.value.name}")
         }
 
-        return jobs
+        return actions
     }
 }

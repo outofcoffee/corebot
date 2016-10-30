@@ -27,7 +27,7 @@ The quickest way to get up and running is to use the Docker image:
             --env SLACK_CHANNEL_NAME="rundeck-slackbot" \
             --env RUNDECK_API_TOKEN="CHANGEME" \
             --env RUNDECK_BASE_URL="http://rundeck:4440" \
-            -v /path/to/config/dir:/opt/rundeck-slackbot/config \
+            -v /path/to/actions.yml:/opt/rundeck-slackbot/actions.yml \
             outofcoffee/rundeck-slackbot
 
 Note: the container doesn't require any inbound ports to be exposed.
@@ -45,6 +45,9 @@ Once built, set the following environment variables in `docker-compose.yml`:
     SLACK_CHANNEL_NAME: "rundeck-slackbot"
     RUNDECK_API_TOKEN: "CHANGEME"
     RUNDECK_BASE_URL: "http://rundeck:4440"
+    BOT_CONFIG: "/path/to/actions.yaml"
+    
+> Note: the default path for _BOT_CONFIG_ is `/opt/rundeck-slackbot/actions.yml`
 
 Then run with:
 
