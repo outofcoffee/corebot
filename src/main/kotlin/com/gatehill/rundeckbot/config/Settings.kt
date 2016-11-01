@@ -12,7 +12,7 @@ object Settings {
     class Deployment {
         val apiToken by lazy { System.getenv("RUNDECK_API_TOKEN") ?: throw IllegalStateException("Rundeck API token missing") }
         val baseUrl by lazy { System.getenv("RUNDECK_BASE_URL") ?: "http://localhost:4440" }
-        val executionTimeout by lazy { System.getenv("RUNDECK_EXECUTION_TIMEOUT")?.toInt() ?: 12000 }
+        val executionTimeout by lazy { System.getenv("RUNDECK_EXECUTION_TIMEOUT")?.toInt() ?: 120000 }
     }
 
     val chat = Chat()
