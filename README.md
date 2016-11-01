@@ -208,6 +208,9 @@ As an example, here is an unofficial Rundeck Docker image: https://hub.docker.co
 * Last deployment query (what version, who triggered it etc.).
 * Status check should query Rundeck job status.
 * Add stop/abort action
+* User whitelist (by action?)
+* Multiple rooms (move into action config - set by action)
+* Feedback if spoken to in room not on whitelist
 
 ## Contributing
 
