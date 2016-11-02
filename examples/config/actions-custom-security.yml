@@ -1,0 +1,40 @@
+# Actions protected by custom authz rules.
+---
+version: '1'
+
+actions:
+  deploy-services:
+    jobId: 9374f1c8-7b3f-4145-8556-6b55551fb60f
+    template: deploy services {version} to {environment}
+    options:
+      myOption: someValue
+    tags:
+      - services
+
+  restart-services:
+    jobId: e9d12eec-abff-4780-89cd-56a48b8c67be
+    template: restart services in {environment}
+    options:
+      myOption: someValue
+    tags:
+      - services
+
+security:
+  roles:
+    # a role that can only trigger jobs
+    deployer:
+      permissions:
+        - trigger
+      tags:
+        - all
+
+  users:
+    # alice uses the built-in 'admin' role
+    alice:
+      roles:
+        - admin
+
+    # all users can trigger jobs
+    "*":
+      roles:
+        - deployer

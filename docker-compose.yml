@@ -6,7 +6,7 @@ services:
     build: .
     environment:
       SLACK_AUTH_TOKEN: "CHANGEME"
-      SLACK_CHANNEL_NAME: "rundeck-slackbot"
+      SLACK_CHANNELS: "rundeck-slackbot"
       RUNDECK_API_TOKEN: "CHANGEME"
       RUNDECK_BASE_URL: "http://rundeck:4440"
 

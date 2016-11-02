@@ -4,6 +4,7 @@ import com.gatehill.rundeckbot.action.ActionService
 import com.gatehill.rundeckbot.config.ActionConfig
 import com.gatehill.rundeckbot.config.ConfigService
 import com.gatehill.rundeckbot.config.Settings
+import com.gatehill.rundeckbot.security.AuthorisationService
 import com.ullink.slack.simpleslackapi.SlackSession
 import com.ullink.slack.simpleslackapi.events.SlackMessagePosted
 import com.ullink.slack.simpleslackapi.impl.SlackSessionFactory
@@ -11,6 +12,8 @@ import com.ullink.slack.simpleslackapi.listeners.SlackMessagePostedListener
 import org.apache.logging.log4j.LogManager
 
 /**
+ * Handles conversations.
+ *
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
 object ChatService {
@@ -26,15 +29,18 @@ object ChatService {
     private val deploymentService by lazy { ActionService }
     private val templateService by lazy { TemplateService }
     private val configService by lazy { ConfigService }
+    private val authorisationService by lazy { AuthorisationService }
 
     fun listenForEvents() {
         val session = SlackSessionFactory.createWebSocketSlackSession(Settings.chat.authToken)
         session.connect()
         session.addMessagePostedListener(SlackMessagePostedListener { event, theSession ->
             // filter out messages from other channels
-            val theChannel = theSession.findChannelByName(Settings.chat.channelName)
-            if (theChannel.id != event.channel.id) {
-                return@SlackMessagePostedListener
+            for (channelName in Settings.chat.channelNames) {
+                val theChannel = theSession.findChannelByName(channelName)
+                if (theChannel.id != event.channel.id) {
+                    return@SlackMessagePostedListener
+                }
             }
 
             // ignore own messages
@@ -92,7 +98,7 @@ object ChatService {
                     val candidate = context.candidates[0]
 
                     if (candidate.tokens.size > 0) {
-                        val actionTemplates = getActionAttribute(candidate.actions, ActionConfig::template)
+                        val actionTemplates = readActionAttribute(candidate.actions, ActionConfig::template)
                         throw IllegalStateException("Too few tokens for actions: ${actionTemplates}")
                     }
 
@@ -130,26 +136,33 @@ object ChatService {
     private fun handleAction(session: SlackSession, event: SlackMessagePosted, action: Action) {
         logger.info("Handling action: {}", action)
 
-        // respond with acknowledgement
-        session.sendMessage(event.channel, action.actionMessage)
-
-        // schedule action execution
-        val future = deploymentService.perform(session, event, action.actionType, action.action, action.args)
-
-        future.whenComplete { result, throwable ->
-            if (future.isCompletedExceptionally) {
-                session.addReactionToMessage(event.channel, event.timeStamp, "x")
-                session.sendMessage(event.channel,
-                        "Hmm, something went wrong :face_with_head_bandage:\r\n```${throwable.message}```")
+        authorisationService.checkPermission(action, { permitted ->
+            if (!permitted) {
+                session.addReactionToMessage(event.channel, event.timeStamp, "no_entry")
+                session.sendMessage(event.channel, "Sorry, <@${event.sender.id}>, you're not allowed to perform" +
+                        " _${action.actionType.description}_ on *${action.action.name}*.")
 
             } else {
-                if (result.finalResult) {
-                    session.addReactionToMessage(event.channel, event.timeStamp, "white_check_mark")
-                } else {
-                    session.addReactionToMessage(event.channel, event.timeStamp, "ok")
+                // respond with acknowledgement
+                session.sendMessage(event.channel, action.actionMessage)
+
+                // schedule action execution
+                val future = deploymentService.perform(session, event, action.actionType, action.action, action.args)
+
+                future.whenComplete { result, throwable ->
+                    if (future.isCompletedExceptionally) {
+                        session.addReactionToMessage(event.channel, event.timeStamp, "x")
+                        session.sendMessage(event.channel,
+                                "Hmm, something went wrong :face_with_head_bandage:\r\n```${throwable.message}```")
+
+                    } else {
+                        session.addReactionToMessage(event.channel, event.timeStamp,
+                                if (result.finalResult) "white_check_mark" else "ok")
+
+                        session.sendMessage(event.channel, result.message)
+                    }
                 }
-                session.sendMessage(event.channel, result.message)
             }
-        }
+        }, event.sender.userName)
     }
 }

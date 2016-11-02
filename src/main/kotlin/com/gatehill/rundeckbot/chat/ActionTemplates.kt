@@ -3,32 +3,22 @@ package com.gatehill.rundeckbot.chat
 import com.gatehill.rundeckbot.config.ActionConfig
 import com.gatehill.rundeckbot.config.ConfigService
 
-enum class ActionType {
-    TRIGGER,
-    ENABLE,
-    DISABLE,
-    LOCK,
-    UNLOCK,
-    STATUS
+/**
+ * Actions that can be performed. Doubles as a list of named permissions in the security configuration.
+ */
+enum class ActionType(val description: String) {
+    TRIGGER("trigger job"),
+    ENABLE("enable job"),
+    DISABLE("disable job"),
+    LOCK("lock"),
+    UNLOCK("unlock"),
+    STATUS("check status")
 }
 
-interface ActionTemplate {
-    val actionType: ActionType
-    val actions: List<ActionConfig>
-    val tokens: java.util.Queue<String>
-    val placeholderValues: Map<String, String>
-
-    fun accept(input: String): Boolean
-
-    /**
-     * The response message sent when this actionType is fired.
-     */
-    fun buildMessage(action: ActionConfig): String {
-        return "I'm working on *${action.name}*..."
-    }
-}
-
-fun getActionAttribute(actions: List<ActionConfig>, supplier: (ActionConfig) -> String): String {
+/**
+ * Convenience method to read an attribute from an ActionConfig.
+ */
+fun readActionAttribute(actions: List<ActionConfig>, supplier: (ActionConfig) -> String): String {
     val names = StringBuilder()
 
     actions.forEach { action ->
@@ -37,6 +27,24 @@ fun getActionAttribute(actions: List<ActionConfig>, supplier: (ActionConfig) -> 
     }
 
     return names.toString()
+}
+
+/**
+ * An abstract representation of a templated action.
+ */
+interface ActionTemplate {
+    val actionType: ActionType
+    val actions: List<ActionConfig>
+    val tokens: java.util.Queue<String>
+    val placeholderValues: Map<String, String>
+
+    fun accept(input: String): Boolean
+    /**
+     * The response message sent when this actionType is fired.
+     */
+    fun buildMessage(action: ActionConfig): String {
+        return "I'm working on *${action.name}*..."
+    }
 }
 
 /**

@@ -48,7 +48,7 @@ The quickest way to get up and running is to use the Docker image:
 
     docker run -d \
             --env SLACK_AUTH_TOKEN="CHANGEME" \
-            --env SLACK_CHANNEL_NAME="rundeck-slackbot" \
+            --env SLACK_CHANNELS="rundeck-slackbot" \
             --env RUNDECK_API_TOKEN="CHANGEME" \
             --env RUNDECK_BASE_URL="http://rundeck:4440" \
             -v /path/to/actions.yml:/opt/rundeck-slackbot/actions.yml \
@@ -66,11 +66,12 @@ If instead you wish to build and run locally, you can run:
 Once built, set the following environment variables in `docker-compose.yml`:
     
     SLACK_AUTH_TOKEN: "CHANGEME"
-    SLACK_CHANNEL_NAME: "rundeck-slackbot"
+    SLACK_CHANNELS: "rundeck-slackbot"
     RUNDECK_API_TOKEN: "CHANGEME"
     RUNDECK_BASE_URL: "http://rundeck:4440"
     BOT_CONFIG: "/path/to/actions.yaml"
     
+> Note: `SLACK_CHANNELS` is a comma-separated list of channel names.
 > Note: the default path for `BOT_CONFIG` is `/opt/rundeck-slackbot/actions.yml`
 
 Then run with:
@@ -138,7 +139,7 @@ actions:
     jobId: 9374f1c8-7b3f-4145-8556-6b55551fb60f
     template: deploy services {version} to {environment}
     options:
-	    myOption: someValue
+      myOption: someValue
 ```
 
 This will result in the action being fired, passing the following options:
@@ -158,13 +159,13 @@ actions:
     jobId: 9374f1c8-7b3f-4145-8556-6b55551fb60f
     template: deploy services {version} to {environment}
     tags:
-	    - services
+	  - services
 	    
   restart-services:
     jobId: e9d12eec-abff-4780-89cd-56a48b8c67be
     template: restart services in {environment}
     tags:
-	    - services
+	  - services
 ```
 
 Here, two actions are defined: `deploy-services` and `restart-services`, both tagged with `services`. This means you can do things like:
@@ -174,6 +175,46 @@ Here, two actions are defined: `deploy-services` and `restart-services`, both ta
 …and both actions will be locked.
 
 > Tip: There is a special tag set on all actions, named 'all'. This means you can do things like `@rundeckbot lock all`.
+
+#### Security
+
+You can choose which users are authorised to perform actions, using the `security` block:
+
+```
+security:
+  users:
+    # alice uses the built-in 'admin' role
+    alice:
+      roles:
+        - admin
+```
+> *Important:* if you do not specify a security configuration explicitly, the default will be used. The default settings permit all users to perform all actions.
+
+There is a built in role, named `admin`, which you can assign to users. You can also define your own roles, listing the permissions granted to users with that role.
+
+You can assign roles on a per-username basis or, if you wish to assign certain roles to all users, use the special `"*"` key, as shown in the example below:
+
+```
+security:
+  roles:
+    # a role that can only trigger jobs
+    deployer:
+      permissions:
+        - trigger
+      tags:
+        - all
+
+  users:
+    # alice uses the built-in 'admin' role
+    alice:
+      roles:
+        - admin
+
+    # all users can trigger jobs
+    "*":
+      roles:
+        - deployer
+```
 
 ### Built-in actions
 
@@ -208,7 +249,6 @@ As an example, here is an unofficial Rundeck Docker image: https://hub.docker.co
 * Last deployment query (what version, who triggered it etc.).
 * Status check should query Rundeck job status.
 * Add stop/abort action
-* User whitelist (by action?)
 * Multiple rooms (move into action config - set by action)
 * Feedback if spoken to in room not on whitelist
 

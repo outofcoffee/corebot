@@ -1,12 +1,18 @@
 package com.gatehill.rundeckbot.config
 
+import java.io.File
+
 /**
+ * System-wide settings.
+ *
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
 object Settings {
     class Chat {
         val authToken by lazy { System.getenv("SLACK_AUTH_TOKEN") ?: throw IllegalStateException("Slack auth token missing") }
-        val channelName by lazy { System.getenv("SLACK_CHANNEL_NAME") ?: "rundeck-slackbot" }
+        val channelNames by lazy {
+            (System.getenv("SLACK_CHANNELS") ?: "rundeck-slackbot").split(",").map(String::trim)
+        }
     }
 
     class Deployment {
@@ -17,5 +23,5 @@ object Settings {
 
     val chat = Chat()
     val deployment = Deployment()
-    val configFile by lazy { System.getenv("BOT_CONFIG") ?: "/opt/rundeck-slackbot/actions.yml" }
+    val configFile by lazy { File(System.getenv("BOT_CONFIG") ?: "/opt/rundeck-slackbot/actions.yml") }
 }
