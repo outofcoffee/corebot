@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import org.apache.logging.log4j.LogManager
-import java.io.File
+import java.io.InputStream
 import java.util.*
 
 /**
@@ -32,9 +32,9 @@ object ConfigService {
                                            val actions: Map<String, ActionConfig>) : VersionedConfig
 
     private val configFileVersion = "1"
+    private val defaultSecurityConfigFile = "/default-security.yml"
     private val objectMapper = ObjectMapper(YAMLFactory()).registerKotlinModule()
     private val logger = LogManager.getLogger(ConfigService::class.java)!!
-    private val defaultSecurityConfigFile by lazy { File(this.javaClass.getResource("/default-security.yml").toURI()) }
 
     fun loadActions(): Map<String, ActionConfig> {
         val config = loadConfig()
@@ -47,10 +47,11 @@ object ConfigService {
     }
 
     fun loadSecurity(): SecurityConfig {
-        val defaultSecurity = loadFile(defaultSecurityConfigFile, SecurityConfigWrapper::class.java).security
+        val defaultSecurity = loadFile(this.javaClass.getResourceAsStream(defaultSecurityConfigFile),
+                SecurityConfigWrapper::class.java).security
 
         val allRoles = HashMap(defaultSecurity.roles)
-        val allUsers : MutableMap<String, SecurityUserConfig> = HashMap()
+        val allUsers: MutableMap<String, SecurityUserConfig> = HashMap()
         val security = SecurityConfig(allRoles, allUsers)
 
         val config = loadConfig()
@@ -76,16 +77,18 @@ object ConfigService {
         return security
     }
 
-    private fun loadConfig() = loadFile(Settings.configFile, ActionConfigWrapper::class.java)
+    private fun loadConfig() = loadFile(Settings.configFile.inputStream(), ActionConfigWrapper::class.java)
 
-    private fun <T : VersionedConfig> loadFile(configFile: File, clazz: Class<T>): T {
-        val config = objectMapper.readValue(configFile, clazz) ?:
-                throw IllegalStateException("Configuration in ${configFile} was null")
+    private fun <T : VersionedConfig> loadFile(configFile: InputStream, clazz: Class<T>): T {
+        configFile.use {
+            val config = objectMapper.readValue(configFile, clazz) ?:
+                    throw IllegalStateException("Configuration in ${configFile} was null")
 
-        assert(configFileVersion == config.version) {
-            "Unsupported configuration version: ${config.version} (expected '${configFileVersion}')"
+            assert(configFileVersion == config.version) {
+                "Unsupported configuration version: ${config.version} (expected '${configFileVersion}')"
+            }
+
+            return config
         }
-
-        return config
     }
 }
