@@ -50,7 +50,7 @@ object ChatService {
 
             try {
                 val messageContent = event.messageContent
-                val splitCmd = messageContent.split("\\s".toRegex())
+                val splitCmd = messageContent.split("\\s".toRegex()).filterNot(String::isBlank)
 
                 // is it addressed to the bot?
                 if (splitCmd.size > 0 && splitCmd[0] == "<@${session.sessionPersona().id}>") {

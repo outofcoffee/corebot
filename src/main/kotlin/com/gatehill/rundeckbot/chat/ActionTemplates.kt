@@ -115,7 +115,7 @@ class TriggerJobTemplate : AbstractActionTemplate {
 
     constructor(action: ActionConfig) {
         this.actions = mutableListOf(action)
-        tokens = java.util.LinkedList(action.template!!.split("\\s".toRegex()))
+        tokens = java.util.LinkedList(action.template.split("\\s".toRegex()).filterNot(String::isBlank))
     }
 
     override fun buildMessage(action: ActionConfig): String {
