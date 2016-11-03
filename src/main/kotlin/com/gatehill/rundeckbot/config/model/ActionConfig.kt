@@ -8,9 +8,18 @@ package com.gatehill.rundeckbot.config.model
 data class ActionConfig(val jobId: String,
                         val options: Map<String, String>?,
                         val template: String,
-                        val tags: List<String>?) {
+                        val tags: List<String>?,
+                        val transforms: Map<String, List<TransformType>>?) {
 
     lateinit var name: String
+}
+
+/**
+ * The supported transforms.
+ */
+enum class TransformType {
+    LOWERCASE,
+    UPPERCASE
 }
 
 /**

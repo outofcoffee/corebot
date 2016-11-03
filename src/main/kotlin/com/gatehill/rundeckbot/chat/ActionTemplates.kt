@@ -5,10 +5,11 @@ import com.gatehill.rundeckbot.chat.model.CustomAction
 import com.gatehill.rundeckbot.chat.model.SystemAction
 import com.gatehill.rundeckbot.config.ConfigService
 import com.gatehill.rundeckbot.config.model.ActionConfig
+import com.gatehill.rundeckbot.config.model.TransformType
 import java.util.*
 
-private val configService = ConfigService
-private val templateService = TemplateService
+private val configService by lazy { ConfigService }
+private val templateService by lazy { TemplateService }
 
 /**
  * Actions that can be performed. Doubles as a list of named permissions in the security configuration.
@@ -104,8 +105,30 @@ abstract class CustomActionTemplate : AbstractActionTemplate() {
     override fun buildActions(): List<Action> {
         return actionConfigs.map { actionConfig ->
             CustomAction(actionType, buildShortDescription(actionConfig), buildMessage(actionConfig),
-                    actionConfig, placeholderValues)
+                    actionConfig, transform(actionConfig, placeholderValues))
         }
+    }
+
+    private fun transform(actionConfig: ActionConfig, options: MutableMap<String, String>): Map<String, String> {
+        val transformed : MutableMap<String, String> = HashMap(options)
+
+        actionConfig.transforms?.forEach { optionTransform ->
+            val optionKey = optionTransform.key
+
+            var optionValue = options[optionKey]
+            if (null != optionValue) {
+                optionTransform.value.forEach { transformType ->
+                    optionValue = when (transformType) {
+                        TransformType.LOWERCASE -> optionValue!!.toLowerCase()
+                        TransformType.UPPERCASE -> optionValue!!.toUpperCase()
+                        else -> throw UnsupportedOperationException("Transform type ${transformType} is not supported")
+                    }
+                }
+                transformed[optionKey] = optionValue!!
+            }
+        }
+
+        return transformed
     }
 }
 
@@ -116,7 +139,7 @@ abstract class NamedActionTemplate : CustomActionTemplate() {
     protected val actionPlaceholder = "action name"
     override val builtIn: Boolean = true
     override val showInUsage: Boolean = true
-    override var actionConfigs: MutableList<ActionConfig> = mutableListOf()
+    override val actionConfigs: MutableList<ActionConfig> = mutableListOf()
 
     override fun accept(input: String): Boolean {
         val accepted = super.accept(input)
@@ -124,19 +147,19 @@ abstract class NamedActionTemplate : CustomActionTemplate() {
         // has action been set?
         if (accepted && tokens.isEmpty()) {
             val actionName = placeholderValues[actionPlaceholder]
-            val actionConfigs = configService.actions()
+            val potentialConfigs = configService.actions()
 
-            val actionConfig = actionConfigs[actionName]
+            val actionConfig = potentialConfigs[actionName]
             if (null != actionConfig) {
                 // exact action name match
                 this.actionConfigs.add(actionConfig)
 
             } else {
                 // check tags
-                actionConfigs.values.forEach { config ->
-                    config.tags
+                potentialConfigs.values.forEach { potentialConfig ->
+                    potentialConfig.tags
                             ?.filter { tag -> tag == actionName || actionName == "all" }
-                            ?.forEach { tag -> this.actionConfigs.add(config) }
+                            ?.forEach { tag -> this.actionConfigs.add(potentialConfig) }
                 }
 
                 return (this.actionConfigs.size > 0)
@@ -167,7 +190,7 @@ class TriggerJobTemplate : CustomActionTemplate {
     override val builtIn: Boolean = false
     override val showInUsage: Boolean = true
     override val actionType: ActionType = ActionType.TRIGGER
-    override var actionConfigs: List<ActionConfig>
+    override val actionConfigs: List<ActionConfig>
     override val tokens: Queue<String>
 
     constructor(action: ActionConfig) {
