@@ -24,4 +24,5 @@ object Settings {
     val chat = Chat()
     val deployment = Deployment()
     val configFile by lazy { File(System.getenv("BOT_CONFIG") ?: "/opt/rundeck-slackbot/actions.yml") }
+    val configCacheSecs by lazy { System.getenv("CACHE_EXPIRY")?.toLong() ?: 60L }
 }

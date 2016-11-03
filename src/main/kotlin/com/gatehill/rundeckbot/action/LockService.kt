@@ -1,6 +1,7 @@
 package com.gatehill.rundeckbot.action
 
-import com.gatehill.rundeckbot.config.ActionConfig
+import com.gatehill.rundeckbot.action.model.PerformActionResult
+import com.gatehill.rundeckbot.config.model.ActionConfig
 import com.ullink.slack.simpleslackapi.SlackUser
 import java.util.concurrent.CompletableFuture
 

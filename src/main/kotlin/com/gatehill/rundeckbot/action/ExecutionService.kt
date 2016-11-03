@@ -3,9 +3,10 @@ package com.gatehill.rundeckbot.action
 import com.gatehill.rundeckbot.action.model.ExecutionDetails
 import com.gatehill.rundeckbot.action.model.ExecutionInfo
 import com.gatehill.rundeckbot.action.model.ExecutionOptions
+import com.gatehill.rundeckbot.action.model.PerformActionResult
 import com.gatehill.rundeckbot.chat.ChatLines
-import com.gatehill.rundeckbot.config.ActionConfig
 import com.gatehill.rundeckbot.config.Settings
+import com.gatehill.rundeckbot.config.model.ActionConfig
 import com.ullink.slack.simpleslackapi.SlackSession
 import com.ullink.slack.simpleslackapi.events.SlackMessagePosted
 import org.apache.logging.log4j.LogManager
@@ -178,12 +179,15 @@ object ExecutionService {
 
         val reaction: String
         val emoji: String
-        if (executionStatus == jobStatusSucceeded) {
-            reaction = ChatLines.goodNews()
-            emoji = "white_check_mark"
-        } else {
-            reaction = ChatLines.badNews()
-            emoji = "x"
+        when (executionStatus) {
+            jobStatusSucceeded -> {
+                reaction = ChatLines.goodNews()
+                emoji = "white_check_mark"
+            }
+            else -> {
+                reaction = ChatLines.badNews()
+                emoji = "x"
+            }
         }
 
         session.addReactionToMessage(event.channel, event.timeStamp, emoji)

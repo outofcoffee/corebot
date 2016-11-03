@@ -17,14 +17,30 @@ object ChatLines {
     ).chooseOne()
 
     fun goodNews() = arrayOf(
-            "Hooray :raised_hands:",
-            "Awesome :raised_hands:",
-            "Good news :raised_hands:"
+            "Hooray :${goodNewsEmoji()}:",
+            "Awesome :${goodNewsEmoji()}:",
+            "Good news :${goodNewsEmoji()}:"
+    ).chooseOne()
+
+    fun goodNewsEmoji() = arrayOf(
+            ":raised_hands:",
+            ":tada:"
     ).chooseOne()
 
     fun badNews() = arrayOf(
-            "Oh dear :cry:",
-            "Oh no :cry:",
-            "Bad news :cry:"
+            "Oh dear :${badNewsEmoji()}:",
+            "Oh no :${badNewsEmoji()}:",
+            "Bad news :${badNewsEmoji()}:"
+    ).chooseOne()
+
+    fun badNewsEmoji() = arrayOf(
+            ":cry:",
+            ":scream:"
+    ).chooseOne()
+
+    fun greeting() = arrayOf(
+            "Hi",
+            "Hello",
+            "Hey"
     ).chooseOne()
 }

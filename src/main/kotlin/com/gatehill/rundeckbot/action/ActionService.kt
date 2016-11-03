@@ -2,9 +2,10 @@ package com.gatehill.rundeckbot.action
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import com.gatehill.rundeckbot.action.model.PerformActionResult
 import com.gatehill.rundeckbot.chat.ActionType
-import com.gatehill.rundeckbot.config.ActionConfig
 import com.gatehill.rundeckbot.config.Settings
+import com.gatehill.rundeckbot.config.model.ActionConfig
 import com.ullink.slack.simpleslackapi.SlackSession
 import com.ullink.slack.simpleslackapi.events.SlackMessagePosted
 import org.apache.logging.log4j.LogManager
@@ -40,6 +41,7 @@ object ActionService {
                 ActionType.LOCK -> lockService.acquireLock(future, action, event.sender)
                 ActionType.UNLOCK -> lockService.unlock(future, action)
                 ActionType.STATUS -> showStatus(future, action)
+                else -> throw UnsupportedOperationException("Action type ${actionType} is not supported")
             }
         } catch(e: Exception) {
             future.completeExceptionally(e)
@@ -58,18 +60,14 @@ object ActionService {
     private fun enableExecutions(future: CompletableFuture<PerformActionResult>, action: ActionConfig, enable: Boolean) {
         logger.info("Setting action: {} with job ID: {} enabled status to {}", action.name, action.jobId, enable)
 
-        val call: Call<HashMap<String, Any>>
-        if (enable) {
-            call = buildRundeckApi().enableExecution(
-                    apiToken = Settings.deployment.apiToken,
-                    jobId = action.jobId
-            )
-        } else {
-            call = buildRundeckApi().disableExecution(
-                    apiToken = Settings.deployment.apiToken,
-                    jobId = action.jobId
-            )
-        }
+        val call: Call<HashMap<String, Any>> =
+                if (enable) buildRundeckApi().enableExecution(
+                        apiToken = Settings.deployment.apiToken,
+                        jobId = action.jobId
+                ) else buildRundeckApi().disableExecution(
+                        apiToken = Settings.deployment.apiToken,
+                        jobId = action.jobId
+                )
 
         call.enqueue(object : Callback<HashMap<String, Any>> {
             override fun onFailure(call: Call<HashMap<String, Any>>, t: Throwable) {
@@ -81,7 +79,6 @@ object ActionService {
                 if (response.isSuccessful) {
                     logger.info("Successfully enabled action with job ID: {} - response: {}", action.jobId, response.body())
                     future.complete(PerformActionResult("I've ${if (enable) "enabled" else "disabled"} *${action.name}*."))
-
                 } else {
                     val errorBody = response.errorBody().string()
                     logger.error("Unsuccessfully enabled action with job ID: {} - response: {}", action.jobId, errorBody)
@@ -105,5 +102,3 @@ object ActionService {
         }
     }
 }
-
-data class PerformActionResult(val message: String, val finalResult: Boolean = true)

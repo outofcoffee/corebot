@@ -1,9 +1,10 @@
 package com.gatehill.rundeckbot.security
 
+import com.gatehill.rundeckbot.chat.model.Action
 import com.gatehill.rundeckbot.chat.ChatService
 import com.gatehill.rundeckbot.config.ConfigService
-import com.gatehill.rundeckbot.config.SecurityConfig
-import com.gatehill.rundeckbot.config.SecurityUserConfig
+import com.gatehill.rundeckbot.config.model.SecurityConfig
+import com.gatehill.rundeckbot.config.model.SecurityUserConfig
 import org.apache.logging.log4j.LogManager
 
 /**
@@ -15,8 +16,8 @@ object AuthorisationService {
     private val logger = LogManager.getLogger(AuthorisationService::class.java)!!
     private val configService by lazy { ConfigService }
 
-    fun checkPermission(action: ChatService.Action, callback: (Boolean) -> Unit, userName: String?) {
-        val security = configService.loadSecurity()
+    fun checkPermission(action: Action, callback: (Boolean) -> Unit, userName: String?) {
+        val security = configService.security()
 
         // check for the username explicitly as well as the all users wildcard
         val permitted = checkUserPermissions(action, security, security.users[userName]) ||
@@ -28,7 +29,7 @@ object AuthorisationService {
         callback(permitted)
     }
 
-    private fun checkUserPermissions(action: ChatService.Action, security: SecurityConfig,
+    private fun checkUserPermissions(action: Action, security: SecurityConfig,
                                      user: SecurityUserConfig?): Boolean {
 
         return (user?.roles ?: emptyList()).any { userRole ->

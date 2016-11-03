@@ -1,4 +1,4 @@
-package com.gatehill.rundeckbot.config
+package com.gatehill.rundeckbot.config.model
 
 /**
  * Models a user.
