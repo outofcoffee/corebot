@@ -125,11 +125,11 @@ abstract class CustomActionTemplate : AbstractActionTemplate() {
     private fun transform(actionConfig: ActionConfig, options: MutableMap<String, String>): Map<String, String> {
         val transformed: MutableMap<String, String> = HashMap(options)
 
-        actionConfig.transformers?.forEach { optionTransform ->
+        actionConfig.options?.transformers?.forEach { optionTransform ->
             val optionKey = optionTransform.key
 
             var optionValue = options[optionKey]
-            if (null != optionValue) {
+            optionValue?.let {
                 optionTransform.value.forEach { transformType ->
                     optionValue = when (transformType) {
                         TransformType.LOWERCASE -> optionValue!!.toLowerCase()

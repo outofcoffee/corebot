@@ -47,7 +47,7 @@ object ExecutionService {
     private fun triggerExecution(session: SlackSession, event: SlackMessagePosted, future: CompletableFuture<PerformActionResult>,
                                  action: ActionConfig, args: Map<String, String>) {
 
-        val allArgs = args.plus(action.options ?: emptyMap())
+        val allArgs = args.plus(action.options?.static ?: emptyMap())
         logger.info("Triggering action: {} with job ID: {} and args: {}", action.name, action.jobId, allArgs)
 
         val call = actionService.buildRundeckApi().runJob(

@@ -88,9 +88,9 @@ object ConfigService {
         val config = loadCustomConfig()
         config.security ?: logger.warn("No custom user security configuration found - using defaults")
 
-        if (null != config.security?.roles) {
+        config.security?.roles?.let {
             // config roles override or add if absent
-            allRoles.putAll(config.security!!.roles)
+            allRoles.putAll(config.security.roles)
         }
 
         if (null != config.security?.users && config.security?.users.size > 0) {

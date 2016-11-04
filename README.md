@@ -128,9 +128,9 @@ This will result in the action being fired, passing the following options:
 - version=1.0
 - environment=UAT
 
-#### Default options
+#### Static options
 
-Sometimes you might want to pass an option to a job by default, and not require the user to provide it. You can do this with the `options` action block:
+You might want to pass an option value to a job every time, and not require the user to provide it. You can do this with the `static` section of the `options` action block:
 
 ```
 version: '1'
@@ -139,7 +139,9 @@ actions:
     jobId: 9374f1c8-7b3f-4145-8556-6b55551fb60f
     template: deploy services {version} to {environment}
     options:
-      myOption: someValue
+      static:
+        myOption: someValue
+        myOtherOption: someOtherValue
 ```
 
 This will result in the action being fired, passing the following options:
@@ -147,6 +149,33 @@ This will result in the action being fired, passing the following options:
 - version=1.0
 - environment=UAT
 - _myOption=someValue_
+
+#### Transforming options
+
+You might want to transform an option value provided by a user before it is passed to a job. You can do this with the `transformers` section of the `options` action block:
+
+```
+version: '1'
+actions:
+  services:
+    jobId: 9374f1c8-7b3f-4145-8556-6b55551fb60f
+    template: deploy services {version} to {environment}
+    options:
+      transformers:
+        version:
+          - LOWERCASE
+        environment:
+          - UPPERCASE
+```
+
+If the user typed this command:
+
+    @rundeckbot deploy services V1.0 to uat
+
+This will result in the action being fired, passing the following options:
+
+- version=v1.0 (note: lowercased)
+- environment=UAT (note: uppercased)
 
 #### Tags and multiple job actions
 
@@ -220,6 +249,7 @@ security:
 
 There are a number of built in actions, such as:
 
+* `@rundeckbot help` - show usage information.
 * `@rundeckbot lock {action name or tag}` - lock action(s) to prevent them being triggered accidentally.
 * `@rundeckbot unlock {action name or tag}` - unlock locked action(s).
 * `@rundeckbot status {action name or tag}` - show status of action(s).
@@ -245,12 +275,12 @@ As an example, here is an unofficial Rundeck Docker image: https://hub.docker.co
 
 ## Roadmap
 
-* Notify lock owner on unlock.
+* Notify lock owner on unlock by another user.
 * Last deployment query (what version, who triggered it etc.).
 * Status check should query Rundeck job status.
-* Add stop/abort action
-* Multiple rooms (move into action config - set by action)
-* Feedback if spoken to in room not on whitelist
+* Add stop/abort action.
+* Feedback if spoken to in room not on whitelist.
+* Allow jobs to be specified by project and job name, not just job ID.
 
 ## Contributing
 

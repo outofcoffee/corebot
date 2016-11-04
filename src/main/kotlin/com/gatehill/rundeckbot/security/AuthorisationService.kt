@@ -35,7 +35,7 @@ object AuthorisationService {
         return (user?.roles ?: emptyList()).any { userRole ->
             // check the security config for the user's role
             val roleConfig = security.roles[userRole]
-            if (null != roleConfig) {
+            roleConfig?.let {
                 val matchedPermissions = roleConfig.permissions.filter { permission ->
                     action.actionType.name.equals(permission, ignoreCase = true)
                 }

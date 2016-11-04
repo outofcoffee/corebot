@@ -6,20 +6,11 @@ package com.gatehill.rundeckbot.config.model
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
 data class ActionConfig(val jobId: String,
-                        val options: Map<String, String>?,
+                        val options: OptionConfig?,
                         val template: String,
-                        val tags: List<String>?,
-                        val transformers: Map<String, List<TransformType>>?) {
+                        val tags: List<String>?) {
 
     lateinit var name: String
-}
-
-/**
- * The supported transformers.
- */
-enum class TransformType {
-    LOWERCASE,
-    UPPERCASE
 }
 
 /**
