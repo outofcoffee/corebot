@@ -23,8 +23,8 @@ object ChatLines {
     ).chooseOne()
 
     fun goodNewsEmoji() = arrayOf(
-            ":raised_hands:",
-            ":tada:"
+            "raised_hands",
+            "tada"
     ).chooseOne()
 
     fun badNews() = arrayOf(
@@ -34,8 +34,8 @@ object ChatLines {
     ).chooseOne()
 
     fun badNewsEmoji() = arrayOf(
-            ":cry:",
-            ":scream:"
+            "cry",
+            "scream"
     ).chooseOne()
 
     fun greeting() = arrayOf(

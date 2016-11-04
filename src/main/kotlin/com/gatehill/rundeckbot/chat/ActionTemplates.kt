@@ -6,6 +6,7 @@ import com.gatehill.rundeckbot.chat.model.SystemAction
 import com.gatehill.rundeckbot.config.ConfigService
 import com.gatehill.rundeckbot.config.model.ActionConfig
 import com.gatehill.rundeckbot.config.model.TransformType
+import com.gatehill.rundeckbot.config.model.readActionConfigAttribute
 import java.util.*
 
 private val configService by lazy { ConfigService }
@@ -31,9 +32,12 @@ interface ActionTemplate {
     val builtIn: Boolean
     val showInUsage: Boolean
     val actionType: ActionType
-    val actionConfigs: List<ActionConfig>
     val tokens: Queue<String>
-    val placeholderValues: Map<String, String>
+
+    /**
+     * Convert the action templates to a human-readable String.
+     */
+    val actionTemplates: String
 
     /**
      * Process the token and return true if it was accepted.
@@ -50,7 +54,11 @@ interface ActionTemplate {
  * Parses tokens into placeholder values.
  */
 abstract class AbstractActionTemplate : ActionTemplate {
-    override val placeholderValues = HashMap<String, String>()
+    protected val placeholderValues: MutableMap<String, String> = HashMap()
+    protected abstract val actionConfigs: List<ActionConfig>
+
+    override val actionTemplates: String
+        get() = readActionConfigAttribute(actionConfigs, ActionConfig::template)
 
     override fun accept(input: String): Boolean {
         if (tokens.size == 0) return false
@@ -78,7 +86,9 @@ abstract class AbstractActionTemplate : ActionTemplate {
     /**
      * The response message sent when this actionType is fired.
      */
-    protected open fun buildMessage(actionConfig: ActionConfig? = null): String {
+    protected open fun buildMessage(options: Map<String, String> = emptyMap(),
+                                    actionConfig: ActionConfig? = null): String {
+
         return if (null != actionConfig) "I'm working on *${actionConfig.name}*..." else "I'm working on it..."
     }
 }
@@ -104,15 +114,18 @@ abstract class CustomActionTemplate : AbstractActionTemplate() {
      */
     override fun buildActions(): List<Action> {
         return actionConfigs.map { actionConfig ->
-            CustomAction(actionType, buildShortDescription(actionConfig), buildMessage(actionConfig),
-                    actionConfig, transform(actionConfig, placeholderValues))
+            val options = transform(actionConfig, placeholderValues)
+            CustomAction(actionType,
+                    buildShortDescription(actionConfig),
+                    buildMessage(options, actionConfig),
+                    actionConfig, options)
         }
     }
 
     private fun transform(actionConfig: ActionConfig, options: MutableMap<String, String>): Map<String, String> {
-        val transformed : MutableMap<String, String> = HashMap(options)
+        val transformed: MutableMap<String, String> = HashMap(options)
 
-        actionConfig.transforms?.forEach { optionTransform ->
+        actionConfig.transformers?.forEach { optionTransform ->
             val optionKey = optionTransform.key
 
             var optionValue = options[optionKey]
@@ -178,7 +191,7 @@ class ShowHelpTemplate : SystemActionTemplate() {
     override val actionType = ActionType.HELP
     override val tokens = LinkedList(listOf("help"))
 
-    override fun buildMessage(actionConfig: ActionConfig?): String {
+    override fun buildMessage(options: Map<String, String>, actionConfig: ActionConfig?): String {
         return "${ChatLines.greeting()} :simple_smile: Try one of these:\r\n${templateService.usage()}"
     }
 }
@@ -198,15 +211,15 @@ class TriggerJobTemplate : CustomActionTemplate {
         tokens = LinkedList(action.template.split("\\s".toRegex()).filterNot(String::isBlank))
     }
 
-    override fun buildMessage(actionConfig: ActionConfig?): String {
+    override fun buildMessage(options: Map<String, String>, actionConfig: ActionConfig?): String {
         actionConfig ?: throw IllegalArgumentException("Empty actionConfig")
 
         val msg = StringBuilder()
         msg.append("${ChatLines.pleaseWait()}, I'm running *${actionConfig.name}*")
 
-        if (placeholderValues.size > 0) {
+        if (options.size > 0) {
             msg.append(" with these options:")
-            placeholderValues.forEach { arg -> msg.append("\r\n- ${arg.key}: _${arg.value}_") }
+            options.forEach { arg -> msg.append("\r\n- ${arg.key}: _${arg.value}_") }
         } else {
             msg.append(".")
         }

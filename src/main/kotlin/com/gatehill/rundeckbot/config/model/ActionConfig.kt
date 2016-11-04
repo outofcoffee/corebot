@@ -9,13 +9,13 @@ data class ActionConfig(val jobId: String,
                         val options: Map<String, String>?,
                         val template: String,
                         val tags: List<String>?,
-                        val transforms: Map<String, List<TransformType>>?) {
+                        val transformers: Map<String, List<TransformType>>?) {
 
     lateinit var name: String
 }
 
 /**
- * The supported transforms.
+ * The supported transformers.
  */
 enum class TransformType {
     LOWERCASE,

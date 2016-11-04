@@ -1,4 +1,4 @@
-# Action with option transforms.
+# Action with option transformers.
 ---
 version: '1'
 
@@ -6,7 +6,7 @@ actions:
   deploy-services:
     jobId: 9374f1c8-7b3f-4145-8556-6b55551fb60f
     template: deploy services {version} to {environment}
-    transforms:
+    transformers:
       version:
         - LOWERCASE
       environment:

@@ -5,8 +5,6 @@ import com.gatehill.rundeckbot.chat.model.Action
 import com.gatehill.rundeckbot.chat.model.CustomAction
 import com.gatehill.rundeckbot.config.ConfigService
 import com.gatehill.rundeckbot.config.Settings
-import com.gatehill.rundeckbot.config.model.ActionConfig
-import com.gatehill.rundeckbot.config.model.readActionConfigAttribute
 import com.gatehill.rundeckbot.security.AuthorisationService
 import com.ullink.slack.simpleslackapi.SlackSession
 import com.ullink.slack.simpleslackapi.events.SlackMessagePosted
@@ -87,8 +85,7 @@ object ChatService {
                 val candidate = context.candidates[0]
 
                 if (candidate.tokens.size > 0) {
-                    val actionTemplates = readActionConfigAttribute(candidate.actionConfigs, ActionConfig::template)
-                    throw IllegalStateException("Too few tokens for actions: ${actionTemplates}")
+                    throw IllegalStateException("Too few tokens for actions: ${candidate.actionTemplates}")
                 }
 
                 return candidate.buildActions()
