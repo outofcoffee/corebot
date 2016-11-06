@@ -1,7 +1,6 @@
 package com.gatehill.rundeckbot.security
 
 import com.gatehill.rundeckbot.chat.model.Action
-import com.gatehill.rundeckbot.chat.ChatService
 import com.gatehill.rundeckbot.config.ConfigService
 import com.gatehill.rundeckbot.config.model.SecurityConfig
 import com.gatehill.rundeckbot.config.model.SecurityUserConfig
@@ -38,10 +37,15 @@ object AuthorisationService {
             roleConfig?.let {
                 val matchedPermissions = roleConfig.permissions.filter { permission ->
                     action.actionType.name.equals(permission, ignoreCase = true)
-                }
+                }.any()
 
-                // only permitted if permission is present in user's role
-                if (matchedPermissions.any()) return@any true
+                // no tags on a role means it applies to all
+                val matchedTags = (null == roleConfig.tags ||
+                        roleConfig.tags.isEmpty() ||
+                        roleConfig.tags.intersect(action.tags).any())
+
+                // only permitted if permission is present in user's role and tags match
+                if (matchedPermissions && matchedTags) return@any true
             }
 
             // fail safe

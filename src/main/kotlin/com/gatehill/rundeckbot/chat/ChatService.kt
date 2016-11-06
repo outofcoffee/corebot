@@ -29,9 +29,8 @@ object ChatService {
 
         session.addMessagePostedListener(SlackMessagePostedListener { event, theSession ->
             // filter out messages from other channels
-            for (channelName in Settings.chat.channelNames) {
-                if (theSession.findChannelByName(channelName).id != event.channel.id) return@SlackMessagePostedListener
-            }
+            if (!Settings.chat.channelNames.map { channelName -> theSession.findChannelByName(channelName).id }
+                    .contains(event.channel.id)) return@SlackMessagePostedListener
 
             // ignore own messages
             if (theSession.sessionPersona().id == event.sender.id) return@SlackMessagePostedListener

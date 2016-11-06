@@ -149,6 +149,7 @@ This will result in the action being fired, passing the following options:
 - version=1.0
 - environment=UAT
 - _myOption=someValue_
+- _myOtherOption=someOtherValue_
 
 #### Transforming options
 
@@ -230,8 +231,6 @@ security:
     deployer:
       permissions:
         - trigger
-      tags:
-        - all
 
   users:
     # alice uses the built-in 'admin' role
@@ -243,6 +242,21 @@ security:
     "*":
       roles:
         - deployer
+```
+
+By default, role definitions apply to all actions. If you wish to restrict the permissions granted by a role to certain actions only, add a tag to the action and also to the corresponding `tags` array in the role:
+ 
+```
+security:
+  roles:
+    # a role that can only trigger jobs
+    deployer:
+      permissions:
+        - trigger
+    
+    # this role only permits triggering of actions tagged with 'services'
+      tags:
+        - services
 ```
 
 ### Built-in actions

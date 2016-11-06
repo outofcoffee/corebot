@@ -7,7 +7,8 @@ import com.gatehill.rundeckbot.chat.ActionType
  */
 abstract class Action(open val actionType: ActionType,
                       open val shortDescription: String,
-                      open val actionMessage: String) {
+                      open val actionMessage: String,
+                      open val tags: List<String>) {
 
     override fun toString(): String {
         return "Action(actionType=$actionType)"

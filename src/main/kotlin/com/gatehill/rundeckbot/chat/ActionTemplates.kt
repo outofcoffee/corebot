@@ -118,14 +118,16 @@ abstract class CustomActionTemplate : AbstractActionTemplate() {
             CustomAction(actionType,
                     buildShortDescription(actionConfig),
                     buildMessage(options, actionConfig),
-                    actionConfig, options)
+                    actionConfig.tags,
+                    actionConfig,
+                    options)
         }
     }
 
     private fun transform(actionConfig: ActionConfig, options: MutableMap<String, String>): Map<String, String> {
         val transformed: MutableMap<String, String> = HashMap(options)
 
-        actionConfig.options?.transformers?.forEach { optionTransform ->
+        actionConfig.options.transformers?.forEach { optionTransform ->
             val optionKey = optionTransform.key
 
             var optionValue = options[optionKey]
@@ -159,10 +161,10 @@ abstract class NamedActionTemplate : CustomActionTemplate() {
 
         // has action been set?
         if (accepted && tokens.isEmpty()) {
-            val actionName = placeholderValues[actionPlaceholder]
+            val actionOrTagName = placeholderValues[actionPlaceholder]
             val potentialConfigs = configService.actions()
 
-            val actionConfig = potentialConfigs[actionName]
+            val actionConfig = potentialConfigs[actionOrTagName]
             if (null != actionConfig) {
                 // exact action name match
                 this.actionConfigs.add(actionConfig)
@@ -171,8 +173,8 @@ abstract class NamedActionTemplate : CustomActionTemplate() {
                 // check tags
                 potentialConfigs.values.forEach { potentialConfig ->
                     potentialConfig.tags
-                            ?.filter { tag -> tag == actionName || actionName == "all" }
-                            ?.forEach { tag -> this.actionConfigs.add(potentialConfig) }
+                            .filter { tag -> tag == actionOrTagName }
+                            .forEach { tag -> this.actionConfigs.add(potentialConfig) }
                 }
 
                 return (this.actionConfigs.size > 0)

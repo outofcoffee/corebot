@@ -3,9 +3,7 @@ package com.gatehill.rundeckbot.config
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import com.gatehill.rundeckbot.config.model.ActionConfig
-import com.gatehill.rundeckbot.config.model.SecurityConfig
-import com.gatehill.rundeckbot.config.model.SecurityUserConfig
+import com.gatehill.rundeckbot.config.model.*
 import com.google.common.cache.Cache
 import com.google.common.cache.CacheBuilder
 import org.apache.logging.log4j.LogManager
@@ -35,7 +33,7 @@ object ConfigService {
      */
     private data class ActionConfigWrapper(override val version: String,
                                            override val security: SecurityConfig?,
-                                           val actions: Map<String, ActionConfig>) : VersionedConfig
+                                           val actions: Map<String, FileActionConfig>) : VersionedConfig
 
     private val configFileVersion = "1"
     private val logger = LogManager.getLogger(ConfigService::class.java)!!
@@ -72,9 +70,21 @@ object ConfigService {
         val config = loadCustomConfig()
         logger.debug("Loaded ${config.actions.size} actions")
 
-        config.actions.forEach { action -> action.value.name = action.key }
+        val actions = HashMap<String, ActionConfig>()
+        config.actions.map { action ->
+            with(action.value) {
+                // all custom actions have the 'all' tag
+                val combinedTags = mutableListOf("all")
+                tags?.let { combinedTags.addAll(tags) }
 
-        return config.actions
+                actions[action.key] = ActionConfig(action.key,
+                        jobId,
+                        options ?: OptionConfig(),
+                        template,
+                        combinedTags)
+            }
+        }
+        return actions
     }
 
     /**
