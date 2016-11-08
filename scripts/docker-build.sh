@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-IMAGE_BASE_NAME="outofcoffee/rundeck-slackbot"
+IMAGE_BASE_NAME="outofcoffee/corebot"
 IMAGE_TAG="${1-dev}"
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 

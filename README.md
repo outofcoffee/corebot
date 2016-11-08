@@ -4,9 +4,9 @@ Trigger your [Rundeck](http://rundeck.org) jobs from [Slack](https://slack.com).
 
 _Example:_
 
-    @rundeckbot deploy user-service 1.0 to staging
+    @corebot deploy user-service 1.0 to staging
     
-    > rundeckbot:
+    > corebot:
     > OK, I'm deploying user-service version 1.0 to staging.
     > Status of job is: running
     > Details: http://rundeck/jobs/abc/123
@@ -17,23 +17,23 @@ _Example:_
 
 ##### Trigger your deployment jobs
 
-<img alt="Deploy" src="https://github.com/outofcoffee/rundeck-slackbot/raw/master/docs/images/deploy.png" width="467">
+<img alt="Deploy" src="https://github.com/outofcoffee/corebot/raw/master/docs/images/deploy.png" width="467">
 
 ##### Trigger your other custom jobs
 
-<img alt="Restart" src="https://github.com/outofcoffee/rundeck-slackbot/raw/master/docs/images/restart.png" width="472">
+<img alt="Restart" src="https://github.com/outofcoffee/corebot/raw/master/docs/images/restart.png" width="472">
 
 ##### Lock things to prevent accidental deployment
 
-<img alt="Lock deployment failure" src="https://github.com/outofcoffee/rundeck-slackbot/raw/master/docs/images/lock_deploy_fail.png" width="371">
+<img alt="Lock deployment failure" src="https://github.com/outofcoffee/corebot/raw/master/docs/images/lock_deploy_fail.png" width="371">
 
 ##### Unlock things you've locked
 
-<img alt="Unlock job" src="https://github.com/outofcoffee/rundeck-slackbot/raw/master/docs/images/unlock.png" width="336">
+<img alt="Unlock job" src="https://github.com/outofcoffee/corebot/raw/master/docs/images/unlock.png" width="336">
 
 ##### Get help
 
-<img alt="Help" src="https://github.com/outofcoffee/rundeck-slackbot/raw/master/docs/images/unknown.png" width="389">
+<img alt="Help" src="https://github.com/outofcoffee/corebot/raw/master/docs/images/unknown.png" width="389">
 
 ## Instructions
 
@@ -48,11 +48,11 @@ The quickest way to get up and running is to use the Docker image:
 
     docker run -d \
             --env SLACK_AUTH_TOKEN="CHANGEME" \
-            --env SLACK_CHANNELS="rundeck-slackbot" \
+            --env SLACK_CHANNELS="corebot" \
             --env RUNDECK_API_TOKEN="CHANGEME" \
             --env RUNDECK_BASE_URL="http://rundeck:4440" \
-            -v /path/to/actions.yml:/opt/rundeck-slackbot/actions.yml \
-            outofcoffee/rundeck-slackbot
+            -v /path/to/actions.yml:/opt/corebot/actions.yml \
+            outofcoffee/corebot
 
 Note: the container doesn't require any inbound ports to be exposed.
 
@@ -66,13 +66,13 @@ If instead you wish to build and run locally, you can run:
 Once built, set the following environment variables in `docker-compose.yml`:
     
     SLACK_AUTH_TOKEN: "CHANGEME"
-    SLACK_CHANNELS: "rundeck-slackbot"
+    SLACK_CHANNELS: "corebot"
     RUNDECK_API_TOKEN: "CHANGEME"
     RUNDECK_BASE_URL: "http://rundeck:4440"
     BOT_CONFIG: "/path/to/actions.yaml"
     
 > Note: `SLACK_CHANNELS` is a comma-separated list of channel names.
-> Note: the default path for `BOT_CONFIG` is `/opt/rundeck-slackbot/actions.yml`
+> Note: the default path for `BOT_CONFIG` is `/opt/corebot/actions.yml`
 
 Then run with:
 
@@ -86,7 +86,7 @@ The bot has both built-in actions and custom actions. Examples of built in actio
 
 ### Action configuration file
 
-> Note: the default path for `BOT_CONFIG` is `/opt/rundeck-slackbot/actions.yml`
+> Note: the default path for `BOT_CONFIG` is `/opt/corebot/actions.yml`
 
 _Example:_
 ```
@@ -121,7 +121,7 @@ A template also allows you to specify job options as placeholders, such as:
 
 In this example both _version_ and _environment_ are captured from the command, such as:
 
-	@rundeckbot deploy services 1.0 to UAT
+	@corebot deploy services 1.0 to UAT
 
 This will result in the action being fired, passing the following options:
 
@@ -171,7 +171,7 @@ actions:
 
 If the user typed this command:
 
-    @rundeckbot deploy services V1.0 to uat
+    @corebot deploy services V1.0 to uat
 
 This will result in the action being fired, passing the following options:
 
@@ -200,11 +200,11 @@ actions:
 
 Here, two actions are defined: `deploy-services` and `restart-services`, both tagged with `services`. This means you can do things like:
 
-	@rundeckbot lock services
+	@corebot lock services
 
 …and both actions will be locked.
 
-> Tip: There is a special tag set on all actions, named 'all'. This means you can do things like `@rundeckbot lock all`.
+> Tip: There is a special tag set on all actions, named 'all'. This means you can do things like `@corebot lock all`.
 
 #### Security
 
@@ -263,12 +263,12 @@ security:
 
 There are a number of built in actions, such as:
 
-* `@rundeckbot help` - show usage information.
-* `@rundeckbot lock {action name or tag}` - lock action(s) to prevent them being triggered accidentally.
-* `@rundeckbot unlock {action name or tag}` - unlock locked action(s).
-* `@rundeckbot status {action name or tag}` - show status of action(s).
-* `@rundeckbot enable {action name or tag}` - set the Rundeck execution status for a job - *Note:* this requires the Rundeck ACL to permit the API user to set the execution status of a job.
-* `@rundeckbot disable {action name or tag}` - set the Rundeck execution status for a job - *Note:* this requires the Rundeck ACL to permit the API user to set the execution status of a job.
+* `@corebot help` - show usage information.
+* `@corebot lock {action name or tag}` - lock action(s) to prevent them being triggered accidentally.
+* `@corebot unlock {action name or tag}` - unlock locked action(s).
+* `@corebot status {action name or tag}` - show status of action(s).
+* `@corebot enable {action name or tag}` - set the Rundeck execution status for a job - *Note:* this requires the Rundeck ACL to permit the API user to set the execution status of a job.
+* `@corebot disable {action name or tag}` - set the Rundeck execution status for a job - *Note:* this requires the Rundeck ACL to permit the API user to set the execution status of a job.
 
 ## More info
 

@@ -1,0 +1,38 @@
+buildscript {
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$version_kotlin"
+    }
+}
+
+apply plugin: "kotlin"
+apply plugin: "application"
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$version_kotlin"
+
+    // redirect all logs to log4j2
+    compile "org.apache.logging.log4j:log4j-core:$version_log4j"
+    compile "org.apache.logging.log4j:log4j-jcl:$version_log4j"
+    compile "org.apache.logging.log4j:log4j-slf4j-impl:$version_log4j"
+    compile "org.apache.logging.log4j:log4j-1.2-api:$version_log4j"
+    compile "org.apache.logging.log4j:log4j-jul:$version_log4j"
+
+    compile "com.fasterxml.jackson.module:jackson-module-kotlin:$version_jackson"
+    compile "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$version_jackson"
+
+    compile ("com.github.ullink:simple-slack-api:$version_slackapi") {
+        exclude module: 'logback-classic'
+    }
+
+    compile project(':core')
+    compile project(':drivers:rundeck')
+
+    testCompile 'junit:junit:4.11'
+    testCompile "org.jetbrains.kotlin:kotlin-test-junit:$version_kotlin"
+}
+
+mainClassName = 'com.gatehill.corebot.MainKt'
+
+task createStartScripts(type: CreateStartScripts) {
+    applicationName = 'corebot'
+}

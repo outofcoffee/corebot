@@ -1,1 +1,3 @@
-rootProject.name = 'rundeck-slackbot'
+rootProject.name = 'corebot'
+
+include ':core', ':bot', ':drivers:rundeck'

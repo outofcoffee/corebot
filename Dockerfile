@@ -2,10 +2,10 @@ FROM java:8-jdk
 
 MAINTAINER Pete Cornish <outofcoffee@gmail.com>
 
-RUN mkdir -p /opt/rundeck-slackbot /opt/rundeck-slackbot/config
+RUN mkdir -p /opt/corebot /opt/corebot/config
 
-ADD build/install/rundeck-slackbot /opt/rundeck-slackbot
+ADD bot/build/install/bot /opt/corebot
 
-WORKDIR "/opt/rundeck-slackbot"
+WORKDIR "/opt/corebot"
 
-ENTRYPOINT [ "./bin/rundeck-slackbot" ]
+ENTRYPOINT [ "./bin/bot" ]
