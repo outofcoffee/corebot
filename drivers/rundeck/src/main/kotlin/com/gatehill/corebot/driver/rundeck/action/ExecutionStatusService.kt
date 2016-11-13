@@ -3,7 +3,6 @@ package com.gatehill.corebot.driver.rundeck.action
 import com.gatehill.corebot.action.LockService
 import com.gatehill.corebot.action.model.PerformActionResult
 import com.gatehill.corebot.config.model.ActionConfig
-import com.gatehill.corebot.driver.rundeck.config.DriverSettings
 import org.apache.logging.log4j.LogManager
 import retrofit2.Call
 import retrofit2.Callback
@@ -24,18 +23,16 @@ class ExecutionStatusService @Inject constructor(private val actionDriver: Runde
         logger.info("Setting action: {} with job ID: {} enabled status to {}", action.name, action.jobId, enable)
 
         val call: Call<HashMap<String, Any>> =
-                if (enable) actionDriver.buildRundeckApi().enableExecution(
-                        apiToken = DriverSettings.deployment.apiToken,
+                if (enable) actionDriver.buildApiClient().enableExecution(
                         jobId = action.jobId
-                ) else actionDriver.buildRundeckApi().disableExecution(
-                        apiToken = DriverSettings.deployment.apiToken,
+                ) else actionDriver.buildApiClient().disableExecution(
                         jobId = action.jobId
                 )
 
         call.enqueue(object : Callback<HashMap<String, Any>> {
-            override fun onFailure(call: Call<HashMap<String, Any>>, t: Throwable) {
-                logger.error("Error enabling action with job ID: {}", action.jobId, t)
-                future.completeExceptionally(t)
+            override fun onFailure(call: Call<HashMap<String, Any>>, cause: Throwable) {
+                logger.error("Error enabling action with job ID: {}", action.jobId, cause)
+                future.completeExceptionally(cause)
             }
 
             override fun onResponse(call: Call<HashMap<String, Any>>, response: Response<HashMap<String, Any>>) {

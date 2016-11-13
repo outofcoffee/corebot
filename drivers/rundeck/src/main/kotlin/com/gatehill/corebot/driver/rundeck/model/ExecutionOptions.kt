@@ -1,7 +1,7 @@
 package com.gatehill.corebot.driver.rundeck.model
 
 /**
- * Trigger a build with given options.
+ * Describes a job execution.
  */
 data class ExecutionOptions(val argString: String,
                             val logLevel: String = "INFO",

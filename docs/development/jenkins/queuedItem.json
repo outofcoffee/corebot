@@ -1,0 +1,51 @@
+{
+  "_class" : "hudson.model.Queue$LeftItem",
+  "actions" : [
+    {
+      "_class" : "hudson.model.ParametersAction",
+      "parameters" : [
+        {
+          "_class" : "hudson.model.StringParameterValue",
+          "name" : "version",
+          "value" : ""
+        },
+        {
+          "_class" : "hudson.model.StringParameterValue",
+          "name" : "environment",
+          "value" : ""
+        }
+      ]
+    },
+    {
+      "_class" : "hudson.model.CauseAction",
+      "causes" : [
+        {
+          "_class" : "hudson.model.Cause$UserIdCause",
+          "shortDescription" : "Started by user admin",
+          "userId" : "admin",
+          "userName" : "admin"
+        }
+      ]
+    }
+  ],
+  "blocked" : false,
+  "buildable" : false,
+  "id" : 58,
+  "inQueueSince" : 1479076135313,
+  "params" : "\nversion=\nenvironment=",
+  "stuck" : false,
+  "task" : {
+    "_class" : "org.jenkinsci.plugins.workflow.job.WorkflowJob",
+    "name" : "example",
+    "url" : "http://localhost:8080/job/example/",
+    "color" : "blue"
+  },
+  "url" : "queue/item/58/",
+  "why" : null,
+  "cancelled" : false,
+  "executable" : {
+    "_class" : "org.jenkinsci.plugins.workflow.job.WorkflowRun",
+    "number" : 30,
+    "url" : "http://localhost:8080/job/example/30/"
+  }
+}

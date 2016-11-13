@@ -5,11 +5,13 @@ import com.gatehill.corebot.config.model.ActionConfig
 import java.util.concurrent.CompletableFuture
 
 /**
+ * Allows an action to be locked or unlocked by a user.
+ *
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
 class LockService {
     /**
-     * A lock held on a job.
+     * A lock held on an action.
      */
     data class Lock(val owner: String)
 

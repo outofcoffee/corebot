@@ -25,6 +25,7 @@ dependencies {
     }
 
     compile project(':core')
+    compile project(':drivers:jenkins')
     compile project(':drivers:rundeck')
 
     testCompile 'junit:junit:4.11'

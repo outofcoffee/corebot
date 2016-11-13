@@ -1,5 +1,6 @@
 package com.gatehill.corebot.action
 
+import com.gatehill.corebot.driver.jenkins.action.JenkinsActionDriver
 import com.gatehill.corebot.driver.rundeck.action.RundeckActionDriver
 import com.google.inject.Injector
 import javax.inject.Inject
@@ -15,6 +16,7 @@ class ActionDriverFactory @Inject constructor(private val injector: Injector) {
             @Suppress("UNCHECKED_CAST")
             val driverClass: Class<out ActionDriver> = when (actionDriverName) {
                 "rundeck" -> RundeckActionDriver::class.java
+                "jenkins" -> JenkinsActionDriver::class.java
                 else -> Class.forName(actionDriverName) as Class<out ActionDriver>
             }
 

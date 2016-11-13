@@ -1,0 +1,9 @@
+# Simple action example.
+---
+version: '1'
+
+actions:
+  deploy-services:
+    driver: jenkins
+    jobId: "example"
+    template: deploy services {version} to {environment}

@@ -1,0 +1,80 @@
+{
+  "_class" : "org.jenkinsci.plugins.workflow.job.WorkflowRun",
+  "actions" : [
+    {
+      "_class" : "hudson.model.ParametersAction",
+      "parameters" : [
+        {
+          "_class" : "hudson.model.StringParameterValue",
+          "name" : "version",
+          "value" : ""
+        },
+        {
+          "_class" : "hudson.model.StringParameterValue",
+          "name" : "environment",
+          "value" : ""
+        }
+      ]
+    },
+    {
+      "_class" : "hudson.model.CauseAction",
+      "causes" : [
+        {
+          "_class" : "hudson.model.Cause$UserIdCause",
+          "shortDescription" : "Started by user admin",
+          "userId" : "admin",
+          "userName" : "admin"
+        }
+      ]
+    },
+    {
+
+    },
+    {
+      "_class" : "org.jenkinsci.plugins.workflow.cps.EnvActionImpl"
+    },
+    {
+
+    },
+    {
+
+    },
+    {
+
+    },
+    {
+      "_class" : "org.jenkinsci.plugins.workflow.job.views.FlowGraphAction"
+    },
+    {
+
+    },
+    {
+
+    }
+  ],
+  "artifacts" : [
+
+  ],
+  "building" : false,
+  "description" : null,
+  "displayName" : "#37",
+  "duration" : 109,
+  "estimatedDuration" : 97,
+  "executor" : null,
+  "fullDisplayName" : "example #37",
+  "id" : "37",
+  "keepLog" : false,
+  "number" : 37,
+  "queueId" : 72,
+  "result" : "SUCCESS",
+  "timestamp" : 1479079593491,
+  "url" : "http://localhost:8080/job/example/37/",
+  "changeSets" : [
+
+  ],
+  "nextBuild" : null,
+  "previousBuild" : {
+    "number" : 36,
+    "url" : "http://localhost:8080/job/example/36/"
+  }
+}

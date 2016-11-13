@@ -20,7 +20,7 @@ abstract class AbstractActionTemplate : ActionTemplate {
         val match = "\\{(.*)\\}".toRegex().matchEntire(token)
         if (null == match) {
             // syntactic sugar
-            return (token == input)
+            return token.equals(input, ignoreCase = true)
 
         } else {
             // option placeholder

@@ -1,6 +1,6 @@
-# Rundeck Slack bot
+# Corebot: A Slack bot for Rundeck and Jenkins
 
-Trigger your [Rundeck](http://rundeck.org) jobs from [Slack](https://slack.com).
+Trigger your [Rundeck](http://rundeck.org) or [Jenkins](https://jenkins.io) jobs from [Slack](https://slack.com).
 
 _Example:_
 
@@ -65,13 +65,23 @@ If instead you wish to build and run locally, you can run:
 
 Once built, set the following environment variables in `docker-compose.yml`:
     
-    SLACK_AUTH_TOKEN: "CHANGEME"
-    SLACK_CHANNELS: "corebot"
-    RUNDECK_API_TOKEN: "CHANGEME"
-    RUNDECK_BASE_URL: "http://rundeck:4440"
-    BOT_CONFIG: "/path/to/actions.yaml"
+    # Common variables
+    SLACK_AUTH_TOKEN="CHANGEME"
+    SLACK_CHANNELS="corebot"
+    BOT_CONFIG="/path/to/actions.yaml"
     
-> Note: `SLACK_CHANNELS` is a comma-separated list of channel names.
+    # Variables for Rundeck
+    RUNDECK_API_TOKEN="CHANGEME"
+    RUNDECK_BASE_URL="http://rundeck:4440"
+    
+    # Variables for Jenkins
+    JENKINS_API_TOKEN="CHANGEME"
+    JENKINS_BASE_URL="http://localhost:8080"
+    JENKINS_USERNAME="CHANGEME"
+    JENKINS_PASSWORD="CHANGEME"
+    
+> Note: `SLACK_CHANNELS` is a comma-separated list of channel names, such as `"channelA,channelB"`
+
 > Note: the default path for `BOT_CONFIG` is `/opt/corebot/actions.yml`
 
 Then run with:
@@ -102,10 +112,35 @@ File structure:
 * All files must specify version ‘1’
 * All actions must sit under a top level `actions` block
 * Each action must have a name (it’s `services` in this example)
-* Each action must have a Rundeck job ID (obtain this from Rundeck)
+* Each action must have either:
+  * a Rundeck job ID (obtain this from Rundeck), or
+  * a Jenkins job name
 * Each action must have a template - more details below
-* Each action may optionally specify a map of default options
 * Each action may optionally specify a list of tags
+* Each action may optionally specify option configuration, such as:
+  * static options
+  * option value transformers
+
+#### Action driver
+
+Actions should specify a driver. The available drivers are:
+
+* rundeck
+* jenkins
+
+> Note: if none is specified, the driver is assumed to be `rundeck`.
+
+_Example:_
+```
+version: '1'
+actions:
+  services:
+    driver: jenkins
+    jobId: my-jenkins-job
+    template: deploy web {version} to {environment}
+```
+
+**Important:** Ensure that you set the environment variables corresponding to the driver(s) you use, such as the base URL, API key/username etc.
 
 #### Action template
 
@@ -286,15 +321,25 @@ As an example, here is an unofficial Rundeck Docker image: https://hub.docker.co
         -p 4440:4440 \
         -e SERVER_URL=http://localhost:4440 \
         jordan/rundeck
+        
+### Jenkins
+
+A modern version (1.7+) of Jenkins is required - version 2.x or higher is preferred.
+
+Here is the official Jenkins Docker image:
+
+    docker run -it \
+        -p 8080:808 \
+        jenkins
 
 ## Roadmap
 
 * Notify lock owner on unlock by another user.
-* Last deployment query (what version, who triggered it etc.).
-* Status check should query Rundeck job status.
+* Last deployment query (options passed, who triggered it, outcome etc.).
 * Add stop/abort action.
 * Feedback if spoken to in room not on whitelist.
-* Allow jobs to be specified by project and job name, not just job ID.
+* Allow Rundeck jobs to be specified by project and job name, not just job ID.
+* Support Jenkins jobs within folders (e.g. multibranch pipelines).
 
 ## Contributing
 

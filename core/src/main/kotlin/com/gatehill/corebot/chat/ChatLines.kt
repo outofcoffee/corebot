@@ -19,7 +19,8 @@ object ChatLines {
     fun goodNews() = arrayOf(
             "Hooray :${goodNewsEmoji()}:",
             "Awesome :${goodNewsEmoji()}:",
-            "Good news :${goodNewsEmoji()}:"
+            "Good news :${goodNewsEmoji()}:",
+            "Sweet :${goodNewsEmoji()}:"
     ).chooseOne()
 
     fun goodNewsEmoji() = arrayOf(
