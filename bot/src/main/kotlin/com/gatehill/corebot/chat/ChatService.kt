@@ -109,8 +109,7 @@ class ChatService @Inject constructor(private val sessionService: SlackSessionSe
         if (configService.actions().isEmpty()) {
             msg.append("Oops :broken_heart: you don't have any actions configured - add some to _${Settings.configFile}_")
         } else {
-            msg.append("Sorry, I didn't understand :confused: Try one of these:")
-            msg.appendln(); msg.append(templateService.usage())
+            msg.append("Sorry, I didn't understand :confused: Try typing _@${sessionService.botUsername} help_ for examples.")
         }
 
         session.sendMessage(event.channel, msg.toString())
@@ -127,11 +126,9 @@ class ChatService @Inject constructor(private val sessionService: SlackSessionSe
                 // respond with acknowledgement
                 session.sendMessage(event.channel, action.actionMessage)
 
-                if (action is CustomAction) {
-                    performCustomAction(session, event, action)
-                } else {
-                    // short circuit to success
-                    postSuccessfulReaction(session, event, true)
+                when (action) {
+                    is CustomAction -> performCustomAction(session, event, action)
+                    else -> postSuccessfulReaction(session, event, true)
                 }
 
             } else {

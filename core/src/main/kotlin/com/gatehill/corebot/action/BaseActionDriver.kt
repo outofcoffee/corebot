@@ -23,8 +23,11 @@ abstract class BaseActionDriver @Inject constructor(private val triggerJobServic
         try {
             when (actionType) {
                 ActionType.TRIGGER -> triggerJobService.trigger(channelId, triggerMessageTimestamp, future, action, args)
-                ActionType.LOCK -> lockService.acquireLock(future, action, triggerMessageSenderId)
-                ActionType.UNLOCK -> lockService.unlock(future, action)
+                ActionType.LOCK_ACTION -> lockService.lockAction(future, action, triggerMessageSenderId)
+                ActionType.UNLOCK_ACTION -> lockService.unlockAction(future, action)
+                ActionType.STATUS -> showStatus(future, action)
+                ActionType.LOCK_OPTION -> lockService.lockOption(future, action, args, triggerMessageSenderId)
+                ActionType.UNLOCK_OPTION -> lockService.unlockOption(future, action, args)
 
                 else -> {
                     // delegate to driver
@@ -37,6 +40,20 @@ abstract class BaseActionDriver @Inject constructor(private val triggerJobServic
             future.completeExceptionally(e)
         }
         return future
+    }
+
+    private fun showStatus(future: CompletableFuture<PerformActionResult>, action: ActionConfig) {
+        val msg = StringBuilder("Status of *${action.name}*: ")
+
+        lockService.checkActionLock(action) { lock ->
+            if (null != lock) {
+                msg.append("locked :lock: by <@${lock.owner}>")
+            } else {
+                msg.append("unlocked :unlock:")
+            }
+
+            future.complete(PerformActionResult(msg.toString()))
+        }
     }
 
     /**

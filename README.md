@@ -54,7 +54,9 @@ The quickest way to get up and running is to use the Docker image:
             -v /path/to/actions.yml:/opt/corebot/actions.yml \
             outofcoffee/corebot
 
-Note: the container doesn't require any inbound ports to be exposed.
+> Note: the container does not require any inbound ports to be exposed.
+
+> Note: See the _Environment variables_ section for the available configuration settings.
 
 ## Build
 
@@ -63,26 +65,7 @@ If instead you wish to build and run locally, you can run:
     ./gradlew installDist
     docker-compose build
 
-Once built, set the following environment variables in `docker-compose.yml`:
-    
-    # Common variables
-    SLACK_AUTH_TOKEN="CHANGEME"
-    SLACK_CHANNELS="corebot"
-    BOT_CONFIG="/path/to/actions.yaml"
-    
-    # Variables for Rundeck
-    RUNDECK_API_TOKEN="CHANGEME"
-    RUNDECK_BASE_URL="http://rundeck:4440"
-    
-    # Variables for Jenkins
-    JENKINS_API_TOKEN="CHANGEME"
-    JENKINS_BASE_URL="http://localhost:8080"
-    JENKINS_USERNAME="CHANGEME"
-    JENKINS_PASSWORD="CHANGEME"
-    
-> Note: `SLACK_CHANNELS` is a comma-separated list of channel names, such as `"channelA,channelB"`
-
-> Note: the default path for `BOT_CONFIG` is `/opt/corebot/actions.yml`
+Once built, set the environment variables in `docker-compose.yml`. See the _Environment variables_ section.
 
 Then run with:
 
@@ -90,15 +73,57 @@ Then run with:
 
 If you change anything, don't forget to rebuild before running again.
 
-## Actions and configuration
+## Environment variables
 
-The bot has both built-in actions and custom actions. Examples of built in actions are the lock/unlock actions. Custom actions are triggers for your Rundeck jobs, configured using a configuration file, typically called `actions.yml`.
+Configure the bot using the following environment variables.
+
+### Common variables
+
+    SLACK_AUTH_TOKEN="CHANGEME"
+    SLACK_CHANNELS="corebot"
+    BOT_CONFIG="/path/to/actions.yaml"
+    
+> Note: `SLACK_CHANNELS` is a comma-separated list of channel names, such as `"channelA,channelB"`
+
+> Note: the default path for `BOT_CONFIG` is `/opt/corebot/actions.yml`. When using corebot within a Docker container, it is typical to add your configuration file at this location, or bind-mount a file to this path.
+
+### Variables for Rundeck
+
+    RUNDECK_API_TOKEN="CHANGEME"
+    RUNDECK_BASE_URL="http://rundeck:4440"
+
+> Note: ensure that the API token you generate in Rundeck has the necessary permissions to trigger builds. For more information, consult the Rundeck ACL documentation.
+
+### Variables for Jenkins
+
+    JENKINS_BASE_URL="http://localhost:8080"
+    JENKINS_USERNAME="CHANGEME"
+    JENKINS_PASSWORD="CHANGEME"
+    JENKINS_API_TOKEN="CHANGEME"
+    
+> Note: typically you will specify the username and password for accessing a Jenkins instance. The token approach is rarely used and can be omitted.
+
+### Tuning variables
+
+Advanced variables to tune performance:
+
+    CACHE_EXPIRY="60"
+
+The cache expiry controls the period of time, in seconds, corebot holds the action configuration in memory after reading it from file.
+
+    EXECUTION_STATUS_TIMEOUT="120"
+
+The execution status timeout controls the period of time, in seconds, corebot will poll a running job for status updates, after which it gives up.
+
+## Actions
+
+Corebot has both built-in actions and custom actions. Examples of built in actions are the lock/unlock actions. Custom actions are triggers for your Rundeck/Jenkins jobs, configured using a configuration file, typically called `actions.yml`.
 
 ### Action configuration file
 
-> Note: the default path for `BOT_CONFIG` is `/opt/corebot/actions.yml`
+> Note: the configuration file path is specified with the `BOT_CONFIG` environment variable.
 
-_Example:_
+_Example file:_
 ```
 version: '1'
 actions:
@@ -118,8 +143,9 @@ File structure:
 * Each action must have a template - more details below
 * Each action may optionally specify a list of tags
 * Each action may optionally specify option configuration, such as:
-  * static options
-  * option value transformers
+  * static values
+  * value transformers
+  * whether the option can be locked
 
 #### Action driver
 
@@ -163,9 +189,9 @@ This will result in the action being fired, passing the following options:
 - version=1.0
 - environment=UAT
 
-#### Static options
+#### Static option values
 
-You might want to pass an option value to a job every time, and not require the user to provide it. You can do this with the `static` section of the `options` action block:
+You might want to pass an option value to a job every time, and not require the user to provide it. You can accomplish this using the `value` property of an option within the `options` action block:
 
 ```
 version: '1'
@@ -174,9 +200,10 @@ actions:
     jobId: 9374f1c8-7b3f-4145-8556-6b55551fb60f
     template: deploy services {version} to {environment}
     options:
-      static:
-        myOption: someValue
-        myOtherOption: someOtherValue
+      myOption:
+        value: someValue
+      myOtherOption:
+        value: someOtherValue
 ```
 
 This will result in the action being fired, passing the following options:
@@ -188,7 +215,7 @@ This will result in the action being fired, passing the following options:
 
 #### Transforming options
 
-You might want to transform an option value provided by a user before it is passed to a job. You can do this with the `transformers` section of the `options` action block:
+You might want to transform an option value provided by a user before it is passed to a job. You can accomplish this using the `transformers` section of an option within the `options` action block:
 
 ```
 version: '1'
@@ -197,10 +224,11 @@ actions:
     jobId: 9374f1c8-7b3f-4145-8556-6b55551fb60f
     template: deploy services {version} to {environment}
     options:
-      transformers:
-        version:
+      version:
+        transformers:
           - LOWERCASE
-        environment:
+      environment:
+        transformers:
           - UPPERCASE
 ```
 
@@ -212,6 +240,45 @@ This will result in the action being fired, passing the following options:
 
 - version=v1.0 (note: lowercased)
 - environment=UAT (note: uppercased)
+
+#### Locking options
+
+You might want to lock an option value, so that it cannot be passed to an action.
+
+> Example: If you have an option to specify the environment for a deployment, you might wish to lock deployments to the environment named 'production'.
+
+You can accomplish this using the `lockable` property of an option within the `options` action block:
+
+```
+version: '1'
+actions:
+  services:
+    jobId: 9374f1c8-7b3f-4145-8556-6b55551fb60f
+    template: deploy services {version} to {environment}
+    options:
+      environment:
+        lockable: true
+```
+
+If the user typed this command:
+
+    @corebot lock environment prod
+
+This will result in a lock being placed on the 'environment' option, with the value 'prod'.
+
+With the lock applied, this will fail:
+
+    @corebot deploy services 1.0 to prod
+    
+...but this will still succeed:
+
+    @corebot deploy services 1.0 to uat
+    
+You can of course unlock the option with:
+
+    @corebot unlock environment prod
+    
+> Note: It's strongly advisable to apply a _transformer_ to lockable options, to ensure the value 'prod' is considered equivalent to 'PROD'.
 
 #### Tags and multiple job actions
 
@@ -299,17 +366,17 @@ security:
 There are a number of built in actions, such as:
 
 * `@corebot help` - show usage information.
-* `@corebot lock {action name or tag}` - lock action(s) to prevent them being triggered accidentally.
-* `@corebot unlock {action name or tag}` - unlock locked action(s).
-* `@corebot status {action name or tag}` - show status of action(s).
-* `@corebot enable {action name or tag}` - set the Rundeck execution status for a job - *Note:* this requires the Rundeck ACL to permit the API user to set the execution status of a job.
-* `@corebot disable {action name or tag}` - set the Rundeck execution status for a job - *Note:* this requires the Rundeck ACL to permit the API user to set the execution status of a job.
+* `@corebot lock {action or tag name}` - lock action(s) to prevent them being triggered accidentally.
+* `@corebot lock {option name} {option value}` - lock an option with a given value.
+* `@corebot unlock {action or tag name}` - unlock locked action(s).
+* `@corebot unlock {option name} {option value}` - lock an option with a given value.
+* `@corebot status {action or tag name}` - show status of action(s).
+* `@corebot enable {action or tag name}` - set the Rundeck execution status for a job - *Note:* this requires the Rundeck ACL to permit the API user to set the execution status of a job.
+* `@corebot disable {action or tag name}` - set the Rundeck execution status for a job - *Note:* this requires the Rundeck ACL to permit the API user to set the execution status of a job.
 
 ## More info
 
 Slack API: https://api.slack.com/bot-users
-
-Rundeck API: http://rundeck.org/2.6.9/api/index.html#running-a-job
 
 ### Rundeck
 
@@ -329,7 +396,7 @@ A modern version (1.7+) of Jenkins is required - version 2.x or higher is prefer
 Here is the official Jenkins Docker image:
 
     docker run -it \
-        -p 8080:808 \
+        -p 8080:8080 \
         jenkins
 
 ## Roadmap

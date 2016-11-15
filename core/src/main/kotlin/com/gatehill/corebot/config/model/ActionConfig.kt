@@ -1,30 +1,34 @@
 package com.gatehill.corebot.config.model
 
-/**
- * Models an action in a configuration file.
- *
- * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
- */
-data class FileActionConfig(val jobId: String,
-                            val options: OptionConfig?,
-                            val template: String,
-                            val tags: List<String>?,
-                            val driver: String?) {
-
-    lateinit var name: String
-}
+private val defaultDriver = "rundeck"
 
 /**
  * Models an action configuration.
  *
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
-data class ActionConfig(val name: String,
-                        val jobId: String,
-                        val options: OptionConfig,
-                        val template: String,
-                        val tags: List<String>,
-                        val driver: String)
+class ActionConfig(val template: String,
+                   val jobId: String,
+                   name: String?,
+                   options: Map<String, OptionConfig>?,
+                   tags: List<String>?, driver: String?) {
+
+    val name: String
+    val options: Map<String, OptionConfig>
+    val tags: List<String>
+    val driver: String
+
+    init {
+        this.name = name ?: ""
+        this.options = options ?: emptyMap()
+        this.tags = tags ?: emptyList()
+        this.driver = driver ?: defaultDriver
+    }
+
+    override fun toString(): String {
+        return "ActionConfig(name='$name', jobId='$jobId', options=$options, template='$template', tags=$tags, driver='$driver')"
+    }
+}
 
 /**
  * Convenience method to read an attribute from an ActionConfig.

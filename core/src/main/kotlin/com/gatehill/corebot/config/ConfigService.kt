@@ -33,10 +33,9 @@ class ConfigService {
      */
     private data class ActionConfigWrapper(override val version: String,
                                            override val security: SecurityConfig?,
-                                           val actions: Map<String, FileActionConfig>) : VersionedConfig
+                                           val actions: Map<String, ActionConfig>) : VersionedConfig
 
     private val configFileVersion = "1"
-    private val defaultDriver = "rundeck"
     private val logger = LogManager.getLogger(ConfigService::class.java)!!
     private val objectMapper = ObjectMapper(YAMLFactory()).registerKotlinModule()
 
@@ -71,19 +70,19 @@ class ConfigService {
         val config = loadCustomConfig()
         logger.debug("Loaded ${config.actions.size} actions")
 
-        val actions = HashMap<String, ActionConfig>()
+        val actions = mutableMapOf<String, ActionConfig>()
         config.actions.map { action ->
             with(action.value) {
                 // all custom actions have the 'all' tag
                 val combinedTags = mutableListOf("all")
-                tags?.let { combinedTags.addAll(tags) }
+                combinedTags.addAll(tags)
 
-                actions[action.key] = ActionConfig(action.key,
+                actions[action.key] = ActionConfig(template,
                         jobId,
-                        options ?: OptionConfig(),
-                        template,
+                        action.key,
+                        options,
                         combinedTags,
-                        action.value.driver ?: defaultDriver)
+                        action.value.driver)
             }
         }
         return actions

@@ -11,9 +11,11 @@ security:
         - trigger
         - enable
         - disable
-        - lock
-        - unlock
+        - lock_action
+        - unlock_action
         - status
+        - lock_option
+        - unlock_option
       tags:
         - all
 

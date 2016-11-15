@@ -7,6 +7,7 @@ actions:
     jobId: 9374f1c8-7b3f-4145-8556-6b55551fb60f
     template: deploy services {version} to {environment}
     options:
-      static:
-        myOption: someValue
-        myOtherOption: someOtherValue
+      myOption:
+        value: someValue
+      myOtherOption:
+        value: someOtherValue

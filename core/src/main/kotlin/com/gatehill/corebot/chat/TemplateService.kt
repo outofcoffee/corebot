@@ -44,6 +44,7 @@ class TemplateService @Inject constructor(private val injector: Injector,
     fun usage(): StringBuilder {
         val usage = StringBuilder()
         val candidates = fetchCandidates().candidates
+        candidates.sortBy { candidate -> candidate.tokens.joinToString(" ") }
 
         val printTemplate: (ActionTemplate) -> Unit = { candidate ->
             val template = candidate.tokens.joinToString(" ")

@@ -48,9 +48,11 @@ private class Bot @Inject constructor(private val templateService: TemplateServi
         templateService.registerTemplate(ShowHelpTemplate::class.java)
         templateService.registerTemplate(LockActionTemplate::class.java)
         templateService.registerTemplate(UnlockActionTemplate::class.java)
+        templateService.registerTemplate(StatusJobTemplate::class.java)
         templateService.registerTemplate(EnableJobTemplate::class.java)
         templateService.registerTemplate(DisableJobTemplate::class.java)
-        templateService.registerTemplate(StatusJobTemplate::class.java)
+        templateService.registerTemplate(LockOptionTemplate::class.java)
+        templateService.registerTemplate(UnlockOptionTemplate::class.java)
 
         chatService.listenForEvents()
     }

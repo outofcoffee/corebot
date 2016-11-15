@@ -1,4 +1,4 @@
-# Simple action example.
+# Simple action example for Jenkins.
 ---
 version: '1'
 

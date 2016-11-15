@@ -29,15 +29,28 @@ abstract class BaseTriggerJobService(private val lockService: LockService,
                          future: CompletableFuture<PerformActionResult>,
                          action: ActionConfig, args: Map<String, String>) {
 
-        lockService.checkLock(action) { lock ->
-            if (null != lock) {
+        // user specified options override static values
+        val allArgs = mutableMapOf<String, String>()
+        allArgs.putAll(action.options.map { Pair(it.key, it.value.value) })
+        allArgs.putAll(args)
+
+        // trigger unless locked
+        lockService.checkActionLock(action) { actionLock ->
+            if (null != actionLock) {
                 future.completeExceptionally(IllegalStateException(
-                        "The '${action.name}' action is locked by <@${lock.owner}>"))
+                        "The '${action.name}' action is locked by <@${actionLock.owner}>"))
 
             } else {
-                val allArgs = args.plus(action.options.static ?: emptyMap())
-                logger.info("Triggering action: {} with job ID: {} and args: {}", action.name, action.jobId, allArgs)
-                triggerExecution(channelId, triggerMessageTimestamp, future, action, allArgs)
+                lockService.checkOptionLock(action, allArgs) { optionLock ->
+                    if (null != optionLock) {
+                        future.completeExceptionally(IllegalStateException(
+                                "${optionLock.optionName} ${optionLock.optionValue} is locked by <@${optionLock.owner}>"))
+
+                    } else {
+                        logger.info("Triggering action: {} with job ID: {} and args: {}", action.name, action.jobId, allArgs)
+                        triggerExecution(channelId, triggerMessageTimestamp, future, action, allArgs)
+                    }
+                }
             }
         }
     }

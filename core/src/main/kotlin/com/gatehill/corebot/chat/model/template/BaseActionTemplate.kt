@@ -6,7 +6,7 @@ import com.gatehill.corebot.config.model.readActionConfigAttribute
 /**
  * Parses tokens into placeholder values.
  */
-abstract class AbstractActionTemplate : ActionTemplate {
+abstract class BaseActionTemplate : ActionTemplate {
     protected val placeholderValues = mutableMapOf<String, String>()
     protected abstract val actionConfigs: List<ActionConfig>
 
@@ -17,17 +17,26 @@ abstract class AbstractActionTemplate : ActionTemplate {
         if (tokens.size == 0) return false
         val token = tokens.poll()
 
+        val accepted: Boolean
+
         val match = "\\{(.*)\\}".toRegex().matchEntire(token)
         if (null == match) {
             // syntactic sugar
-            return token.equals(input, ignoreCase = true)
+            accepted = token.equals(input, ignoreCase = true)
 
         } else {
             // option placeholder
             placeholderValues[match.groupValues[1]] = input
-            return true
+            accepted = true
         }
+
+        return if (accepted && tokens.isEmpty()) onTemplateSatisfied() else accepted
     }
+
+    /**
+     * Hook for subclasses.
+     */
+    open fun onTemplateSatisfied() = true
 
     /**
      * A short, human readable description.

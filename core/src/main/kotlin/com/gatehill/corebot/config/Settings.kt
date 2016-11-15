@@ -16,7 +16,7 @@ object Settings {
     }
 
     class Deployment {
-        val executionTimeout by lazy { System.getenv("EXECUTION_STATUS_TIMEOUT")?.toInt() ?: 120000 }
+        val executionTimeout by lazy { (System.getenv("EXECUTION_STATUS_TIMEOUT")?.toInt() ?: 120) * 1000 }
     }
 
     val chat = Chat()

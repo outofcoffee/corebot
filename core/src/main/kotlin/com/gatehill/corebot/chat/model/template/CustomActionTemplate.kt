@@ -9,7 +9,7 @@ import java.util.*
 /**
  * Represents a custom action.
  */
-abstract class CustomActionTemplate : AbstractActionTemplate() {
+abstract class CustomActionTemplate : BaseActionTemplate() {
     /**
      * List the actions from this template.
      */
@@ -29,12 +29,12 @@ abstract class CustomActionTemplate : AbstractActionTemplate() {
     private fun transform(actionConfig: ActionConfig, options: MutableMap<String, String>): Map<String, String> {
         val transformed: MutableMap<String, String> = HashMap(options)
 
-        actionConfig.options.transformers?.forEach { optionTransform ->
-            val optionKey = optionTransform.key
+        actionConfig.options.map { Pair(it.key, it.value.transformers) }.forEach { optionTransform ->
+            val optionKey = optionTransform.first
 
             var optionValue = options[optionKey]
             optionValue?.let {
-                optionTransform.value.forEach { transformType ->
+                optionTransform.second.forEach { transformType ->
                     optionValue = when (transformType) {
                         TransformType.LOWERCASE -> optionValue!!.toLowerCase()
                         TransformType.UPPERCASE -> optionValue!!.toUpperCase()

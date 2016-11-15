@@ -47,18 +47,4 @@ class ExecutionStatusService @Inject constructor(private val actionDriver: Runde
             }
         })
     }
-
-    fun showStatus(future: CompletableFuture<PerformActionResult>, action: ActionConfig) {
-        val msg = StringBuilder("Status of *${action.name}*: ")
-
-        lockService.checkLock(action) { lock ->
-            if (null != lock) {
-                msg.append("locked :lock: by <@${lock.owner}>")
-            } else {
-                msg.append("unlocked :unlock:")
-            }
-
-            future.complete(PerformActionResult(msg.toString()))
-        }
-    }
 }

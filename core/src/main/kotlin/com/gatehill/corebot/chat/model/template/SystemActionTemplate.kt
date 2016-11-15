@@ -7,9 +7,9 @@ import com.gatehill.corebot.config.model.ActionConfig
 /**
  * Represents a system action.
  */
-abstract class SystemActionTemplate : AbstractActionTemplate() {
+abstract class SystemActionTemplate : BaseActionTemplate() {
     override val builtIn = true
-    override val actionConfigs: List<ActionConfig> = emptyList()
+    override val actionConfigs = emptyList<ActionConfig>()
 
     override fun buildActions(): List<Action> {
         return listOf(SystemAction(actionType, buildShortDescription(), buildMessage()))
