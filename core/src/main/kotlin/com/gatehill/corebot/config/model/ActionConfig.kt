@@ -28,6 +28,22 @@ class ActionConfig(val template: String,
     override fun toString(): String {
         return "ActionConfig(name='$name', jobId='$jobId', options=$options, template='$template', tags=$tags, driver='$driver')"
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other?.javaClass != javaClass) return false
+
+        other as ActionConfig
+
+        if (name != other.name) return false
+
+        return true
+    }
+
+    /**
+     * Name uniquely identifies an action configuration.
+     */
+    override fun hashCode() = name.hashCode()
 }
 
 /**

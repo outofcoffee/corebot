@@ -48,9 +48,7 @@ abstract class BaseActionTemplate : ActionTemplate {
     /**
      * The response message sent when this actionType is fired.
      */
-    protected open fun buildMessage(options: Map<String, String> = emptyMap(),
-                                    actionConfig: ActionConfig? = null): String {
-
+    override fun buildStartMessage(options: Map<String, String>, actionConfig: ActionConfig?): String {
         return if (null != actionConfig) "I'm working on *${actionConfig.name}*..." else "I'm working on it..."
     }
 }

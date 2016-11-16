@@ -3,6 +3,7 @@ package com.gatehill.corebot
 import com.gatehill.corebot.action.ActionDriverFactory
 import com.gatehill.corebot.action.LockService
 import com.gatehill.corebot.chat.*
+import com.gatehill.corebot.chat.model.template.*
 import com.gatehill.corebot.config.ConfigService
 import com.gatehill.corebot.driver.jenkins.JenkinsDriverModule
 import com.gatehill.corebot.driver.rundeck.RundeckDriverModule

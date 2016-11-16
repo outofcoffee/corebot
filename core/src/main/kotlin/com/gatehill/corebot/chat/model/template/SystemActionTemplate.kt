@@ -12,6 +12,8 @@ abstract class SystemActionTemplate : BaseActionTemplate() {
     override val actionConfigs = emptyList<ActionConfig>()
 
     override fun buildActions(): List<Action> {
-        return listOf(SystemAction(actionType, buildShortDescription(), buildMessage()))
+        return listOf(SystemAction(actionType,
+                buildShortDescription(),
+                if (actionMessageMode == ActionMessageMode.INDIVIDUAL) buildStartMessage() else null))
     }
 }

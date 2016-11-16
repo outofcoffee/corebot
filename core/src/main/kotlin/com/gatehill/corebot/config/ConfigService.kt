@@ -3,7 +3,9 @@ package com.gatehill.corebot.config
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import com.gatehill.corebot.config.model.*
+import com.gatehill.corebot.config.model.ActionConfig
+import com.gatehill.corebot.config.model.SecurityConfig
+import com.gatehill.corebot.config.model.SecurityUserConfig
 import com.google.common.cache.Cache
 import com.google.common.cache.CacheBuilder
 import org.apache.logging.log4j.LogManager
@@ -31,9 +33,10 @@ class ConfigService {
     /**
      * Top level action settings file wrapper.
      */
-    private data class ActionConfigWrapper(override val version: String,
-                                           override val security: SecurityConfig?,
-                                           val actions: Map<String, ActionConfig>) : VersionedConfig
+    private class ActionConfigWrapper(override val version: String,
+                                      val joinMessage: String?,
+                                      override val security: SecurityConfig?,
+                                      val actions: Map<String, ActionConfig>) : VersionedConfig
 
     private val configFileVersion = "1"
     private val logger = LogManager.getLogger(ConfigService::class.java)!!
@@ -87,6 +90,12 @@ class ConfigService {
         }
         return actions
     }
+
+    /**
+     * Loads the action configuration from file.
+     */
+    val joinMessage: String?
+        get() = loadCustomConfig().joinMessage
 
     /**
      * Loads the security configuration from file.

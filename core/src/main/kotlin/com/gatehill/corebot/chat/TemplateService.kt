@@ -1,9 +1,9 @@
 package com.gatehill.corebot.chat
 
 import com.gatehill.corebot.chat.model.template.ActionTemplate
+import com.gatehill.corebot.chat.model.template.TriggerJobTemplate
 import com.gatehill.corebot.config.ConfigService
 import com.google.inject.Injector
-import java.util.*
 import javax.inject.Inject
 
 /**

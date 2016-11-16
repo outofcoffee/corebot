@@ -146,6 +146,8 @@ File structure:
   * static values
   * value transformers
   * whether the option can be locked
+  
+> Tip: Check out the `examples/config` directory for sample configuration files.
 
 #### Action driver
 

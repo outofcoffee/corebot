@@ -7,4 +7,4 @@ package com.gatehill.corebot.chat.model.action
  */
 class SystemAction(override val actionType: ActionType,
                    override val shortDescription: String,
-                   override val actionMessage: String) : Action(actionType, shortDescription, actionMessage, listOf("all"))
+                   override val startMessage: String?) : Action(actionType, shortDescription, startMessage, listOf("all"))

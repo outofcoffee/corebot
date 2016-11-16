@@ -2,7 +2,9 @@ package com.gatehill.corebot.chat
 
 import com.gatehill.corebot.action.ActionDriverFactory
 import com.gatehill.corebot.chat.model.action.Action
+import com.gatehill.corebot.chat.model.action.ActionWrapper
 import com.gatehill.corebot.chat.model.action.CustomAction
+import com.gatehill.corebot.chat.model.template.ActionMessageMode
 import com.gatehill.corebot.config.ConfigService
 import com.gatehill.corebot.config.Settings
 import com.gatehill.corebot.security.AuthorisationService
@@ -45,10 +47,11 @@ class ChatService @Inject constructor(private val sessionService: SlackSessionSe
                     // indicate busy...
                     session.addReactionToMessage(event.channel, event.timeStamp, "hourglass_flowing_sand")
 
-                    val actions = parseMessage(splitCmd)
-                    if (actions.isNotEmpty()) {
+                    val parsed = parseMessage(splitCmd)
+                    if (null != parsed) {
                         logger.info("Handling command '{}' from {}", messageContent, event.sender.userName)
-                        actions.forEach { action -> handleAction(theSession, event, action) }
+                        parsed.groupStartMessage?.let { session.sendMessage(event.channel, it) }
+                        parsed.actions.forEach { action -> handleAction(theSession, event, action, parsed) }
 
                     } else {
                         logger.warn("Ignored command '{}' from {}", messageContent, event.sender.userName)
@@ -69,7 +72,7 @@ class ChatService @Inject constructor(private val sessionService: SlackSessionSe
     /**
      * Determine the Action to perform based on the provided command.
      */
-    private fun parseMessage(splitCmd: List<String>): List<Action> {
+    private fun parseMessage(splitCmd: List<String>): ActionWrapper? {
         val joinedMessage = splitCmd.joinToString()
 
         try {
@@ -88,7 +91,9 @@ class ChatService @Inject constructor(private val sessionService: SlackSessionSe
                     throw IllegalStateException("Too few tokens for actions: ${candidate.actionTemplates}")
                 }
 
-                return candidate.buildActions()
+                return ActionWrapper(candidate.buildActions(),
+                        if (candidate.actionMessageMode == ActionMessageMode.GROUP) candidate.buildStartMessage() else null,
+                        if (candidate.actionMessageMode == ActionMessageMode.GROUP) candidate.buildCompleteMessage() else null)
 
             } else {
                 throw IllegalStateException("Could not find a unique matching action for command: ${joinedMessage}")
@@ -96,7 +101,7 @@ class ChatService @Inject constructor(private val sessionService: SlackSessionSe
 
         } catch(e: IllegalStateException) {
             logger.warn("Unable to parse message: {} - {}", joinedMessage, e.message)
-            return emptyList()
+            return null
         }
     }
 
@@ -118,17 +123,19 @@ class ChatService @Inject constructor(private val sessionService: SlackSessionSe
     /**
      * Check if the action is permitted, and if so, carry it out.
      */
-    private fun handleAction(session: SlackSession, event: SlackMessagePosted, action: Action) {
+    private fun handleAction(session: SlackSession, event: SlackMessagePosted, action: Action,
+                             actionWrapper: ActionWrapper) {
+
         logger.info("Handling action: {}", action)
 
         authorisationService.checkPermission(action, { permitted ->
             if (permitted) {
                 // respond with acknowledgement
-                session.sendMessage(event.channel, action.actionMessage)
+                action.startMessage?.let { session.sendMessage(event.channel, it) }
 
                 when (action) {
-                    is CustomAction -> performCustomAction(session, event, action)
-                    else -> postSuccessfulReaction(session, event, true)
+                    is CustomAction -> performCustomAction(session, event, action, actionWrapper)
+                    else -> postSuccessfulReaction(session, event, true, actionWrapper)
                 }
 
             } else {
@@ -142,7 +149,9 @@ class ChatService @Inject constructor(private val sessionService: SlackSessionSe
     /**
      * Perform the custom action and add a reaction with the outcome.
      */
-    private fun performCustomAction(session: SlackSession, event: SlackMessagePosted, action: CustomAction) {
+    private fun performCustomAction(session: SlackSession, event: SlackMessagePosted, action: CustomAction,
+                                    actionWrapper: ActionWrapper) {
+
         // schedule action execution
         val actionDriver = actionDriverFactory.driverFor(action.driver)
         val future = actionDriver.perform(event.channel.id, event.sender.id, event.timestamp,
@@ -150,18 +159,25 @@ class ChatService @Inject constructor(private val sessionService: SlackSessionSe
 
         future.whenComplete { result, throwable ->
             if (future.isCompletedExceptionally) {
+                logger.error("Error performing custom action ${action}", throwable)
+
                 session.addReactionToMessage(event.channel, event.timeStamp, "x")
                 session.sendMessage(event.channel,
                         "Hmm, something went wrong :face_with_head_bandage:\r\n```${throwable.message}```")
 
             } else {
-                postSuccessfulReaction(session, event, result.finalResult)
-                session.sendMessage(event.channel, result.message)
+                postSuccessfulReaction(session, event, result.finalResult, actionWrapper)
+                result.message?.let { session.sendMessage(event.channel, it) }
             }
         }
     }
 
-    private fun postSuccessfulReaction(session: SlackSession, event: SlackMessagePosted, finalResult: Boolean) {
+    private fun postSuccessfulReaction(session: SlackSession, event: SlackMessagePosted, finalResult: Boolean,
+                                       actionWrapper: ActionWrapper) {
+
         session.addReactionToMessage(event.channel, event.timeStamp, if (finalResult) "white_check_mark" else "ok")
+
+        if (++actionWrapper.successful == actionWrapper.actions.size)
+            actionWrapper.groupCompleteMessage?.let { session.sendMessage(event.channel, it) }
     }
 }

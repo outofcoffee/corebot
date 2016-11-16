@@ -1,8 +1,7 @@
 package com.gatehill.corebot.action
 
 import com.gatehill.corebot.action.model.PerformActionResult
-import com.gatehill.corebot.chat.BaseLockOptionTemplate
-import com.gatehill.corebot.chat.LockOptionTemplate
+import com.gatehill.corebot.chat.model.template.BaseLockOptionTemplate
 import com.gatehill.corebot.config.model.ActionConfig
 import java.util.concurrent.CompletableFuture
 
@@ -30,22 +29,23 @@ class LockService {
     fun lockAction(future: CompletableFuture<PerformActionResult>, action: ActionConfig,
                    triggerMessageSenderId: String) {
 
-        val lock = actionLocks[action]
-        if (null != lock) {
-            if (lock.owner == triggerMessageSenderId) {
-                // already locked by self
-                future.complete(PerformActionResult("BTW, you already had the lock for *${action.name}* :wink:"))
+        checkActionLock(action) { lock ->
+            if (null != lock) {
+                if (lock.owner == triggerMessageSenderId) {
+                    // already locked by self
+                    future.complete(PerformActionResult("BTW, you already had the lock for *${action.name}* :wink:"))
+
+                } else {
+                    // locked by someone else
+                    future.completeExceptionally(IllegalStateException(
+                            "The lock for ${action.name} is already held by <@${lock.owner}>"))
+                }
 
             } else {
-                // locked by someone else
-                future.completeExceptionally(IllegalStateException(
-                        "The lock for ${action.name} is already held by <@${lock.owner}>"))
+                // acquire
+                actionLocks[action] = ActionLock(triggerMessageSenderId)
+                future.complete(PerformActionResult("OK, I've locked :lock: *${action.name}* for you."))
             }
-
-        } else {
-            // acquire
-            actionLocks[action] = ActionLock(triggerMessageSenderId)
-            future.complete(PerformActionResult("OK, I've locked :lock: *${action.name}* for you."))
         }
     }
 
@@ -72,10 +72,10 @@ class LockService {
         val optionValue = args[BaseLockOptionTemplate.optionValuePlaceholder]!!
 
         val lock = optionLocks[action]
-        if (null != lock) {
-            if (lock.owner == triggerMessageSenderId) {
+        if (isOptionLocked(lock, optionName, optionValue)) {
+            if (lock!!.owner == triggerMessageSenderId) {
                 // already locked by self
-                future.complete(PerformActionResult("BTW, you already had the lock for *${optionName} ${optionValue}* :wink:"))
+                future.complete(PerformActionResult())
 
             } else {
                 // locked by someone else
@@ -90,7 +90,7 @@ class LockService {
                     optionName,
                     optionValue)
 
-            future.complete(PerformActionResult("OK, I've locked :lock: *${optionName} ${optionValue}* for you."))
+            future.complete(PerformActionResult())
         }
     }
 
@@ -98,18 +98,15 @@ class LockService {
         val optionName = args[BaseLockOptionTemplate.optionNamePlaceholder]!!
         val optionValue = args[BaseLockOptionTemplate.optionValuePlaceholder]!!
 
-        checkOptionLock(action, args) { lock ->
-            if (null != lock) {
-                // unlock
-                optionLocks.remove(action)
-                future.complete(PerformActionResult("OK, I've unlocked :unlock: *${optionName} ${optionValue}* for you."))
-
-            } else {
-                // already unlocked
-                future.complete(PerformActionResult("BTW, *${optionName} ${optionValue}* was already unlocked :wink:"))
-            }
+        val lock = optionLocks[action]
+        if (isOptionLocked(lock, optionName, optionValue)) {
+            optionLocks.remove(action)
         }
+
+        future.complete(PerformActionResult())
     }
+
+    private fun isOptionLocked(lock: OptionLock?, optionName: String, optionValue: String) = null != lock && lock.optionName == optionName && lock.optionValue == optionValue
 
     fun checkOptionLock(action: ActionConfig, args: Map<String, String>, callback: (OptionLock?) -> Unit) {
         val lock = optionLocks[action]

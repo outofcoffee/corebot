@@ -136,16 +136,17 @@ class JenkinsTriggerJobService @Inject constructor(private val actionDriver: Jen
      * Poll the queued item until reified into a build.
      */
     private fun processQueuedBuild(action: ActionConfig, apiClient: JenkinsApi, args: Map<String, String>,
-                                   channelId: String, future: CompletableFuture<PerformActionResult>,
+                                   channelId: String, triggerResponseFuture: CompletableFuture<PerformActionResult>,
                                    triggerMessageTimestamp: String, queuedItemUrl: String) {
 
         // notify user that job is queued
         sessionService.sendMessage(channelId, "Build for *${action.name}* is queued - ${ChatLines.pleaseWait().toLowerCase()}...")
 
         // reify into build
-        fetchBuildIdFromQueuedItem(apiClient, queuedItemUrl).whenComplete { buildId, cause ->
-            if (null != cause) {
-                future.completeExceptionally(RuntimeException(
+        val fetchBuildIdFuture = fetchBuildIdFromQueuedItem(apiClient, queuedItemUrl)
+        fetchBuildIdFuture.whenComplete { buildId, cause ->
+            if (fetchBuildIdFuture.isCompletedExceptionally) {
+                triggerResponseFuture.completeExceptionally(RuntimeException(
                         "Unable to fetch build ID from queued item: ${queuedItemUrl}", cause))
 
             } else {
@@ -161,7 +162,7 @@ class JenkinsTriggerJobService @Inject constructor(private val actionDriver: Jen
                 val triggeredAction = TriggeredAction(executionDetails.number, executionDetails.url,
                         mapStatus(executionDetails))
 
-                checkStatus(action, channelId, triggeredAction, future, triggerMessageTimestamp)
+                checkStatus(action, channelId, triggeredAction, triggerResponseFuture, triggerMessageTimestamp)
             }
         }
     }

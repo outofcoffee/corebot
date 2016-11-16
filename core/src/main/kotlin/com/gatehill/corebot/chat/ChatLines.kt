@@ -47,4 +47,9 @@ object ChatLines {
             "Hello",
             "Hey"
     ).chooseOne()
+
+    fun ready() = arrayOf(
+            "Reporting for duty",
+            "Ready for action"
+    ).chooseOne()
 }
