@@ -1,10 +1,13 @@
 package com.gatehill.corebot.chat
 
+import java.util.*
+
 /**
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
 object ChatLines {
-    private fun Array<String>.chooseOne() = this[(Math.random() * (this.size - 1)).toInt()]
+    private val generator by lazy { Random() }
+    private fun Array<String>.chooseOne() = this[generator.nextInt(this.size)]
 
     fun pleaseWait() = arrayOf(
             "Just a min",
