@@ -39,7 +39,7 @@ class ChatService @Inject constructor(private val sessionService: SlackSessionSe
             if (theSession.sessionPersona().id == event.sender.id) return@SlackMessagePostedListener
 
             try {
-                val messageContent = event.messageContent
+                val messageContent = event.messageContent.trim()
                 val splitCmd = messageContent.split("\\s".toRegex()).filterNot(String::isBlank)
 
                 // is it addressed to the bot?
