@@ -142,7 +142,7 @@ abstract class BaseTriggerJobService(private val lockService: LockService,
 
                 val timeoutSecs = TimeUnit.MILLISECONDS.toSeconds(Settings.deployment.executionTimeout.toLong())
                 sessionService.sendMessage(channelId,
-                        "Gave up polling for *${action.name}* execution status after ${timeoutSecs} seconds.")
+                        "Gave up polling for *${action.name}* #${executionId} execution status after ${timeoutSecs} seconds.")
             }
 
         } else {
