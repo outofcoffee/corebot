@@ -8,6 +8,7 @@ import com.gatehill.corebot.chat.model.template.ActionMessageMode
 import com.gatehill.corebot.config.ConfigService
 import com.gatehill.corebot.config.Settings
 import com.gatehill.corebot.security.AuthorisationService
+import com.ullink.slack.simpleslackapi.SlackPersona
 import com.ullink.slack.simpleslackapi.SlackSession
 import com.ullink.slack.simpleslackapi.events.SlackMessagePosted
 import com.ullink.slack.simpleslackapi.listeners.SlackMessagePostedListener
@@ -42,8 +43,7 @@ class ChatService @Inject constructor(private val sessionService: SlackSessionSe
                 val messageContent = event.messageContent.trim()
                 val splitCmd = messageContent.split("\\s".toRegex()).filterNot(String::isBlank)
 
-                // is it addressed to the bot?
-                if (splitCmd.isNotEmpty() && splitCmd[0] == "<@${session.sessionPersona().id}>") {
+                if (isAddressedToBot(splitCmd, session.sessionPersona())) {
                     // indicate busy...
                     session.addReactionToMessage(event.channel, event.timeStamp, "hourglass_flowing_sand")
 
@@ -68,6 +68,9 @@ class ChatService @Inject constructor(private val sessionService: SlackSessionSe
             }
         })
     }
+
+    private fun isAddressedToBot(splitCmd: List<String>, botPersona: SlackPersona) =
+            splitCmd.isNotEmpty() && (splitCmd[0] == "<@${botPersona.id}>" || splitCmd[0] == "<@${botPersona.id}>:")
 
     /**
      * Determine the Action to perform based on the provided command.
