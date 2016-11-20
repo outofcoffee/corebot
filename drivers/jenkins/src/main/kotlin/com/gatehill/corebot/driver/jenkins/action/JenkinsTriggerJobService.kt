@@ -14,7 +14,6 @@ import org.apache.logging.log4j.LogManager
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.util.*
 import java.util.concurrent.CompletableFuture
 import javax.inject.Inject
 
@@ -143,7 +142,7 @@ class JenkinsTriggerJobService @Inject constructor(private val actionDriver: Jen
         sessionService.sendMessage(channelId, "Build for *${action.name}* is queued - ${ChatLines.pleaseWait().toLowerCase()}...")
 
         // reify into build
-        val fetchBuildIdFuture = fetchBuildIdFromQueuedItem(apiClient, queuedItemUrl)
+        val fetchBuildIdFuture = fetchBuildIdFromQueuedItem(channelId, triggerMessageTimestamp, apiClient, queuedItemUrl)
         fetchBuildIdFuture.whenComplete { buildId, cause ->
             if (fetchBuildIdFuture.isCompletedExceptionally) {
                 triggerResponseFuture.completeExceptionally(RuntimeException(
@@ -178,60 +177,60 @@ class JenkinsTriggerJobService @Inject constructor(private val actionDriver: Jen
             ActionStatus.UNKNOWN
     }
 
-    private fun fetchBuildIdFromQueuedItem(apiClient: JenkinsApi, url: String): CompletableFuture<Int> {
+    private fun fetchBuildIdFromQueuedItem(channelId: String, triggerMessageTimestamp: String,
+                                           apiClient: JenkinsApi, url: String): CompletableFuture<Int> {
+
         val future = CompletableFuture<Int>()
 
         val queuedItemUrl = if (url.endsWith('/')) url.substring(0..url.length - 2) else url
         val itemId = queuedItemUrl.substring(queuedItemUrl.lastIndexOf('/') + 1)
 
-        pollQueuedItem(apiClient, future, itemId)
+        pollQueuedItem(channelId, triggerMessageTimestamp, apiClient, future, itemId)
 
         return future
     }
 
-    private fun pollQueuedItem(apiClient: JenkinsApi, future: CompletableFuture<Int>, itemId: String) {
+    private fun pollQueuedItem(channelId: String, triggerMessageTimestamp: String,
+                               apiClient: JenkinsApi, future: CompletableFuture<Int>, itemId: String,
+                               startTime: Long = System.currentTimeMillis()) {
+
         val queuedItem = apiClient.fetchQueuedItem(
                 itemId = itemId,
                 token = DriverSettings.deployment.apiToken
         ).execute().body()
 
-        if (null != queuedItem.executable?.number) {
-            future.complete(queuedItem.executable?.number)
+        queuedItem.executable?.number?.let {
+            future.complete(queuedItem.executable.number)
 
-        } else {
-            // TODO add timeout
-            Timer().schedule(object : TimerTask() {
-                override fun run() = pollQueuedItem(apiClient, future, itemId)
-            }, 500)
+        } ?: run {
+            doUnlessTimedOut(channelId, startTime, triggerMessageTimestamp, "polling queued item #${itemId}") {
+                pollQueuedItem(channelId, triggerMessageTimestamp, apiClient, future, itemId, startTime)
+            }
         }
     }
 
     override fun fetchExecutionInfo(channelId: String, triggerMessageTimestamp: String, action: ActionConfig,
                                     executionId: Int, startTime: Long) {
 
-        Timer().schedule(object : TimerTask() {
-            override fun run() {
-                val call = actionDriver.buildApiClient().fetchBuild(
-                        jobName = action.jobId,
-                        buildId = executionId.toString(),
-                        token = DriverSettings.deployment.apiToken
-                )
+        val call = actionDriver.buildApiClient().fetchBuild(
+                jobName = action.jobId,
+                buildId = executionId.toString(),
+                token = DriverSettings.deployment.apiToken
+        )
 
-                call.enqueue(object : Callback<BuildDetails> {
-                    override fun onFailure(call: Call<BuildDetails>, cause: Throwable) =
-                            handleStatusPollFailure(action, channelId, executionId, cause, triggerMessageTimestamp)
+        call.enqueue(object : Callback<BuildDetails> {
+            override fun onFailure(call: Call<BuildDetails>, cause: Throwable) =
+                    handleStatusPollFailure(action, channelId, executionId, cause, triggerMessageTimestamp)
 
-                    override fun onResponse(call: Call<BuildDetails>, response: Response<BuildDetails>) {
-                        if (response.isSuccessful) {
-                            val status = mapStatus(response.body())
-                            processExecutionInfo(channelId, triggerMessageTimestamp, action, executionId, startTime, status)
+            override fun onResponse(call: Call<BuildDetails>, response: Response<BuildDetails>) {
+                if (response.isSuccessful) {
+                    val status = mapStatus(response.body())
+                    processExecutionInfo(channelId, triggerMessageTimestamp, action, executionId, startTime, status)
 
-                        } else {
-                            handleStatusPollError(action, channelId, executionId, triggerMessageTimestamp, response.errorBody().string())
-                        }
-                    }
-                })
+                } else {
+                    handleStatusPollError(action, channelId, executionId, triggerMessageTimestamp, response.errorBody().string())
+                }
             }
-        }, statusCheckInterval)
+        })
     }
 }

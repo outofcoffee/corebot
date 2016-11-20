@@ -17,12 +17,11 @@ abstract class NamedActionTemplate @Inject constructor(private val configService
         val actionOrTagName = placeholderValues[actionPlaceholder]
         val potentialConfigs = configService.actions()
 
-        val actionConfig = potentialConfigs[actionOrTagName]
-        if (null != actionConfig) {
+        potentialConfigs[actionOrTagName]?.let { actionConfig ->
             // exact action name match
             actionConfigs.add(actionConfig)
 
-        } else {
+        } ?: run {
             // check tags
             potentialConfigs.values.forEach { potentialConfig ->
                 potentialConfig.tags

@@ -43,17 +43,17 @@ class ChatService @Inject constructor(private val sessionService: SlackSessionSe
                 val messageContent = event.messageContent.trim()
                 val splitCmd = messageContent.split("\\s".toRegex()).filterNot(String::isBlank)
 
-                if (isAddressedToBot(splitCmd, session.sessionPersona())) {
+                if (splitCmd.isNotEmpty() && isAddressedToBot(session.sessionPersona(), splitCmd[0])) {
                     // indicate busy...
                     session.addReactionToMessage(event.channel, event.timeStamp, "hourglass_flowing_sand")
 
                     val parsed = parseMessage(splitCmd)
-                    if (null != parsed) {
+                    parsed?.let {
                         logger.info("Handling command '{}' from {}", messageContent, event.sender.userName)
                         parsed.groupStartMessage?.let { session.sendMessage(event.channel, it) }
                         parsed.actions.forEach { action -> handleAction(theSession, event, action, parsed) }
 
-                    } else {
+                    } ?: run {
                         logger.warn("Ignored command '{}' from {}", messageContent, event.sender.userName)
                         session.addReactionToMessage(event.channel, event.timeStamp, "question")
                         printUsage(event, session)
@@ -69,8 +69,8 @@ class ChatService @Inject constructor(private val sessionService: SlackSessionSe
         })
     }
 
-    private fun isAddressedToBot(splitCmd: List<String>, botPersona: SlackPersona) =
-            splitCmd.isNotEmpty() && (splitCmd[0] == "<@${botPersona.id}>" || splitCmd[0] == "<@${botPersona.id}>:")
+    private fun isAddressedToBot(botPersona: SlackPersona, firstToken: String) =
+            firstToken == "<@${botPersona.id}>" || firstToken == "<@${botPersona.id}>:"
 
     /**
      * Determine the Action to perform based on the provided command.

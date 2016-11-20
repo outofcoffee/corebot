@@ -113,7 +113,7 @@ class ConfigService {
             allRoles.putAll(config.security.roles)
         }
 
-        if (null != config.security?.users && config.security?.users.isNotEmpty()) {
+        if (config.security?.users?.isNotEmpty() == true) {
             // users defined in config always override defaults
             allUsers.putAll(config.security!!.users)
         } else {

@@ -41,14 +41,12 @@ abstract class BaseActionTemplate : ActionTemplate {
     /**
      * A short, human readable description.
      */
-    protected fun buildShortDescription(actionConfig: ActionConfig? = null): String {
-        return if (null != actionConfig) "_${actionType.description}_ on *${actionConfig.name}*" else "_${actionType.description}_"
-    }
+    protected fun buildShortDescription(actionConfig: ActionConfig? = null) =
+            actionConfig?.let { "_${actionType.description}_ on *${actionConfig.name}*" } ?: run { "_${actionType.description}_" }
 
     /**
      * The response message sent when this actionType is fired.
      */
-    override fun buildStartMessage(options: Map<String, String>, actionConfig: ActionConfig?): String {
-        return if (null != actionConfig) "I'm working on *${actionConfig.name}*..." else "I'm working on it..."
-    }
+    override fun buildStartMessage(options: Map<String, String>, actionConfig: ActionConfig?) =
+            actionConfig?.let { "I'm working on *${actionConfig.name}*..." } ?: run { "I'm working on it..." }
 }

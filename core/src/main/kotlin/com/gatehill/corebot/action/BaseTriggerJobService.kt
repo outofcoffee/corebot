@@ -8,6 +8,7 @@ import com.gatehill.corebot.chat.SessionService
 import com.gatehill.corebot.config.Settings
 import com.gatehill.corebot.config.model.ActionConfig
 import org.apache.logging.log4j.LogManager
+import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
 
@@ -20,7 +21,7 @@ abstract class BaseTriggerJobService(private val lockService: LockService,
                                      private val sessionService: SessionService) : TriggerJobService {
 
     private val logger = LogManager.getLogger(BaseTriggerJobService::class.java)!!
-    protected val statusCheckInterval = 2000L
+    protected val pollCheckInterval = 2000L
 
     /**
      * Check lock status then optionally trigger execution.
@@ -36,17 +37,17 @@ abstract class BaseTriggerJobService(private val lockService: LockService,
 
         // trigger unless locked
         lockService.checkActionLock(action) { actionLock ->
-            if (null != actionLock) {
+            actionLock?.let {
                 future.completeExceptionally(IllegalStateException(
                         "The '${action.name}' action is locked by <@${actionLock.owner}>"))
 
-            } else {
+            } ?: run {
                 lockService.checkOptionLock(action, allArgs) { optionLock ->
-                    if (null != optionLock) {
+                    optionLock?.let {
                         future.completeExceptionally(IllegalStateException(
                                 "${optionLock.optionName} ${optionLock.optionValue} is locked by <@${optionLock.owner}>"))
 
-                    } else {
+                    } ?: run {
                         logger.info("Triggering action: {} with job ID: {} and args: {}", action.name, action.jobId, allArgs)
                         triggerExecution(channelId, triggerMessageTimestamp, future, action, allArgs)
                     }
@@ -93,11 +94,20 @@ abstract class BaseTriggerJobService(private val lockService: LockService,
 
         if (executionDetails.status == ActionStatus.RUNNING) {
             // poll for updates
-            fetchExecutionInfo(channelId, triggerMessageTimestamp, action, executionDetails.id, System.currentTimeMillis())
+            pollExecutionInfo(channelId, triggerMessageTimestamp, action, executionDetails.id)
 
         } else {
             // already finished
             reactToFinalStatus(channelId, triggerMessageTimestamp, action, executionDetails.id, executionDetails.status)
+        }
+    }
+
+    private fun pollExecutionInfo(channelId: String, triggerMessageTimestamp: String, action: ActionConfig,
+                                  executionId: Int, startTime: Long = System.currentTimeMillis()) {
+
+        val blockDescription = "polling for *${action.name}* #${executionId} execution status"
+        doUnlessTimedOut(channelId, startTime, triggerMessageTimestamp, blockDescription) {
+            fetchExecutionInfo(channelId, triggerMessageTimestamp, action, executionId, startTime)
         }
     }
 
@@ -123,28 +133,36 @@ abstract class BaseTriggerJobService(private val lockService: LockService,
                 "Error polling for *${action.name}* execution status:\r\n```$errorMessage```")
     }
 
+    protected fun doUnlessTimedOut(channelId: String, startTime: Long, triggerMessageTimestamp: String,
+                                   blockDescription: String, block: () -> Unit) {
+
+        if (System.currentTimeMillis() - startTime < Settings.deployment.executionTimeout) {
+            // enough time left to retry
+            Timer().schedule(object : TimerTask() {
+                override fun run() {
+                    block()
+                }
+            }, pollCheckInterval)
+
+        } else {
+            // timed out
+            logger.error("Timed out '${blockDescription}' after ${Settings.deployment.executionTimeout}ms")
+
+            sessionService.addReaction(channelId, triggerMessageTimestamp, "x")
+
+            val timeoutSecs = TimeUnit.MILLISECONDS.toSeconds(Settings.deployment.executionTimeout.toLong())
+            sessionService.sendMessage(channelId,
+                    "Gave up ${blockDescription} after ${timeoutSecs} seconds.")
+        }
+    }
+
     protected fun processExecutionInfo(channelId: String, triggerMessageTimestamp: String, action: ActionConfig,
                                        executionId: Int, startTime: Long, actionStatus: ActionStatus) {
 
         logger.info("Execution {} status: {}", executionId, actionStatus)
 
         if (actionStatus == ActionStatus.RUNNING) {
-            if (System.currentTimeMillis() - startTime < Settings.deployment.executionTimeout) {
-                // enough time left to retry
-                fetchExecutionInfo(channelId, triggerMessageTimestamp, action, executionId, startTime)
-
-            } else {
-                // timed out
-                logger.error("Timed out checking for execution {} status after {}ms",
-                        executionId, Settings.deployment.executionTimeout)
-
-                sessionService.addReaction(channelId, triggerMessageTimestamp, "x")
-
-                val timeoutSecs = TimeUnit.MILLISECONDS.toSeconds(Settings.deployment.executionTimeout.toLong())
-                sessionService.sendMessage(channelId,
-                        "Gave up polling for *${action.name}* #${executionId} execution status after ${timeoutSecs} seconds.")
-            }
-
+            pollExecutionInfo(channelId, triggerMessageTimestamp, action, executionId, startTime)
         } else {
             reactToFinalStatus(channelId, triggerMessageTimestamp, action, executionId, actionStatus)
         }

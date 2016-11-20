@@ -14,7 +14,6 @@ import org.apache.logging.log4j.LogManager
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.util.*
 import java.util.concurrent.CompletableFuture
 import javax.inject.Inject
 
@@ -97,27 +96,23 @@ class RundeckTriggerJobService @Inject constructor(private val actionDriver: Run
     override fun fetchExecutionInfo(channelId: String, triggerMessageTimestamp: String, action: ActionConfig,
                                     executionId: Int, startTime: Long) {
 
-        Timer().schedule(object : TimerTask() {
-            override fun run() {
-                val call = actionDriver.buildApiClient().fetchExecutionInfo(
-                        executionId = executionId.toString()
-                )
+        val call = actionDriver.buildApiClient().fetchExecutionInfo(
+                executionId = executionId.toString()
+        )
 
-                call.enqueue(object : Callback<ExecutionInfo> {
-                    override fun onFailure(call: Call<ExecutionInfo>, cause: Throwable) =
-                            handleStatusPollFailure(action, channelId, executionId, cause, triggerMessageTimestamp)
+        call.enqueue(object : Callback<ExecutionInfo> {
+            override fun onFailure(call: Call<ExecutionInfo>, cause: Throwable) =
+                    handleStatusPollFailure(action, channelId, executionId, cause, triggerMessageTimestamp)
 
-                    override fun onResponse(call: Call<ExecutionInfo>, response: Response<ExecutionInfo>) {
-                        if (response.isSuccessful) {
-                            val status = mapStatus(response.body().status)
-                            processExecutionInfo(channelId, triggerMessageTimestamp, action, executionId, startTime, status)
+            override fun onResponse(call: Call<ExecutionInfo>, response: Response<ExecutionInfo>) {
+                if (response.isSuccessful) {
+                    val status = mapStatus(response.body().status)
+                    processExecutionInfo(channelId, triggerMessageTimestamp, action, executionId, startTime, status)
 
-                        } else {
-                            handleStatusPollError(action, channelId, executionId, triggerMessageTimestamp, response.errorBody().string())
-                        }
-                    }
-                })
+                } else {
+                    handleStatusPollError(action, channelId, executionId, triggerMessageTimestamp, response.errorBody().string())
+                }
             }
-        }, statusCheckInterval)
+        })
     }
 }

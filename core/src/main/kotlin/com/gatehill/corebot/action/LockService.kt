@@ -30,7 +30,7 @@ class LockService {
                    triggerMessageSenderId: String) {
 
         checkActionLock(action) { lock ->
-            if (null != lock) {
+            lock?.let {
                 if (lock.owner == triggerMessageSenderId) {
                     // already locked by self
                     future.complete(PerformActionResult("BTW, you already had the lock for *${action.name}* :wink:"))
@@ -41,7 +41,7 @@ class LockService {
                             "The lock for ${action.name} is already held by <@${lock.owner}>"))
                 }
 
-            } else {
+            } ?: run {
                 // acquire
                 actionLocks[action] = ActionLock(triggerMessageSenderId)
                 future.complete(PerformActionResult("OK, I've locked :lock: *${action.name}* for you."))
@@ -51,12 +51,12 @@ class LockService {
 
     fun unlockAction(future: CompletableFuture<PerformActionResult>, action: ActionConfig) {
         checkActionLock(action) { lock ->
-            if (null != lock) {
+            lock?.let {
                 // unlock
                 actionLocks.remove(action)
                 future.complete(PerformActionResult("OK, I've unlocked :unlock: *${action.name}* for you."))
 
-            } else {
+            } ?: run {
                 // already unlocked
                 future.complete(PerformActionResult("BTW, *${action.name}* was already unlocked :wink:"))
             }
@@ -106,7 +106,8 @@ class LockService {
         future.complete(PerformActionResult())
     }
 
-    private fun isOptionLocked(lock: OptionLock?, optionName: String, optionValue: String) = null != lock && lock.optionName == optionName && lock.optionValue == optionValue
+    private fun isOptionLocked(lock: OptionLock?, optionName: String, optionValue: String) =
+            lock?.let { it.optionName == optionName && it.optionValue == optionValue } ?: false
 
     fun checkOptionLock(action: ActionConfig, args: Map<String, String>, callback: (OptionLock?) -> Unit) {
         val lock = optionLocks[action]

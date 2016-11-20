@@ -46,9 +46,9 @@ abstract class BaseActionDriver @Inject constructor(private val triggerJobServic
         val msg = StringBuilder("Status of *${action.name}*: ")
 
         lockService.checkActionLock(action) { lock ->
-            if (null != lock) {
+            lock?.let {
                 msg.append("locked :lock: by <@${lock.owner}>")
-            } else {
+            } ?: run {
                 msg.append("unlocked :unlock:")
             }
 
