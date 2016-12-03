@@ -87,19 +87,15 @@ class ChatService @Inject constructor(private val sessionService: SlackSessionSe
                 templateService.process(context, token)
             }
 
-            if (1 == context.candidates.size) {
-                val candidate = context.candidates[0]
-
-                if (candidate.tokens.isNotEmpty()) {
-                    throw IllegalStateException("Too few tokens for actions: ${candidate.actionTemplates}")
+            // remove unsatisfied candidates
+            when (context.candidates.filter { candidate -> candidate.tokens.isEmpty() }.size) {
+                1 -> {
+                    val candidate = context.candidates[0]
+                    return ActionWrapper(candidate.buildActions(),
+                            if (candidate.actionMessageMode == ActionMessageMode.GROUP) candidate.buildStartMessage() else null,
+                            if (candidate.actionMessageMode == ActionMessageMode.GROUP) candidate.buildCompleteMessage() else null)
                 }
-
-                return ActionWrapper(candidate.buildActions(),
-                        if (candidate.actionMessageMode == ActionMessageMode.GROUP) candidate.buildStartMessage() else null,
-                        if (candidate.actionMessageMode == ActionMessageMode.GROUP) candidate.buildCompleteMessage() else null)
-
-            } else {
-                throw IllegalStateException("Could not find a unique matching action for command: ${joinedMessage}")
+                else -> throw IllegalStateException("Could not find a unique matching action for command: ${joinedMessage}")
             }
 
         } catch(e: IllegalStateException) {

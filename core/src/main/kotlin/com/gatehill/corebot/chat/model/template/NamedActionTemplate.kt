@@ -24,9 +24,8 @@ abstract class NamedActionTemplate @Inject constructor(private val configService
         } ?: run {
             // check tags
             potentialConfigs.values.forEach { potentialConfig ->
-                potentialConfig.tags
-                        .filter { tag -> tag == actionOrTagName }
-                        .forEach { tag -> actionConfigs.add(potentialConfig) }
+                if (potentialConfig.tags.any { tag -> tag == actionOrTagName })
+                    actionConfigs.add(potentialConfig)
             }
         }
 

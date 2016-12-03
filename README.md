@@ -401,14 +401,10 @@ Here is the official Jenkins Docker image:
         -p 8080:8080 \
         jenkins
 
-## Roadmap
 
-* Notify lock owner on unlock by another user.
-* Last deployment query (options passed, who triggered it, outcome etc.).
-* Add stop/abort action.
-* Feedback if spoken to in room not on whitelist.
-* Allow Rundeck jobs to be specified by project and job name, not just job ID.
-* Support Jenkins jobs within folders (e.g. multibranch pipelines).
+# Recent changes and Roadmap
+  
+For recent changes see the [Changelog](CHANGELOG.md), or view the [Roadmap](docs/roadmap.md).
 
 ## Contributing
 
