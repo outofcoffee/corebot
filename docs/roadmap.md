@@ -5,6 +5,9 @@ This section lists future ideas for features and improvements. Feel free to subm
 ## Improvements
 
 * Allow Rundeck jobs to be specified by project and job name, not just job ID.
+* Show version in help
+* Persistent storage
+* Show option lock examples in help
 
 ## Features
 
@@ -13,3 +16,4 @@ This section lists future ideas for features and improvements. Feel free to subm
 * Add stop/abort action.
 * Feedback if spoken to in room not on whitelist.
 * Support Jenkins jobs within folders (e.g. multibranch pipelines).
+* List tags (corebot show tags)
