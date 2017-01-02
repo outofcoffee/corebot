@@ -17,7 +17,7 @@ import javax.inject.Inject
  */
 interface RundeckActionDriver : ActionDriver, ApiClientBuilder<RundeckApi>
 
-class RundeckActionDriverImpl @Inject constructor(triggerJobService: RundeckTriggerJobService,
+class RundeckActionDriverImpl @Inject constructor(triggerJobService: RundeckJobTriggerService,
                                                   lockService: LockService,
                                                   private val executionStatusService: ExecutionStatusService) : BaseActionDriver(triggerJobService, lockService), RundeckActionDriver {
     override val baseUrl: String

@@ -1,6 +1,6 @@
 package com.gatehill.corebot.driver.jenkins.action
 
-import com.gatehill.corebot.action.BaseTriggerJobService
+import com.gatehill.corebot.action.BaseJobTriggerService
 import com.gatehill.corebot.action.LockService
 import com.gatehill.corebot.action.model.ActionStatus
 import com.gatehill.corebot.action.model.PerformActionResult
@@ -22,11 +22,11 @@ import javax.inject.Inject
  *
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
-class JenkinsTriggerJobService @Inject constructor(private val actionDriver: JenkinsActionDriver,
+class JenkinsJobTriggerService @Inject constructor(private val actionDriver: JenkinsActionDriver,
                                                    lockService: LockService,
-                                                   private val sessionService: SessionService) : BaseTriggerJobService(lockService, sessionService) {
+                                                   private val sessionService: SessionService) : BaseJobTriggerService(lockService, sessionService) {
 
-    private val logger = LogManager.getLogger(JenkinsTriggerJobService::class.java)!!
+    private val logger = LogManager.getLogger(JenkinsJobTriggerService::class.java)!!
 
     override fun triggerExecution(channelId: String, triggerMessageTimestamp: String,
                                   future: CompletableFuture<PerformActionResult>,

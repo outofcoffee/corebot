@@ -81,11 +81,11 @@ Configure the bot using the following environment variables.
 
     SLACK_AUTH_TOKEN="CHANGEME"
     SLACK_CHANNELS="corebot"
-    BOT_CONFIG="/path/to/actions.yaml"
+    ACTION_CONFIG_FILE="/path/to/actions.yaml"
     
 > Note: `SLACK_CHANNELS` is a comma-separated list of channel names, such as `"channelA,channelB"`
 
-> Note: the default path for `BOT_CONFIG` is `/opt/corebot/actions.yml`. When using corebot within a Docker container, it is typical to add your configuration file at this location, or bind-mount a file to this path.
+> Note: the default path for `ACTION_CONFIG_FILE` is `/opt/corebot/actions.yml`. When using corebot within a Docker container, it is typical to add your configuration file at this location, or bind-mount a file to this path.
 
 ### Variables for Rundeck
 
@@ -121,7 +121,7 @@ Corebot has both built-in actions and custom actions. Examples of built in actio
 
 ### Action configuration file
 
-> Note: the configuration file path is specified with the `BOT_CONFIG` environment variable.
+> Note: the configuration file path is specified with the `ACTION_CONFIG_FILE` environment variable.
 
 _Example file:_
 ```
@@ -401,6 +401,32 @@ Here is the official Jenkins Docker image:
         -p 8080:8080 \
         jenkins
 
+### Maven dependencies
+
+To use the dependencies in a project, add the repository:
+
+```
+repositories {
+    maven {
+        url 'https://s3-eu-west-1.amazonaws.com/gatehillsoftware-maven/snapshots/'
+    }
+    
+    // jitpack required for Slack dependency
+    maven { url "https://jitpack.io" }
+}
+```
+
+...then add a dependency:
+
+```
+compile "com.gatehill.corebot:core:0.6.3-SNAPSHOT"
+```
+
+#### Publishing
+
+Dependencies can be published to the project Maven repository.
+
+> Note: Publishing to the repository requires appropriate AWS keys to be set in `gradle.properties`.
 
 # Recent changes and Roadmap
   

@@ -9,7 +9,7 @@ import javax.inject.Inject
 /**
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
-abstract class BaseActionDriver @Inject constructor(private val triggerJobService: TriggerJobService,
+abstract class BaseActionDriver @Inject constructor(private val jobTriggerService: JobTriggerService,
                                                     private val lockService: LockService) : ActionDriver {
 
     /**
@@ -22,7 +22,7 @@ abstract class BaseActionDriver @Inject constructor(private val triggerJobServic
         val future = CompletableFuture<PerformActionResult>()
         try {
             when (actionType) {
-                ActionType.TRIGGER -> triggerJobService.trigger(channelId, triggerMessageTimestamp, future, action, args)
+                ActionType.TRIGGER -> jobTriggerService.trigger(channelId, triggerMessageTimestamp, future, action, args)
                 ActionType.LOCK_ACTION -> lockService.lockAction(future, action, triggerMessageSenderId)
                 ActionType.UNLOCK_ACTION -> lockService.unlockAction(future, action)
                 ActionType.STATUS -> showStatus(future, action)

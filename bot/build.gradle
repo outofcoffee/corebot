@@ -20,7 +20,7 @@ dependencies {
     compile "com.fasterxml.jackson.module:jackson-module-kotlin:$version_jackson"
     compile "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$version_jackson"
 
-    compile ("com.github.ullink:simple-slack-api:$version_slackapi") {
+    compile("com.github.ullink:simple-slack-api:$version_slackapi") {
         exclude module: 'logback-classic'
     }
 
@@ -28,7 +28,7 @@ dependencies {
     compile project(':drivers:jenkins')
     compile project(':drivers:rundeck')
 
-    testCompile 'junit:junit:4.11'
+    testCompile "junit:junit:$version_junit"
     testCompile "org.jetbrains.kotlin:kotlin-test-junit:$version_kotlin"
 }
 
@@ -36,4 +36,21 @@ mainClassName = 'com.gatehill.corebot.MainKt'
 
 task createStartScripts(type: CreateStartScripts) {
     applicationName = 'corebot'
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+            repositories {
+                maven {
+                    url mavenSnapshotRepository
+                    credentials(AwsCredentials) {
+                        accessKey awsAccessKey
+                        secretKey awsSecretKey
+                    }
+                }
+            }
+        }
+    }
 }

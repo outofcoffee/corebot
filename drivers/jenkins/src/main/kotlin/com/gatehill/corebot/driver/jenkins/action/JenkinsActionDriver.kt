@@ -18,7 +18,7 @@ import javax.inject.Inject
  */
 interface JenkinsActionDriver : ActionDriver, ApiClientBuilder<JenkinsApi>
 
-class JenkinsActionDriverImpl @Inject constructor(triggerJobService: JenkinsTriggerJobService,
+class JenkinsActionDriverImpl @Inject constructor(triggerJobService: JenkinsJobTriggerService,
                                                   lockService: LockService) : BaseActionDriver(triggerJobService, lockService), JenkinsActionDriver {
     override val baseUrl: String
         get() = DriverSettings.deployment.baseUrl

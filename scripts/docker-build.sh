@@ -17,13 +17,16 @@ function buildImage()
 
 function pushImage()
 {
-    IMAGE_NAME="${IMAGE_BASE_NAME}$1:${IMAGE_TAG}"
+    echo -e "\nLogging in to Docker registry..."
+    docker login --username "${DOCKER_USERNAME}" --password "${DOCKER_PASSWORD}" --email deprecated@example.com
+
+    IMAGE_NAME="${IMAGE_BASE_NAME}:${IMAGE_TAG}"
     echo -e "\nPushing Docker image: ${IMAGE_NAME}"
 
     docker push ${IMAGE_NAME}
 }
 
-echo -e "\nBuilding base image from local source"
+echo -e "\nBuilding image from local source"
 buildImage "${SCRIPT_DIR}/../"
 
 if [[ "dev" == "${IMAGE_TAG}" ]]; then

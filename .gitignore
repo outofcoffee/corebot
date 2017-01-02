@@ -4,3 +4,4 @@ build/
 .gradle/
 classes
 .gradletasknamecache
+gradle.properties

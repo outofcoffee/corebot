@@ -1,6 +1,7 @@
 package com.gatehill.corebot.chat
 
-import com.gatehill.corebot.action.ActionDriverFactory
+import com.gatehill.corebot.action.ActionDriverService
+import com.gatehill.corebot.action.model.PerformActionRequest
 import com.gatehill.corebot.chat.model.action.Action
 import com.gatehill.corebot.chat.model.action.ActionWrapper
 import com.gatehill.corebot.chat.model.action.CustomAction
@@ -20,57 +21,61 @@ import javax.inject.Inject
  *
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
-class ChatService @Inject constructor(private val sessionService: SlackSessionService,
-                                      private val templateService: TemplateService,
-                                      private val configService: ConfigService,
-                                      private val authorisationService: AuthorisationService,
-                                      private val actionDriverFactory: ActionDriverFactory) {
+interface ChatService {
+    fun listenForEvents()
+}
 
-    private val logger = LogManager.getLogger(ChatService::class.java)!!
+open class SlackChatServiceImpl @Inject constructor(private val sessionService: SlackSessionService,
+                                                    private val templateService: TemplateService,
+                                                    private val configService: ConfigService,
+                                                    private val authorisationService: AuthorisationService,
+                                                    private val actionDriverService: ActionDriverService) : ChatService {
 
-    fun listenForEvents() {
-        val session = sessionService.session
+    private val logger = LogManager.getLogger(SlackChatServiceImpl::class.java)!!
 
-        session.addMessagePostedListener(SlackMessagePostedListener { event, theSession ->
-            // filter out messages from other channels
-            if (!Settings.chat.channelNames.map { channelName -> theSession.findChannelByName(channelName).id }
-                    .contains(event.channel.id)) return@SlackMessagePostedListener
-
-            // ignore own messages
-            if (theSession.sessionPersona().id == event.sender.id) return@SlackMessagePostedListener
-
-            try {
-                val messageContent = event.messageContent.trim()
-                val splitCmd = messageContent.split("\\s".toRegex()).filterNot(String::isBlank)
-
-                if (splitCmd.isNotEmpty() && isAddressedToBot(session.sessionPersona(), splitCmd[0])) {
-                    // indicate busy...
-                    session.addReactionToMessage(event.channel, event.timeStamp, "hourglass_flowing_sand")
-
-                    val parsed = parseMessage(splitCmd)
-                    parsed?.let {
-                        logger.info("Handling command '{}' from {}", messageContent, event.sender.userName)
-                        parsed.groupStartMessage?.let { session.sendMessage(event.channel, it) }
-                        parsed.actions.forEach { action -> handleAction(theSession, event, action, parsed) }
-
-                    } ?: run {
-                        logger.warn("Ignored command '{}' from {}", messageContent, event.sender.userName)
-                        session.addReactionToMessage(event.channel, event.timeStamp, "question")
-                        printUsage(event, session)
-                    }
-                }
-
-            } catch(e: Exception) {
-                logger.error("Error parsing message event: {}", event, e)
-                session.addReactionToMessage(event.channel, event.timeStamp, "x")
-                printUsage(event, session)
-                return@SlackMessagePostedListener
-            }
-        })
+    override fun listenForEvents() {
+        messagePostedListeners.forEach { sessionService.session.addMessagePostedListener(it) }
     }
 
-    private fun isAddressedToBot(botPersona: SlackPersona, firstToken: String) =
-            firstToken == "<@${botPersona.id}>" || firstToken == "<@${botPersona.id}>:"
+    /**
+     * Allow subclasses to hook into Slack events.
+     */
+    protected open val messagePostedListeners = listOf(SlackMessagePostedListener { event, session ->
+        // filter out messages from other channels
+        if (!Settings.chat.channelNames.map { channelName -> session.findChannelByName(channelName).id }
+                .contains(event.channel.id)) return@SlackMessagePostedListener
+
+        // ignore own messages
+        if (session.sessionPersona().id == event.sender.id) return@SlackMessagePostedListener
+
+        try {
+            val messageContent = event.messageContent.trim()
+            val splitCmd = messageContent.split("\\s".toRegex()).filterNot(String::isBlank)
+
+            if (splitCmd.isNotEmpty() && isAddressedToBot(session.sessionPersona(), splitCmd[0])) {
+                // indicate busy...
+                session.addReactionToMessage(event.channel, event.timeStamp, "hourglass_flowing_sand")
+
+                val parsed = parseMessage(splitCmd)
+                parsed?.let {
+                    logger.info("Handling command '{}' from {}", messageContent, event.sender.userName)
+                    parsed.groupStartMessage?.let { session.sendMessage(event.channel, it) }
+                    parsed.actions.forEach { action -> handleAction(session, event, action, parsed) }
+
+                } ?: run {
+                    logger.warn("Ignored command '{}' from {}", messageContent, event.sender.userName)
+                    session.addReactionToMessage(event.channel, event.timeStamp, "question")
+                    printUsage(event, session)
+                }
+            }
+
+        } catch(e: Exception) {
+            logger.error("Error parsing message event: {}", event, e)
+            session.addReactionToMessage(event.channel, event.timeStamp, "x")
+            printUsage(event, session)
+            return@SlackMessagePostedListener
+        }
+    })
 
     /**
      * Determine the Action to perform based on the provided command.
@@ -111,7 +116,7 @@ class ChatService @Inject constructor(private val sessionService: SlackSessionSe
         val msg = StringBuilder()
 
         if (configService.actions().isEmpty()) {
-            msg.append("Oops :broken_heart: you don't have any actions configured - add some to _${Settings.configFile}_")
+            msg.append("Oops :broken_heart: you don't have any actions configured - add some to _${Settings.actionConfigFile}_")
         } else {
             msg.append("Sorry, I didn't understand :confused: Try typing _@${sessionService.botUsername} help_ for examples.")
         }
@@ -152,9 +157,10 @@ class ChatService @Inject constructor(private val sessionService: SlackSessionSe
                                     actionWrapper: ActionWrapper) {
 
         // schedule action execution
-        val actionDriver = actionDriverFactory.driverFor(action.driver)
-        val future = actionDriver.perform(event.channel.id, event.sender.id, event.timestamp,
+        val request = PerformActionRequest.Builder.build(event.channel.id, event.sender.id, event.timestamp,
                 action.actionType, action.actionConfig, action.args)
+
+        val future = actionDriverService.perform(request)
 
         future.whenComplete { result, throwable ->
             if (future.isCompletedExceptionally) {
@@ -180,3 +186,9 @@ class ChatService @Inject constructor(private val sessionService: SlackSessionSe
             actionWrapper.groupCompleteMessage?.let { session.sendMessage(event.channel, it) }
     }
 }
+
+/**
+ * Determine if the message is addressed to the bot.
+ */
+fun isAddressedToBot(botPersona: SlackPersona, firstToken: String) =
+        firstToken == "<@${botPersona.id}>" || firstToken == "<@${botPersona.id}>:"

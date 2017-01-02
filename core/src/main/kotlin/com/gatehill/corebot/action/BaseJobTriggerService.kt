@@ -17,10 +17,10 @@ import java.util.concurrent.TimeUnit
  *
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
-abstract class BaseTriggerJobService(private val lockService: LockService,
-                                     private val sessionService: SessionService) : TriggerJobService {
+abstract class BaseJobTriggerService(private val lockService: LockService,
+                                     private val sessionService: SessionService) : JobTriggerService {
 
-    private val logger = LogManager.getLogger(BaseTriggerJobService::class.java)!!
+    private val logger = LogManager.getLogger(BaseJobTriggerService::class.java)!!
     protected val pollCheckInterval = 2000L
 
     /**

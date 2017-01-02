@@ -9,7 +9,7 @@ import java.util.concurrent.CompletableFuture
  *
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
-interface TriggerJobService {
+interface JobTriggerService {
     /**
      * Trigger execution of a job, then poll for status updates.
      */

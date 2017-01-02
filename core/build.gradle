@@ -17,6 +17,23 @@ dependencies {
     compile "com.google.guava:guava:$version_guava"
     compile "com.google.inject:guice:$version_guice"
 
-    testCompile 'junit:junit:4.11'
+    testCompile "junit:junit:$version_junit"
     testCompile "org.jetbrains.kotlin:kotlin-test-junit:$version_kotlin"
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+            repositories {
+                maven {
+                    url mavenSnapshotRepository
+                    credentials(AwsCredentials) {
+                        accessKey awsAccessKey
+                        secretKey awsSecretKey
+                    }
+                }
+            }
+        }
+    }
 }

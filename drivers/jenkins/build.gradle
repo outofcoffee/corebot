@@ -11,6 +11,23 @@ dependencies {
 
     compile project(':drivers:base')
 
-    testCompile 'junit:junit:4.11'
+    testCompile "junit:junit:$version_junit"
     testCompile "org.jetbrains.kotlin:kotlin-test-junit:$version_kotlin"
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+            repositories {
+                maven {
+                    url mavenSnapshotRepository
+                    credentials(AwsCredentials) {
+                        accessKey awsAccessKey
+                        secretKey awsSecretKey
+                    }
+                }
+            }
+        }
+    }
 }
