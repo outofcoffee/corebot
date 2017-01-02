@@ -11,6 +11,7 @@ import com.gatehill.corebot.driver.rundeck.model.ExecutionDetails
 import com.gatehill.corebot.driver.rundeck.model.ExecutionInfo
 import com.gatehill.corebot.driver.rundeck.model.ExecutionOptions
 import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -26,7 +27,7 @@ class RundeckJobTriggerService @Inject constructor(private val actionDriver: Run
                                                    lockService: LockService,
                                                    sessionService: SessionService) : BaseJobTriggerService(lockService, sessionService) {
 
-    private val logger = LogManager.getLogger(RundeckJobTriggerService::class.java)!!
+    private val logger: Logger = LogManager.getLogger(RundeckJobTriggerService::class.java)
 
     override fun triggerExecution(channelId: String, triggerMessageTimestamp: String,
                                   future: CompletableFuture<PerformActionResult>,

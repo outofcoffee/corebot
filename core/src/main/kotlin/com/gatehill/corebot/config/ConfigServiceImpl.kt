@@ -9,6 +9,7 @@ import com.gatehill.corebot.config.model.SecurityUserConfig
 import com.google.common.cache.Cache
 import com.google.common.cache.CacheBuilder
 import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 import java.io.InputStream
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -38,7 +39,7 @@ open class ConfigServiceImpl : ConfigService {
                                       val actions: Map<String, ActionConfig>) : VersionedConfig
 
     private val configFileVersion = "1"
-    private val logger = LogManager.getLogger(ConfigServiceImpl::class.java)!!
+    private val logger: Logger = LogManager.getLogger(ConfigServiceImpl::class.java)
     private val objectMapper = ObjectMapper(YAMLFactory()).registerKotlinModule()
 
     /**

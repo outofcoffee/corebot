@@ -1,6 +1,7 @@
 package com.gatehill.corebot.config
 
 import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 import java.io.File
 
 /**
@@ -9,7 +10,7 @@ import java.io.File
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
 object Settings {
-    private val logger = LogManager.getLogger(Settings::class.java)!!
+    private val logger: Logger = LogManager.getLogger(Settings::class.java)
 
     class Chat {
         val authToken by lazy { System.getenv("SLACK_AUTH_TOKEN") ?: throw IllegalStateException("Slack auth token missing") }

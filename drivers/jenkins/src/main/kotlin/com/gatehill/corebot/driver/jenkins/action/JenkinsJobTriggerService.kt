@@ -11,6 +11,7 @@ import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.driver.jenkins.config.DriverSettings
 import com.gatehill.corebot.driver.jenkins.model.BuildDetails
 import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -26,7 +27,7 @@ class JenkinsJobTriggerService @Inject constructor(private val actionDriver: Jen
                                                    lockService: LockService,
                                                    private val sessionService: SessionService) : BaseJobTriggerService(lockService, sessionService) {
 
-    private val logger = LogManager.getLogger(JenkinsJobTriggerService::class.java)!!
+    private val logger: Logger = LogManager.getLogger(JenkinsJobTriggerService::class.java)
 
     override fun triggerExecution(channelId: String, triggerMessageTimestamp: String,
                                   future: CompletableFuture<PerformActionResult>,

@@ -4,6 +4,7 @@ import com.gatehill.corebot.action.LockService
 import com.gatehill.corebot.action.model.PerformActionResult
 import com.gatehill.corebot.config.model.ActionConfig
 import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -17,7 +18,7 @@ import javax.inject.Inject
 class ExecutionStatusService @Inject constructor(private val actionDriver: RundeckActionDriver,
                                                  private val lockService: LockService) {
 
-    private val logger = LogManager.getLogger(RundeckActionDriver::class.java)!!
+    private val logger: Logger = LogManager.getLogger(RundeckActionDriver::class.java)
 
     fun enableExecutions(future: CompletableFuture<PerformActionResult>, action: ActionConfig, enable: Boolean) {
         logger.info("Setting action: {} with job ID: {} enabled status to {}", action.name, action.jobId, enable)

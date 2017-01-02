@@ -6,13 +6,14 @@ import com.ullink.slack.simpleslackapi.SlackSession
 import com.ullink.slack.simpleslackapi.impl.SlackSessionFactory
 import com.ullink.slack.simpleslackapi.listeners.SlackConnectedListener
 import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 import javax.inject.Inject
 
 /**
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
 open class SlackSessionServiceImpl @Inject constructor(configService: ConfigService) : SlackSessionService {
-    private val logger = LogManager.getLogger(SlackSessionServiceImpl::class.java)!!
+    private val logger: Logger = LogManager.getLogger(SlackSessionServiceImpl::class.java)
 
     override val session: SlackSession by lazy {
         logger.info("Connecting to Slack...")

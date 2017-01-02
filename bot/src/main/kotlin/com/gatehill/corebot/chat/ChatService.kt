@@ -14,6 +14,7 @@ import com.ullink.slack.simpleslackapi.SlackSession
 import com.ullink.slack.simpleslackapi.events.SlackMessagePosted
 import com.ullink.slack.simpleslackapi.listeners.SlackMessagePostedListener
 import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 import javax.inject.Inject
 
 /**
@@ -31,7 +32,7 @@ open class SlackChatServiceImpl @Inject constructor(private val sessionService: 
                                                     private val authorisationService: AuthorisationService,
                                                     private val actionDriverService: ActionDriverService) : ChatService {
 
-    private val logger = LogManager.getLogger(SlackChatServiceImpl::class.java)!!
+    private val logger: Logger = LogManager.getLogger(SlackChatServiceImpl::class.java)
 
     override fun listenForEvents() {
         messagePostedListeners.forEach { sessionService.session.addMessagePostedListener(it) }

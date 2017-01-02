@@ -8,6 +8,7 @@ import com.gatehill.corebot.chat.SessionService
 import com.gatehill.corebot.config.Settings
 import com.gatehill.corebot.config.model.ActionConfig
 import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
@@ -20,7 +21,7 @@ import java.util.concurrent.TimeUnit
 abstract class BaseJobTriggerService(private val lockService: LockService,
                                      private val sessionService: SessionService) : JobTriggerService {
 
-    private val logger = LogManager.getLogger(BaseJobTriggerService::class.java)!!
+    private val logger: Logger = LogManager.getLogger(BaseJobTriggerService::class.java)
     protected val pollCheckInterval = 2000L
 
     /**
