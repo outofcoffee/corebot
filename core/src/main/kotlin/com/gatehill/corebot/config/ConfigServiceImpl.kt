@@ -1,7 +1,6 @@
 package com.gatehill.corebot.config
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.config.model.SecurityConfig
@@ -34,13 +33,13 @@ open class ConfigServiceImpl : ConfigService {
      * Top level action settings file wrapper.
      */
     protected class ActionConfigWrapper(override val version: String,
-                                      val joinMessage: String?,
-                                      override val security: SecurityConfig?,
-                                      val actions: Map<String, ActionConfig>) : VersionedConfig
+                                        val joinMessage: String?,
+                                        override val security: SecurityConfig?,
+                                        val actions: Map<String, ActionConfig>) : VersionedConfig
 
     private val configFileVersion = "1"
     private val logger: Logger = LogManager.getLogger(ConfigServiceImpl::class.java)
-    private val objectMapper = ObjectMapper(YAMLFactory()).registerKotlinModule()
+    private val objectMapper = YAMLMapper().registerKotlinModule()
 
     /**
      * Immutable default security configuration.
