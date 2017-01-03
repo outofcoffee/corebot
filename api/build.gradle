@@ -9,16 +9,6 @@ apply plugin: "kotlin"
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$version_kotlin"
 
-    compile "org.apache.logging.log4j:log4j-api:$version_log4j"
-
-    compile "com.fasterxml.jackson.module:jackson-module-kotlin:$version_jackson"
-    compile "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$version_jackson"
-
-    compile "com.google.guava:guava:$version_guava"
-    compile "com.google.inject:guice:$version_guice"
-
-    compile project(':api')
-
     testCompile "junit:junit:$version_junit"
     testCompile "org.jetbrains.kotlin:kotlin-test-junit:$version_kotlin"
 }
