@@ -50,7 +50,7 @@ open class ActionOutcomeServiceImpl @Inject constructor(private val sessionServi
                 "Error polling for *${action.name}* execution status:\r\n```$errorMessage```")
     }
 
-    override fun handleTimeout(blockDescription: String, channelId: String, triggerMessageTimestamp: String) {
+    override fun handleTimeout(action: ActionConfig, blockDescription: String, channelId: String, triggerMessageTimestamp: String) {
         logger.error("Timed out '${blockDescription}' after ${Settings.deployment.executionTimeout}ms")
 
         sessionService.addReaction(channelId, triggerMessageTimestamp, "x")

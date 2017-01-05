@@ -3,15 +3,12 @@ package com.gatehill.corebot.action
 import com.gatehill.corebot.action.model.ActionStatus
 import com.gatehill.corebot.action.model.PerformActionResult
 import com.gatehill.corebot.action.model.TriggeredAction
-import com.gatehill.corebot.chat.ChatLines
-import com.gatehill.corebot.chat.SessionService
 import com.gatehill.corebot.config.Settings
 import com.gatehill.corebot.config.model.ActionConfig
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.util.*
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.TimeUnit
 
 /**
  * Triggers job executions, obtains status updates and notifies the user of the outcome.
@@ -83,7 +80,7 @@ abstract class BaseJobTriggerService(private val lockService: LockService,
                                   executionId: Int, startTime: Long = System.currentTimeMillis()) {
 
         val blockDescription = "polling for *${action.name}* #${executionId} execution status"
-        doUnlessTimedOut(channelId, startTime, triggerMessageTimestamp, blockDescription) {
+        doUnlessTimedOut(action, channelId, startTime, triggerMessageTimestamp, blockDescription) {
             fetchExecutionInfo(channelId, triggerMessageTimestamp, action, executionId, startTime)
         }
     }
@@ -102,7 +99,7 @@ abstract class BaseJobTriggerService(private val lockService: LockService,
         actionOutcomeService.handlePollFailure(action, channelId, errorMessage, triggerMessageTimestamp)
     }
 
-    protected fun doUnlessTimedOut(channelId: String, startTime: Long, triggerMessageTimestamp: String,
+    protected fun doUnlessTimedOut(action: ActionConfig, channelId: String, startTime: Long, triggerMessageTimestamp: String,
                                    blockDescription: String, block: () -> Unit) {
 
         if (System.currentTimeMillis() - startTime < Settings.deployment.executionTimeout) {
@@ -114,7 +111,7 @@ abstract class BaseJobTriggerService(private val lockService: LockService,
             }, pollCheckInterval)
 
         } else {
-            actionOutcomeService.handleTimeout(blockDescription, channelId, triggerMessageTimestamp)
+            actionOutcomeService.handleTimeout(action, blockDescription, channelId, triggerMessageTimestamp)
         }
     }
 

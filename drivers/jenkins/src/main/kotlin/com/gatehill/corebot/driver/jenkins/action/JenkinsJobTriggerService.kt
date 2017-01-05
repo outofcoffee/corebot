@@ -142,7 +142,7 @@ class JenkinsJobTriggerService @Inject constructor(private val actionDriver: Jen
         actionOutcomeService.notifyQueued(action, channelId)
 
         // reify into build
-        val fetchBuildIdFuture = fetchBuildIdFromQueuedItem(channelId, triggerMessageTimestamp, apiClient, queuedItemUrl)
+        val fetchBuildIdFuture = fetchBuildIdFromQueuedItem(action, channelId, triggerMessageTimestamp, apiClient, queuedItemUrl)
         fetchBuildIdFuture.whenComplete { buildId, cause ->
             if (fetchBuildIdFuture.isCompletedExceptionally) {
                 triggerResponseFuture.completeExceptionally(RuntimeException(
@@ -177,7 +177,7 @@ class JenkinsJobTriggerService @Inject constructor(private val actionDriver: Jen
             ActionStatus.UNKNOWN
     }
 
-    private fun fetchBuildIdFromQueuedItem(channelId: String, triggerMessageTimestamp: String,
+    private fun fetchBuildIdFromQueuedItem(action: ActionConfig, channelId: String, triggerMessageTimestamp: String,
                                            apiClient: JenkinsApi, url: String): CompletableFuture<Int> {
 
         val future = CompletableFuture<Int>()
@@ -185,12 +185,12 @@ class JenkinsJobTriggerService @Inject constructor(private val actionDriver: Jen
         val queuedItemUrl = if (url.endsWith('/')) url.substring(0..url.length - 2) else url
         val itemId = queuedItemUrl.substring(queuedItemUrl.lastIndexOf('/') + 1)
 
-        pollQueuedItem(channelId, triggerMessageTimestamp, apiClient, future, itemId)
+        pollQueuedItem(action, channelId, triggerMessageTimestamp, apiClient, future, itemId)
 
         return future
     }
 
-    private fun pollQueuedItem(channelId: String, triggerMessageTimestamp: String,
+    private fun pollQueuedItem(action: ActionConfig, channelId: String, triggerMessageTimestamp: String,
                                apiClient: JenkinsApi, future: CompletableFuture<Int>, itemId: String,
                                startTime: Long = System.currentTimeMillis()) {
 
@@ -203,8 +203,8 @@ class JenkinsJobTriggerService @Inject constructor(private val actionDriver: Jen
             future.complete(queuedItem.executable.number)
 
         } ?: run {
-            doUnlessTimedOut(channelId, startTime, triggerMessageTimestamp, "polling queued item #${itemId}") {
-                pollQueuedItem(channelId, triggerMessageTimestamp, apiClient, future, itemId, startTime)
+            doUnlessTimedOut(action, channelId, startTime, triggerMessageTimestamp, "polling queued item #${itemId}") {
+                pollQueuedItem(action, channelId, triggerMessageTimestamp, apiClient, future, itemId, startTime)
             }
         }
     }

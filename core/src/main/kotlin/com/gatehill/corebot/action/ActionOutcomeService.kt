@@ -27,5 +27,5 @@ interface ActionOutcomeService {
     /**
      * Notify the user of a timeout.
      */
-    fun handleTimeout(blockDescription: String, channelId: String, triggerMessageTimestamp: String)
+    fun handleTimeout(action: ActionConfig, blockDescription: String, channelId: String, triggerMessageTimestamp: String)
 }
