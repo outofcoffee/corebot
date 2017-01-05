@@ -92,14 +92,14 @@ abstract class BaseJobTriggerService(private val lockService: LockService,
                                           triggerMessageTimestamp: String) {
 
         logger.error("Failed to check execution {} status", executionId, cause)
-        actionOutcomeService.handleFailure(action, channelId, cause.message, triggerMessageTimestamp)
+        actionOutcomeService.handlePollFailure(action, channelId, cause.message, triggerMessageTimestamp)
     }
 
     protected fun handleStatusPollError(action: ActionConfig, channelId: String, executionId: Int,
                                         triggerMessageTimestamp: String, errorMessage: String?) {
 
         logger.error("Error checking for execution {} status: {}", executionId, errorMessage)
-        actionOutcomeService.handleFailure(action, channelId, errorMessage, triggerMessageTimestamp)
+        actionOutcomeService.handlePollFailure(action, channelId, errorMessage, triggerMessageTimestamp)
     }
 
     protected fun doUnlessTimedOut(channelId: String, startTime: Long, triggerMessageTimestamp: String,

@@ -20,9 +20,9 @@ interface ActionOutcomeService {
     fun reactToFinalStatus(channelId: String, triggerMessageTimestamp: String, action: ActionConfig, executionId: Int, actionStatus: ActionStatus)
 
     /**
-     * Notify the user of a failure outcome.
+     * Notify the user of a failure to poll for job status.
      */
-    fun handleFailure(action: ActionConfig, channelId: String, errorMessage: String?, triggerMessageTimestamp: String)
+    fun handlePollFailure(action: ActionConfig, channelId: String, errorMessage: String?, triggerMessageTimestamp: String)
 
     /**
      * Notify the user of a timeout.

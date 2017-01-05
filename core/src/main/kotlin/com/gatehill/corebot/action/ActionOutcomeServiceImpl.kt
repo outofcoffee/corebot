@@ -42,8 +42,8 @@ open class ActionOutcomeServiceImpl @Inject constructor(private val sessionServi
                 "${reaction} *${action.name}* #${executionId} finished with status: _${actionStatus.toSentenceCase()}_.")
     }
 
-    override fun handleFailure(action: ActionConfig, channelId: String, errorMessage: String?,
-                               triggerMessageTimestamp: String) {
+    override fun handlePollFailure(action: ActionConfig, channelId: String, errorMessage: String?,
+                                   triggerMessageTimestamp: String) {
 
         sessionService.addReaction(channelId, triggerMessageTimestamp, "x")
         sessionService.sendMessage(channelId,
