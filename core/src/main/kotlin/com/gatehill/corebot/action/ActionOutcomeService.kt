@@ -17,7 +17,7 @@ interface ActionOutcomeService {
     /**
      * Notify the user of the final status of the triggered action.
      */
-    fun reactToFinalStatus(channelId: String, triggerMessageTimestamp: String, action: ActionConfig, executionId: Int, actionStatus: ActionStatus)
+    fun handleFinalStatus(channelId: String, triggerMessageTimestamp: String, action: ActionConfig, executionId: Int, actionStatus: ActionStatus)
 
     /**
      * Notify the user of a failure to poll for job status.

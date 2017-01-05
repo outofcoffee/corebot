@@ -72,7 +72,7 @@ abstract class BaseJobTriggerService(private val lockService: LockService,
 
         } else {
             // already finished
-            actionOutcomeService.reactToFinalStatus(channelId, triggerMessageTimestamp, action, executionDetails.id, executionDetails.status)
+            actionOutcomeService.handleFinalStatus(channelId, triggerMessageTimestamp, action, executionDetails.id, executionDetails.status)
         }
     }
 
@@ -123,7 +123,7 @@ abstract class BaseJobTriggerService(private val lockService: LockService,
         if (actionStatus == ActionStatus.RUNNING) {
             pollExecutionInfo(channelId, triggerMessageTimestamp, action, executionId, startTime)
         } else {
-            actionOutcomeService.reactToFinalStatus(channelId, triggerMessageTimestamp, action, executionId, actionStatus)
+            actionOutcomeService.handleFinalStatus(channelId, triggerMessageTimestamp, action, executionId, actionStatus)
         }
     }
 

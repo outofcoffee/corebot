@@ -21,8 +21,8 @@ open class ActionOutcomeServiceImpl @Inject constructor(private val sessionServi
         sessionService.sendMessage(channelId, "Build for *${action.name}* is queued - ${ChatLines.pleaseWait().toLowerCase()}...")
     }
 
-    override fun reactToFinalStatus(channelId: String, triggerMessageTimestamp: String, action: ActionConfig,
-                                    executionId: Int, actionStatus: ActionStatus) {
+    override fun handleFinalStatus(channelId: String, triggerMessageTimestamp: String, action: ActionConfig,
+                                   executionId: Int, actionStatus: ActionStatus) {
 
         val reaction: String
         val emoji: String
