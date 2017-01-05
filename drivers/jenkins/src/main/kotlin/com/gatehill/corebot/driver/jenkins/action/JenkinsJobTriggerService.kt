@@ -1,12 +1,11 @@
 package com.gatehill.corebot.driver.jenkins.action
 
+import com.gatehill.corebot.action.ActionOutcomeService
 import com.gatehill.corebot.action.BaseJobTriggerService
 import com.gatehill.corebot.action.LockService
 import com.gatehill.corebot.action.model.ActionStatus
 import com.gatehill.corebot.action.model.PerformActionResult
 import com.gatehill.corebot.action.model.TriggeredAction
-import com.gatehill.corebot.chat.ChatLines
-import com.gatehill.corebot.chat.SessionService
 import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.driver.jenkins.config.DriverSettings
 import com.gatehill.corebot.driver.jenkins.model.BuildDetails
@@ -25,7 +24,7 @@ import javax.inject.Inject
  */
 class JenkinsJobTriggerService @Inject constructor(private val actionDriver: JenkinsActionDriver,
                                                    lockService: LockService,
-                                                   private val sessionService: SessionService) : BaseJobTriggerService(lockService, sessionService) {
+                                                   private val actionOutcomeService: ActionOutcomeService) : BaseJobTriggerService(lockService, actionOutcomeService) {
 
     private val logger: Logger = LogManager.getLogger(JenkinsJobTriggerService::class.java)
 
@@ -140,7 +139,7 @@ class JenkinsJobTriggerService @Inject constructor(private val actionDriver: Jen
                                    triggerMessageTimestamp: String, queuedItemUrl: String) {
 
         // notify user that job is queued
-        sessionService.sendMessage(channelId, "Build for *${action.name}* is queued - ${ChatLines.pleaseWait().toLowerCase()}...")
+        actionOutcomeService.notifyQueued(action, channelId)
 
         // reify into build
         val fetchBuildIdFuture = fetchBuildIdFromQueuedItem(channelId, triggerMessageTimestamp, apiClient, queuedItemUrl)

@@ -14,6 +14,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 /**
+ * Provides access to system configuration.
  *
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */

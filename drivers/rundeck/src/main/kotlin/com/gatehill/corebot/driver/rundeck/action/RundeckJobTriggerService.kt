@@ -1,11 +1,11 @@
 package com.gatehill.corebot.driver.rundeck.action
 
+import com.gatehill.corebot.action.ActionOutcomeService
 import com.gatehill.corebot.action.BaseJobTriggerService
 import com.gatehill.corebot.action.LockService
 import com.gatehill.corebot.action.model.ActionStatus
 import com.gatehill.corebot.action.model.PerformActionResult
 import com.gatehill.corebot.action.model.TriggeredAction
-import com.gatehill.corebot.chat.SessionService
 import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.driver.rundeck.model.ExecutionDetails
 import com.gatehill.corebot.driver.rundeck.model.ExecutionInfo
@@ -25,7 +25,7 @@ import javax.inject.Inject
  */
 class RundeckJobTriggerService @Inject constructor(private val actionDriver: RundeckActionDriver,
                                                    lockService: LockService,
-                                                   sessionService: SessionService) : BaseJobTriggerService(lockService, sessionService) {
+                                                   actionOutcomeService: ActionOutcomeService) : BaseJobTriggerService(lockService, actionOutcomeService) {
 
     private val logger: Logger = LogManager.getLogger(RundeckJobTriggerService::class.java)
 

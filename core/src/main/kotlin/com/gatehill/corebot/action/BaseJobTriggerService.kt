@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
 abstract class BaseJobTriggerService(private val lockService: LockService,
-                                     private val sessionService: SessionService) : JobTriggerService {
+                                     private val actionOutcomeService: ActionOutcomeService) : JobTriggerService {
 
     private val logger: Logger = LogManager.getLogger(BaseJobTriggerService::class.java)
     protected val pollCheckInterval = 2000L
@@ -58,30 +58,6 @@ abstract class BaseJobTriggerService(private val lockService: LockService,
     }
 
     /**
-     * Notify the user of the final status of the triggered action.
-     */
-    protected fun reactToFinalStatus(channelId: String, triggerMessageTimestamp: String, action: ActionConfig,
-                                     executionId: Int, actionStatus: ActionStatus) {
-
-        val reaction: String
-        val emoji: String
-        when (actionStatus) {
-            ActionStatus.SUCCEEDED -> {
-                reaction = ChatLines.goodNews()
-                emoji = "white_check_mark"
-            }
-            else -> {
-                reaction = ChatLines.badNews()
-                emoji = "x"
-            }
-        }
-
-        sessionService.addReaction(channelId, triggerMessageTimestamp, emoji)
-        sessionService.sendMessage(channelId,
-                "${reaction} *${action.name}* #${executionId} finished with status: _${actionStatus.toSentenceCase()}_.")
-    }
-
-    /**
      * Check the status of the execution, either returning immediately if completed, falling back to polling.
      */
     protected fun checkStatus(action: ActionConfig, channelId: String, executionDetails: TriggeredAction,
@@ -99,7 +75,7 @@ abstract class BaseJobTriggerService(private val lockService: LockService,
 
         } else {
             // already finished
-            reactToFinalStatus(channelId, triggerMessageTimestamp, action, executionDetails.id, executionDetails.status)
+            actionOutcomeService.reactToFinalStatus(channelId, triggerMessageTimestamp, action, executionDetails.id, executionDetails.status)
         }
     }
 
@@ -116,22 +92,14 @@ abstract class BaseJobTriggerService(private val lockService: LockService,
                                           triggerMessageTimestamp: String) {
 
         logger.error("Failed to check execution {} status", executionId, cause)
-        notifyFailure(action, channelId, cause.message, triggerMessageTimestamp)
+        actionOutcomeService.handleFailure(action, channelId, cause.message, triggerMessageTimestamp)
     }
 
     protected fun handleStatusPollError(action: ActionConfig, channelId: String, executionId: Int,
                                         triggerMessageTimestamp: String, errorMessage: String?) {
 
         logger.error("Error checking for execution {} status: {}", executionId, errorMessage)
-        notifyFailure(action, channelId, errorMessage, triggerMessageTimestamp)
-    }
-
-    private fun notifyFailure(action: ActionConfig, channelId: String, errorMessage: String?,
-                              triggerMessageTimestamp: String) {
-
-        sessionService.addReaction(channelId, triggerMessageTimestamp, "x")
-        sessionService.sendMessage(channelId,
-                "Error polling for *${action.name}* execution status:\r\n```$errorMessage```")
+        actionOutcomeService.handleFailure(action, channelId, errorMessage, triggerMessageTimestamp)
     }
 
     protected fun doUnlessTimedOut(channelId: String, startTime: Long, triggerMessageTimestamp: String,
@@ -146,14 +114,7 @@ abstract class BaseJobTriggerService(private val lockService: LockService,
             }, pollCheckInterval)
 
         } else {
-            // timed out
-            logger.error("Timed out '${blockDescription}' after ${Settings.deployment.executionTimeout}ms")
-
-            sessionService.addReaction(channelId, triggerMessageTimestamp, "x")
-
-            val timeoutSecs = TimeUnit.MILLISECONDS.toSeconds(Settings.deployment.executionTimeout.toLong())
-            sessionService.sendMessage(channelId,
-                    "Gave up ${blockDescription} after ${timeoutSecs} seconds.")
+            actionOutcomeService.handleTimeout(blockDescription, channelId, triggerMessageTimestamp)
         }
     }
 
@@ -165,7 +126,7 @@ abstract class BaseJobTriggerService(private val lockService: LockService,
         if (actionStatus == ActionStatus.RUNNING) {
             pollExecutionInfo(channelId, triggerMessageTimestamp, action, executionId, startTime)
         } else {
-            reactToFinalStatus(channelId, triggerMessageTimestamp, action, executionId, actionStatus)
+            actionOutcomeService.reactToFinalStatus(channelId, triggerMessageTimestamp, action, executionId, actionStatus)
         }
     }
 

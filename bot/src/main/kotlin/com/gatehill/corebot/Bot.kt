@@ -1,9 +1,6 @@
 package com.gatehill.corebot
 
-import com.gatehill.corebot.action.ActionDriverFactory
-import com.gatehill.corebot.action.ActionDriverService
-import com.gatehill.corebot.action.LockService
-import com.gatehill.corebot.action.SimpleActionDriverServiceImpl
+import com.gatehill.corebot.action.*
 import com.gatehill.corebot.chat.*
 import com.gatehill.corebot.chat.model.template.*
 import com.gatehill.corebot.config.ConfigService
@@ -71,6 +68,7 @@ class Bot @Inject constructor(templateService: TemplateService, private val chat
                 // actions
                 bind(ActionDriverService::class.java).to(SimpleActionDriverServiceImpl::class.java)
                 bind(ActionDriverFactory::class.java).asSingleton()
+                bind(ActionOutcomeService::class.java).to(ActionOutcomeServiceImpl::class.java)
 
                 // drivers
                 install(JenkinsDriverModule())
