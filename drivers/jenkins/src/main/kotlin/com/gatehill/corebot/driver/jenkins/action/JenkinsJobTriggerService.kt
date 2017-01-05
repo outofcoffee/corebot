@@ -112,10 +112,9 @@ class JenkinsJobTriggerService @Inject constructor(private val actionDriver: Jen
         val response = apiClient.fetchCrumb().execute()
 
         when (response.code()) {
-            404 -> {
-                logger.debug("CSRF protection is disabled in Jenkins")
-            }
-            else -> {
+            401 -> throw IllegalStateException("Jenkins authentication failed")
+            404 -> logger.debug("CSRF protection is disabled in Jenkins")
+            200 -> {
                 logger.debug("CSRF token obtained from Jenkins")
                 val csrfToken = response.body().string()
 
@@ -126,6 +125,7 @@ class JenkinsJobTriggerService @Inject constructor(private val actionDriver: Jen
 
                 tokenPair ?: throw IllegalStateException("Unable to parse CSRF token")
             }
+            else -> throw RuntimeException("Jenkins returned HTTP ${response.code()} ${response.message()}")
         }
 
         return tokenPair
