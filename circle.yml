@@ -7,7 +7,7 @@ machine:
 
 dependencies:
   override:
-    - ./gradlew dependencies
+    - ./gradlew dependencies --refresh-dependencies
 
 compile:
   override:
