@@ -1,6 +1,7 @@
 package com.gatehill.corebot.action
 
 import com.gatehill.corebot.action.model.PerformActionResult
+import com.gatehill.corebot.action.model.TriggerContext
 import com.gatehill.corebot.chat.model.action.ActionType
 import com.gatehill.corebot.config.model.ActionConfig
 import java.util.concurrent.CompletableFuture
@@ -15,24 +16,22 @@ abstract class BaseActionDriver @Inject constructor(private val jobTriggerServic
     /**
      * Route the specified action to a handler.
      */
-    override fun perform(channelId: String, triggerMessageSenderId: String, triggerMessageTimestamp: String,
-                         actionType: ActionType, action: ActionConfig,
+    override fun perform(trigger: TriggerContext, actionType: ActionType, action: ActionConfig,
                          args: Map<String, String>): CompletableFuture<PerformActionResult> {
 
         val future = CompletableFuture<PerformActionResult>()
         try {
             when (actionType) {
-                ActionType.TRIGGER -> jobTriggerService.trigger(channelId, triggerMessageTimestamp, future, action, args)
-                ActionType.LOCK_ACTION -> lockService.lockAction(future, action, triggerMessageSenderId)
+                ActionType.TRIGGER -> jobTriggerService.trigger(trigger, future, action, args)
+                ActionType.LOCK_ACTION -> lockService.lockAction(future, action, trigger.userId)
                 ActionType.UNLOCK_ACTION -> lockService.unlockAction(future, action)
                 ActionType.STATUS -> showStatus(future, action)
-                ActionType.LOCK_OPTION -> lockService.lockOption(future, action, args, triggerMessageSenderId)
+                ActionType.LOCK_OPTION -> lockService.lockOption(future, action, args, trigger.userId)
                 ActionType.UNLOCK_OPTION -> lockService.unlockOption(future, action, args)
 
                 else -> {
                     // delegate to driver
-                    if (!handleAction(channelId, triggerMessageSenderId, triggerMessageTimestamp,
-                            future, actionType, action, args)) throw UnsupportedOperationException(
+                    if (!handleAction(trigger, future, actionType, action, args)) throw UnsupportedOperationException(
                             "Action type ${actionType} is not supported by ${javaClass.canonicalName}")
                 }
             }
@@ -59,8 +58,7 @@ abstract class BaseActionDriver @Inject constructor(private val jobTriggerServic
     /**
      * Attempt to handle the given action, with the specified arguments.
      */
-    protected abstract fun handleAction(channelId: String, triggerMessageSenderId: String,
-                                        triggerMessageTimestamp: String, future: CompletableFuture<PerformActionResult>,
+    protected abstract fun handleAction(trigger: TriggerContext, future: CompletableFuture<PerformActionResult>,
                                         actionType: ActionType, action: ActionConfig,
                                         args: Map<String, String>): Boolean
 }

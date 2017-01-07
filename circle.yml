@@ -14,13 +14,14 @@ compile:
     - ./gradlew clean installdist --stacktrace
 
 deployment:
-  staging:
-    branch: develop
-    commands:
-      - ./gradlew publish --stacktrace
-
   production:
     branch: master
     commands:
       - ./gradlew publish --stacktrace
       - /bin/bash ./scripts/docker-build.sh latest
+
+  experimental:
+    branch: develop
+    commands:
+      - ./gradlew publish --stacktrace
+      - /bin/bash ./scripts/docker-build.sh experimental

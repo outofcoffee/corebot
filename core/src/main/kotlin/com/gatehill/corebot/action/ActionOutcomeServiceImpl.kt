@@ -1,6 +1,7 @@
 package com.gatehill.corebot.action
 
 import com.gatehill.corebot.action.model.ActionStatus
+import com.gatehill.corebot.action.model.TriggerContext
 import com.gatehill.corebot.chat.ChatLines
 import com.gatehill.corebot.chat.SessionService
 import com.gatehill.corebot.config.Settings
@@ -17,12 +18,12 @@ import javax.inject.Inject
 open class ActionOutcomeServiceImpl @Inject constructor(private val sessionService: SessionService) : ActionOutcomeService {
     private val logger = LogManager.getLogger(ActionOutcomeServiceImpl::class.java)!!
 
-    override fun notifyQueued(action: ActionConfig, channelId: String) {
-        sessionService.sendMessage(channelId, "Build for *${action.name}* is queued - ${ChatLines.pleaseWait().toLowerCase()}...")
+    override fun notifyQueued(trigger: TriggerContext, action: ActionConfig) {
+        sessionService.sendMessage(trigger.channelId, "Build for *${action.name}* is queued - ${ChatLines.pleaseWait().toLowerCase()}...")
     }
 
-    override fun handleFinalStatus(channelId: String, triggerMessageTimestamp: String, action: ActionConfig,
-                                   executionId: Int, actionStatus: ActionStatus) {
+    override fun handleFinalStatus(trigger: TriggerContext, action: ActionConfig, executionId: Int,
+                                   actionStatus: ActionStatus) {
 
         val reaction: String
         val emoji: String
@@ -37,26 +38,24 @@ open class ActionOutcomeServiceImpl @Inject constructor(private val sessionServi
             }
         }
 
-        sessionService.addReaction(channelId, triggerMessageTimestamp, emoji)
-        sessionService.sendMessage(channelId,
+        sessionService.addReaction(trigger.channelId, trigger.messageTimestamp, emoji)
+        sessionService.sendMessage(trigger.channelId,
                 "${reaction} *${action.name}* #${executionId} finished with status: _${actionStatus.toSentenceCase()}_.")
     }
 
-    override fun handlePollFailure(action: ActionConfig, channelId: String, errorMessage: String?,
-                                   triggerMessageTimestamp: String) {
-
-        sessionService.addReaction(channelId, triggerMessageTimestamp, "x")
-        sessionService.sendMessage(channelId,
+    override fun handlePollFailure(trigger: TriggerContext, action: ActionConfig, errorMessage: String?) {
+        sessionService.addReaction(trigger.channelId, trigger.messageTimestamp, "x")
+        sessionService.sendMessage(trigger.channelId,
                 "Error polling for *${action.name}* execution status:\r\n```$errorMessage```")
     }
 
-    override fun handleTimeout(action: ActionConfig, blockDescription: String, channelId: String, triggerMessageTimestamp: String) {
+    override fun handleTimeout(trigger: TriggerContext, action: ActionConfig, blockDescription: String) {
         logger.error("Timed out '${blockDescription}' after ${Settings.deployment.executionTimeout}ms")
 
-        sessionService.addReaction(channelId, triggerMessageTimestamp, "x")
+        sessionService.addReaction(trigger.channelId, trigger.messageTimestamp, "x")
 
         val timeoutSecs = TimeUnit.MILLISECONDS.toSeconds(Settings.deployment.executionTimeout.toLong())
-        sessionService.sendMessage(channelId,
+        sessionService.sendMessage(trigger.channelId,
                 "Gave up ${blockDescription} after ${timeoutSecs} seconds.")
     }
 }

@@ -5,6 +5,7 @@ import com.gatehill.corebot.action.BaseJobTriggerService
 import com.gatehill.corebot.action.LockService
 import com.gatehill.corebot.action.model.ActionStatus
 import com.gatehill.corebot.action.model.PerformActionResult
+import com.gatehill.corebot.action.model.TriggerContext
 import com.gatehill.corebot.action.model.TriggeredAction
 import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.driver.rundeck.model.ExecutionDetails
@@ -29,8 +30,7 @@ class RundeckJobTriggerService @Inject constructor(private val actionDriver: Run
 
     private val logger: Logger = LogManager.getLogger(RundeckJobTriggerService::class.java)
 
-    override fun triggerExecution(channelId: String, triggerMessageTimestamp: String,
-                                  future: CompletableFuture<PerformActionResult>,
+    override fun triggerExecution(trigger: TriggerContext, future: CompletableFuture<PerformActionResult>,
                                   action: ActionConfig, args: Map<String, String>) {
 
         val call: Call<ExecutionDetails>
@@ -60,7 +60,7 @@ class RundeckJobTriggerService @Inject constructor(private val actionDriver: Run
                     val triggeredAction = TriggeredAction(executionDetails.id, executionDetails.permalink,
                             mapStatus(executionDetails.status))
 
-                    checkStatus(action, channelId, triggeredAction, future, triggerMessageTimestamp)
+                    checkStatus(trigger, action, triggeredAction, future)
 
                 } else {
                     val errorBody = response.errorBody().string()
@@ -94,24 +94,22 @@ class RundeckJobTriggerService @Inject constructor(private val actionDriver: Run
         }
     }
 
-    override fun fetchExecutionInfo(channelId: String, triggerMessageTimestamp: String, action: ActionConfig,
-                                    executionId: Int, startTime: Long) {
-
+    override fun fetchExecutionInfo(trigger: TriggerContext, action: ActionConfig, executionId: Int, startTime: Long) {
         val call = actionDriver.buildApiClient().fetchExecutionInfo(
                 executionId = executionId.toString()
         )
 
         call.enqueue(object : Callback<ExecutionInfo> {
             override fun onFailure(call: Call<ExecutionInfo>, cause: Throwable) =
-                    handleStatusPollFailure(action, channelId, executionId, cause, triggerMessageTimestamp)
+                    handleStatusPollFailure(trigger, action, executionId, cause)
 
             override fun onResponse(call: Call<ExecutionInfo>, response: Response<ExecutionInfo>) {
                 if (response.isSuccessful) {
                     val status = mapStatus(response.body().status)
-                    processExecutionInfo(channelId, triggerMessageTimestamp, action, executionId, startTime, status)
+                    processExecutionInfo(trigger, action, executionId, startTime, status)
 
                 } else {
-                    handleStatusPollError(action, channelId, executionId, triggerMessageTimestamp, response.errorBody().string())
+                    handleStatusPollError(trigger, action, executionId, response.errorBody().string())
                 }
             }
         })

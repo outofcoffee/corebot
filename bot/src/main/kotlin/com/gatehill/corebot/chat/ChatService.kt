@@ -2,6 +2,7 @@ package com.gatehill.corebot.chat
 
 import com.gatehill.corebot.action.ActionDriverService
 import com.gatehill.corebot.action.model.PerformActionRequest
+import com.gatehill.corebot.action.model.TriggerContext
 import com.gatehill.corebot.chat.model.action.Action
 import com.gatehill.corebot.chat.model.action.ActionWrapper
 import com.gatehill.corebot.chat.model.action.CustomAction
@@ -157,10 +158,10 @@ open class SlackChatServiceImpl @Inject constructor(private val sessionService: 
     private fun performCustomAction(session: SlackSession, event: SlackMessagePosted, action: CustomAction,
                                     actionWrapper: ActionWrapper) {
 
-        // schedule action execution
-        val request = PerformActionRequest.Builder.build(event.channel.id, event.sender.id, event.timestamp,
-                action.actionType, action.actionConfig, action.args)
+        val trigger = TriggerContext(event.channel.id, event.sender.id, event.sender.userName, event.timestamp)
 
+        // schedule action execution
+        val request = PerformActionRequest.Builder.build(trigger, action.actionType, action.actionConfig, action.args)
         val future = actionDriverService.perform(request)
 
         future.whenComplete { result, throwable ->

@@ -8,19 +8,16 @@ import com.gatehill.corebot.config.model.ActionConfig
  *
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
-data class PerformActionRequest(val channelId: String,
-                                val triggerMessageSenderId: String,
-                                val triggerMessageTimestamp: String,
+data class PerformActionRequest(val trigger: TriggerContext,
                                 val actionType: ActionType,
                                 val actionConfig: ActionConfig,
                                 val args: Map<String, String>) {
 
     companion object Builder {
-        fun build(channelId: String, triggerMessageSenderId: String, triggerMessageTimestamp: String,
-                  actionType: ActionType, actionConfig: ActionConfig, args: Map<String, String>): PerformActionRequest {
+        fun build(trigger: TriggerContext, actionType: ActionType, actionConfig: ActionConfig,
+                  args: Map<String, String>): PerformActionRequest {
 
-            return PerformActionRequest(channelId, triggerMessageSenderId, triggerMessageTimestamp,
-                    actionType, actionConfig, args)
+            return PerformActionRequest(trigger, actionType, actionConfig, args)
         }
     }
 }

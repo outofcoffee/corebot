@@ -2,6 +2,7 @@ package com.gatehill.corebot.action
 
 import com.gatehill.corebot.action.model.ActionStatus
 import com.gatehill.corebot.action.model.PerformActionResult
+import com.gatehill.corebot.action.model.TriggerContext
 import com.gatehill.corebot.action.model.TriggeredAction
 import com.gatehill.corebot.config.Settings
 import com.gatehill.corebot.config.model.ActionConfig
@@ -24,8 +25,7 @@ abstract class BaseJobTriggerService(private val lockService: LockService,
     /**
      * Check lock status then optionally trigger execution.
      */
-    override fun trigger(channelId: String, triggerMessageTimestamp: String,
-                         future: CompletableFuture<PerformActionResult>,
+    override fun trigger(trigger: TriggerContext, future: CompletableFuture<PerformActionResult>,
                          action: ActionConfig, args: Map<String, String>) {
 
         // user specified options override static values
@@ -47,7 +47,7 @@ abstract class BaseJobTriggerService(private val lockService: LockService,
 
                     } ?: run {
                         logger.info("Triggering action: {} with job ID: {} and args: {}", action.name, action.jobId, allArgs)
-                        triggerExecution(channelId, triggerMessageTimestamp, future, action, allArgs)
+                        triggerExecution(trigger, future, action, allArgs)
                     }
                 }
             }
@@ -57,8 +57,8 @@ abstract class BaseJobTriggerService(private val lockService: LockService,
     /**
      * Check the status of the execution, either returning immediately if completed, falling back to polling.
      */
-    protected fun checkStatus(action: ActionConfig, channelId: String, executionDetails: TriggeredAction,
-                              future: CompletableFuture<PerformActionResult>, triggerMessageTimestamp: String) {
+    protected fun checkStatus(trigger: TriggerContext, action: ActionConfig, executionDetails: TriggeredAction,
+                              future: CompletableFuture<PerformActionResult>) {
 
         val triggerEmoji = if (arrayOf(ActionStatus.RUNNING, ActionStatus.SUCCEEDED)
                 .contains(executionDetails.status)) " :thumbsup:" else ""
@@ -68,38 +68,38 @@ abstract class BaseJobTriggerService(private val lockService: LockService,
 
         if (executionDetails.status == ActionStatus.RUNNING) {
             // poll for updates
-            pollExecutionInfo(channelId, triggerMessageTimestamp, action, executionDetails.id)
+            pollExecutionInfo(trigger, action, executionDetails.id)
 
         } else {
             // already finished
-            actionOutcomeService.handleFinalStatus(channelId, triggerMessageTimestamp, action, executionDetails.id, executionDetails.status)
+            actionOutcomeService.handleFinalStatus(trigger, action, executionDetails.id, executionDetails.status)
         }
     }
 
-    private fun pollExecutionInfo(channelId: String, triggerMessageTimestamp: String, action: ActionConfig,
+    private fun pollExecutionInfo(trigger: TriggerContext, action: ActionConfig,
                                   executionId: Int, startTime: Long = System.currentTimeMillis()) {
 
         val blockDescription = "polling for *${action.name}* #${executionId} execution status"
-        doUnlessTimedOut(action, channelId, startTime, triggerMessageTimestamp, blockDescription) {
-            fetchExecutionInfo(channelId, triggerMessageTimestamp, action, executionId, startTime)
+        doUnlessTimedOut(trigger, action, startTime, blockDescription) {
+            fetchExecutionInfo(trigger, action, executionId, startTime)
         }
     }
 
-    protected fun handleStatusPollFailure(action: ActionConfig, channelId: String, executionId: Int, cause: Throwable,
-                                          triggerMessageTimestamp: String) {
+    protected fun handleStatusPollFailure(trigger: TriggerContext, action: ActionConfig, executionId: Int,
+                                          cause: Throwable) {
 
         logger.error("Failed to check execution {} status", executionId, cause)
-        actionOutcomeService.handlePollFailure(action, channelId, cause.message, triggerMessageTimestamp)
+        actionOutcomeService.handlePollFailure(trigger, action, cause.message)
     }
 
-    protected fun handleStatusPollError(action: ActionConfig, channelId: String, executionId: Int,
-                                        triggerMessageTimestamp: String, errorMessage: String?) {
+    protected fun handleStatusPollError(trigger: TriggerContext, action: ActionConfig, executionId: Int,
+                                        errorMessage: String?) {
 
         logger.error("Error checking for execution {} status: {}", executionId, errorMessage)
-        actionOutcomeService.handlePollFailure(action, channelId, errorMessage, triggerMessageTimestamp)
+        actionOutcomeService.handlePollFailure(trigger, action, errorMessage)
     }
 
-    protected fun doUnlessTimedOut(action: ActionConfig, channelId: String, startTime: Long, triggerMessageTimestamp: String,
+    protected fun doUnlessTimedOut(trigger: TriggerContext, action: ActionConfig, startTime: Long,
                                    blockDescription: String, block: () -> Unit) {
 
         if (System.currentTimeMillis() - startTime < Settings.deployment.executionTimeout) {
@@ -111,26 +111,25 @@ abstract class BaseJobTriggerService(private val lockService: LockService,
             }, pollCheckInterval)
 
         } else {
-            actionOutcomeService.handleTimeout(action, blockDescription, channelId, triggerMessageTimestamp)
+            actionOutcomeService.handleTimeout(trigger, action, blockDescription)
         }
     }
 
-    protected fun processExecutionInfo(channelId: String, triggerMessageTimestamp: String, action: ActionConfig,
+    protected fun processExecutionInfo(trigger: TriggerContext, action: ActionConfig,
                                        executionId: Int, startTime: Long, actionStatus: ActionStatus) {
 
         logger.info("Execution {} status: {}", executionId, actionStatus)
 
         if (actionStatus == ActionStatus.RUNNING) {
-            pollExecutionInfo(channelId, triggerMessageTimestamp, action, executionId, startTime)
+            pollExecutionInfo(trigger, action, executionId, startTime)
         } else {
-            actionOutcomeService.handleFinalStatus(channelId, triggerMessageTimestamp, action, executionId, actionStatus)
+            actionOutcomeService.handleFinalStatus(trigger, action, executionId, actionStatus)
         }
     }
 
-    protected abstract fun triggerExecution(channelId: String, triggerMessageTimestamp: String,
-                                            future: CompletableFuture<PerformActionResult>, action:
-                                            ActionConfig, args: Map<String, String>)
+    protected abstract fun triggerExecution(trigger: TriggerContext, future: CompletableFuture<PerformActionResult>,
+                                            action: ActionConfig, args: Map<String, String>)
 
-    protected abstract fun fetchExecutionInfo(channelId: String, triggerMessageTimestamp: String, action: ActionConfig,
-                                              executionId: Int, startTime: Long)
+    protected abstract fun fetchExecutionInfo(trigger: TriggerContext, action: ActionConfig, executionId: Int,
+                                              startTime: Long)
 }

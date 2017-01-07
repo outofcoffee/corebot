@@ -4,6 +4,7 @@ import com.gatehill.corebot.action.ActionDriver
 import com.gatehill.corebot.action.BaseActionDriver
 import com.gatehill.corebot.action.LockService
 import com.gatehill.corebot.action.model.PerformActionResult
+import com.gatehill.corebot.action.model.TriggerContext
 import com.gatehill.corebot.chat.model.action.ActionType
 import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.driver.base.action.ApiClientBuilder
@@ -34,9 +35,8 @@ class JenkinsActionDriverImpl @Inject constructor(triggerJobService: JenkinsJobT
         return buildApiClient(JenkinsApi::class.java, allHeaders)
     }
 
-    override fun handleAction(channelId: String, triggerMessageSenderId: String, triggerMessageTimestamp: String,
-                              future: CompletableFuture<PerformActionResult>, actionType:
-                              ActionType, action: ActionConfig, args: Map<String, String>): Boolean {
+    override fun handleAction(trigger: TriggerContext, future: CompletableFuture<PerformActionResult>,
+                              actionType: ActionType, action: ActionConfig, args: Map<String, String>): Boolean {
 
         // no other action types are supported
         return false

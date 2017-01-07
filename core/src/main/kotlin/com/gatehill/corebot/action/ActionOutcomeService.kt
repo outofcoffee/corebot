@@ -1,6 +1,7 @@
 package com.gatehill.corebot.action
 
 import com.gatehill.corebot.action.model.ActionStatus
+import com.gatehill.corebot.action.model.TriggerContext
 import com.gatehill.corebot.config.model.ActionConfig
 
 /**
@@ -12,20 +13,20 @@ interface ActionOutcomeService {
     /**
      * Notify the user that a job is queued.
      */
-    fun notifyQueued(action: ActionConfig, channelId: String)
+    fun notifyQueued(trigger: TriggerContext, action: ActionConfig)
 
     /**
      * Notify the user of the final status of the triggered action.
      */
-    fun handleFinalStatus(channelId: String, triggerMessageTimestamp: String, action: ActionConfig, executionId: Int, actionStatus: ActionStatus)
+    fun handleFinalStatus(trigger: TriggerContext, action: ActionConfig, executionId: Int, actionStatus: ActionStatus)
 
     /**
      * Notify the user of a failure to poll for job status.
      */
-    fun handlePollFailure(action: ActionConfig, channelId: String, errorMessage: String?, triggerMessageTimestamp: String)
+    fun handlePollFailure(trigger: TriggerContext, action: ActionConfig, errorMessage: String?)
 
     /**
      * Notify the user of a timeout.
      */
-    fun handleTimeout(action: ActionConfig, blockDescription: String, channelId: String, triggerMessageTimestamp: String)
+    fun handleTimeout(trigger: TriggerContext, action: ActionConfig, blockDescription: String)
 }

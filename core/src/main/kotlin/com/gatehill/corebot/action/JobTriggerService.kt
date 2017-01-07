@@ -1,6 +1,7 @@
 package com.gatehill.corebot.action
 
 import com.gatehill.corebot.action.model.PerformActionResult
+import com.gatehill.corebot.action.model.TriggerContext
 import com.gatehill.corebot.config.model.ActionConfig
 import java.util.concurrent.CompletableFuture
 
@@ -13,7 +14,7 @@ interface JobTriggerService {
     /**
      * Trigger execution of a job, then poll for status updates.
      */
-    fun trigger(channelId: String, triggerMessageTimestamp: String,
+    fun trigger(trigger: TriggerContext,
                 future: CompletableFuture<PerformActionResult>,
                 action: ActionConfig, args: Map<String, String>)
 }
