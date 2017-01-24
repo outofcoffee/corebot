@@ -1,7 +1,7 @@
 package com.gatehill.corebot.driver.rundeck.action
 
-import com.gatehill.corebot.action.ActionDriver
-import com.gatehill.corebot.action.BaseActionDriver
+import com.gatehill.corebot.action.driver.ActionDriver
+import com.gatehill.corebot.action.driver.BaseActionDriver
 import com.gatehill.corebot.action.LockService
 import com.gatehill.corebot.action.model.PerformActionResult
 import com.gatehill.corebot.action.model.TriggerContext

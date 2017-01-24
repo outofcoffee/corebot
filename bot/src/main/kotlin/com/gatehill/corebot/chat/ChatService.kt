@@ -1,6 +1,6 @@
 package com.gatehill.corebot.chat
 
-import com.gatehill.corebot.action.ActionDriverService
+import com.gatehill.corebot.action.ActionPerformService
 import com.gatehill.corebot.action.model.PerformActionRequest
 import com.gatehill.corebot.action.model.TriggerContext
 import com.gatehill.corebot.chat.model.action.Action
@@ -31,7 +31,7 @@ open class SlackChatServiceImpl @Inject constructor(private val sessionService: 
                                                     private val templateService: TemplateService,
                                                     private val configService: ConfigService,
                                                     private val authorisationService: AuthorisationService,
-                                                    private val actionDriverService: ActionDriverService) : ChatService {
+                                                    private val actionPerformService: ActionPerformService) : ChatService {
 
     private val logger: Logger = LogManager.getLogger(SlackChatServiceImpl::class.java)
 
@@ -162,7 +162,7 @@ open class SlackChatServiceImpl @Inject constructor(private val sessionService: 
 
         // schedule action execution
         val request = PerformActionRequest.Builder.build(trigger, action.actionType, action.actionConfig, action.args)
-        val future = actionDriverService.perform(request)
+        val future = actionPerformService.perform(request)
 
         future.whenComplete { result, throwable ->
             if (future.isCompletedExceptionally) {

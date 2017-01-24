@@ -1,12 +1,15 @@
 package com.gatehill.corebot
 
 import com.gatehill.corebot.action.*
+import com.gatehill.corebot.action.driver.ActionDriverFactory
 import com.gatehill.corebot.chat.*
 import com.gatehill.corebot.chat.model.template.*
 import com.gatehill.corebot.config.ConfigService
 import com.gatehill.corebot.config.ConfigServiceImpl
 import com.gatehill.corebot.driver.jenkins.JenkinsDriverModule
+import com.gatehill.corebot.driver.jenkins.action.JenkinsActionDriver
 import com.gatehill.corebot.driver.rundeck.RundeckDriverModule
+import com.gatehill.corebot.driver.rundeck.action.RundeckActionDriver
 import com.gatehill.corebot.security.AuthorisationService
 import com.google.inject.AbstractModule
 import com.google.inject.Guice.createInjector
@@ -18,8 +21,15 @@ import javax.inject.Inject
 /**
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
-class Bot @Inject constructor(templateService: TemplateService, private val chatService: ChatService) {
+class Bot @Inject constructor(actionDriverFactory: ActionDriverFactory,
+                              templateService: TemplateService,
+                              private val chatService: ChatService) {
     init {
+        // standard drivers
+        actionDriverFactory.registerDriver("rundeck", RundeckActionDriver::class.java)
+        actionDriverFactory.registerDriver("jenkins", JenkinsActionDriver::class.java)
+
+        // built-in templates
         templateService.registerTemplate(ShowHelpTemplate::class.java)
         templateService.registerTemplate(LockActionTemplate::class.java)
         templateService.registerTemplate(UnlockActionTemplate::class.java)
@@ -66,7 +76,7 @@ class Bot @Inject constructor(templateService: TemplateService, private val chat
                 bind(TemplateService::class.java).asSingleton()
 
                 // actions
-                bind(ActionDriverService::class.java).to(SimpleActionDriverServiceImpl::class.java)
+                bind(ActionPerformService::class.java).to(DirectActionPerformServiceImpl::class.java)
                 bind(ActionDriverFactory::class.java).asSingleton()
                 bind(ActionOutcomeService::class.java).to(ActionOutcomeServiceImpl::class.java)
 

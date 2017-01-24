@@ -9,6 +9,6 @@ import java.util.concurrent.CompletableFuture
  *
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
-interface ActionDriverService {
+interface ActionPerformService {
     fun perform(request: PerformActionRequest): CompletableFuture<PerformActionResult>
 }
