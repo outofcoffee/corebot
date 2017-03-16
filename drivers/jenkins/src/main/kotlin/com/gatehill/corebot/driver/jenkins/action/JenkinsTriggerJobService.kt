@@ -233,4 +233,10 @@ class JenkinsTriggerJobService @Inject constructor(private val actionDriver: Jen
             }
         })
     }
+
+    override fun fetchExecutionOutput(channelId: String, triggerMessageTimestamp: String, action: ActionConfig,
+                                      executionId: Int) {
+
+        //TODO: implement.
+    }
 }

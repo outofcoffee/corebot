@@ -76,8 +76,15 @@ abstract class BaseTriggerJobService(private val lockService: LockService,
         }
 
         sessionService.addReaction(channelId, triggerMessageTimestamp, emoji)
-        sessionService.sendMessage(channelId,
-                "${reaction} *${action.name}* #${executionId} finished with status: _${actionStatus.toSentenceCase()}_.")
+
+        if (action.options.get("show-job-info")?.value != "false") {
+            sessionService.sendMessage(channelId,
+                    "${reaction} *${action.name}* #${executionId} finished with status: _${actionStatus.toSentenceCase()}_.")
+        }
+
+        if (action.options.get("show-job-output")?.value != "false") {
+            fetchExecutionOutput(channelId, triggerMessageTimestamp, action, executionId)
+        }
     }
 
     /**
@@ -88,10 +95,10 @@ abstract class BaseTriggerJobService(private val lockService: LockService,
 
         val triggerEmoji = if (arrayOf(ActionStatus.RUNNING, ActionStatus.SUCCEEDED)
                 .contains(executionDetails.status)) " :thumbsup:" else ""
-
-        future.complete(PerformActionResult(
-                "Job #${executionDetails.id} status: _${executionDetails.status.toSentenceCase()}_${triggerEmoji} (${executionDetails.url})", false))
-
+        if (action.options.get("show-job-info")?.value != "false") {
+            future.complete(PerformActionResult(
+                    "Job #${executionDetails.id} status: _${executionDetails.status.toSentenceCase()}_${triggerEmoji} (${executionDetails.url})", false))
+        }
         if (executionDetails.status == ActionStatus.RUNNING) {
             // poll for updates
             pollExecutionInfo(channelId, triggerMessageTimestamp, action, executionDetails.id)
@@ -168,10 +175,32 @@ abstract class BaseTriggerJobService(private val lockService: LockService,
         }
     }
 
+    protected fun sendOutput(channelId: String, action: ActionConfig, executionId: Int, output: String) {
+
+        sessionService.sendMessage(channelId, "${action.name} #${executionId} finished with output: ${output}")
+    }
+
+    protected fun handleOutputFailure(action: ActionConfig, channelId: String, executionId: Int, cause: Throwable,
+                                      triggerMessageTimestamp: String) {
+
+        logger.error("Failed to check execution {} output", executionId, cause)
+        notifyFailure(action, channelId, cause.message, triggerMessageTimestamp)
+    }
+
+    protected fun handleOutputError(action: ActionConfig, channelId: String, executionId: Int,
+                                    triggerMessageTimestamp: String, errorMessage: String?) {
+
+        logger.error("Error checking for execution {} output: {}", executionId, errorMessage)
+        notifyFailure(action, channelId, errorMessage, triggerMessageTimestamp)
+    }
+
     protected abstract fun triggerExecution(channelId: String, triggerMessageTimestamp: String,
                                             future: CompletableFuture<PerformActionResult>, action:
                                             ActionConfig, args: Map<String, String>)
 
     protected abstract fun fetchExecutionInfo(channelId: String, triggerMessageTimestamp: String, action: ActionConfig,
                                               executionId: Int, startTime: Long)
+
+    protected abstract fun fetchExecutionOutput(channelId: String, triggerMessageTimestamp: String,
+                                                action: ActionConfig, executionId: Int)
 }
