@@ -29,9 +29,9 @@ class RundeckActionDriverImpl @Inject constructor(triggerJobService: RundeckTrig
         return buildApiClient(RundeckApi::class.java, allHeaders)
     }
 
-    override fun handleAction(channelId: String, triggerMessageSenderId: String, triggerMessageTimestamp: String,
-                              future: CompletableFuture<PerformActionResult>, actionType: ActionType,
-                              action: ActionConfig, args: Map<String, String>): Boolean {
+    override fun handleAction(channelId: String, triggerMessageSenderId: String, triggerMessageSenderName: String,
+                              triggerMessageTimestamp: String, future: CompletableFuture<PerformActionResult>,
+                              actionType: ActionType, action: ActionConfig, args: Map<String, String>): Boolean {
 
         try {
             when (actionType) {

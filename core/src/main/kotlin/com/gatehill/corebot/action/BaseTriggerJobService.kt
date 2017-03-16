@@ -28,7 +28,7 @@ abstract class BaseTriggerJobService(private val lockService: LockService,
      */
     override fun trigger(channelId: String, triggerMessageTimestamp: String,
                          future: CompletableFuture<PerformActionResult>,
-                         action: ActionConfig, args: Map<String, String>) {
+                         action: ActionConfig, triggerMessageSenderName: String, args: Map<String, String>) {
 
         // user specified options override static values
         val allArgs = mutableMapOf<String, String>()
@@ -49,7 +49,8 @@ abstract class BaseTriggerJobService(private val lockService: LockService,
 
                     } ?: run {
                         logger.info("Triggering action: {} with job ID: {} and args: {}", action.name, action.jobId, allArgs)
-                        triggerExecution(channelId, triggerMessageTimestamp, future, action, allArgs)
+                        triggerExecution(channelId, triggerMessageTimestamp, future, action,
+                                triggerMessageSenderName,allArgs)
                     }
                 }
             }
@@ -191,7 +192,7 @@ abstract class BaseTriggerJobService(private val lockService: LockService,
 
     protected abstract fun triggerExecution(channelId: String, triggerMessageTimestamp: String,
                                             future: CompletableFuture<PerformActionResult>, action:
-                                            ActionConfig, args: Map<String, String>)
+                                            ActionConfig, triggerMessageSenderName: String, args: Map<String, String>)
 
     protected abstract fun fetchExecutionInfo(channelId: String, triggerMessageTimestamp: String, action: ActionConfig,
                                               executionId: Int, startTime: Long)

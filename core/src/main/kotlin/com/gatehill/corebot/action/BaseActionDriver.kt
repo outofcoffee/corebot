@@ -15,14 +15,15 @@ abstract class BaseActionDriver @Inject constructor(private val triggerJobServic
     /**
      * Route the specified action to a handler.
      */
-    override fun perform(channelId: String, triggerMessageSenderId: String, triggerMessageTimestamp: String,
-                         actionType: ActionType, action: ActionConfig,
+    override fun perform(channelId: String, triggerMessageSenderId: String, triggerMessageSenderName: String,
+                         triggerMessageTimestamp: String, actionType: ActionType, action: ActionConfig,
                          args: Map<String, String>): CompletableFuture<PerformActionResult> {
 
         val future = CompletableFuture<PerformActionResult>()
         try {
             when (actionType) {
-                ActionType.TRIGGER -> triggerJobService.trigger(channelId, triggerMessageTimestamp, future, action, args)
+                ActionType.TRIGGER -> triggerJobService.trigger(channelId, triggerMessageTimestamp, future, action,
+                        triggerMessageSenderName, args)
                 ActionType.LOCK_ACTION -> lockService.lockAction(future, action, triggerMessageSenderId)
                 ActionType.UNLOCK_ACTION -> lockService.unlockAction(future, action)
                 ActionType.STATUS -> showStatus(future, action)
@@ -31,8 +32,9 @@ abstract class BaseActionDriver @Inject constructor(private val triggerJobServic
 
                 else -> {
                     // delegate to driver
-                    if (!handleAction(channelId, triggerMessageSenderId, triggerMessageTimestamp,
-                            future, actionType, action, args)) throw UnsupportedOperationException(
+                    if (!handleAction(channelId, triggerMessageSenderId, triggerMessageSenderName,
+                            triggerMessageTimestamp, future, actionType, action, args))
+                        throw UnsupportedOperationException(
                             "Action type ${actionType} is not supported by ${javaClass.canonicalName}")
                 }
             }
@@ -60,7 +62,7 @@ abstract class BaseActionDriver @Inject constructor(private val triggerJobServic
      * Attempt to handle the given action, with the specified arguments.
      */
     protected abstract fun handleAction(channelId: String, triggerMessageSenderId: String,
-                                        triggerMessageTimestamp: String, future: CompletableFuture<PerformActionResult>,
-                                        actionType: ActionType, action: ActionConfig,
-                                        args: Map<String, String>): Boolean
+                                        triggerMessageSenderName: String, triggerMessageTimestamp: String,
+                                        future: CompletableFuture<PerformActionResult>, actionType: ActionType,
+                                        action: ActionConfig, args: Map<String, String>): Boolean
 }

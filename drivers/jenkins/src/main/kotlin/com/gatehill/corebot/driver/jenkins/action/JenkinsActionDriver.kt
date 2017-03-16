@@ -34,9 +34,9 @@ class JenkinsActionDriverImpl @Inject constructor(triggerJobService: JenkinsTrig
         return buildApiClient(JenkinsApi::class.java, allHeaders)
     }
 
-    override fun handleAction(channelId: String, triggerMessageSenderId: String, triggerMessageTimestamp: String,
-                              future: CompletableFuture<PerformActionResult>, actionType:
-                              ActionType, action: ActionConfig, args: Map<String, String>): Boolean {
+    override fun handleAction(channelId: String, triggerMessageSenderId: String, triggerMessageSenderName: String,
+                              triggerMessageTimestamp: String, future: CompletableFuture<PerformActionResult>,
+                              actionType: ActionType, action: ActionConfig, args: Map<String, String>): Boolean {
 
         // no other action types are supported
         return false

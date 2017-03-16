@@ -31,13 +31,14 @@ class RundeckTriggerJobService @Inject constructor(private val actionDriver: Run
 
     override fun triggerExecution(channelId: String, triggerMessageTimestamp: String,
                                   future: CompletableFuture<PerformActionResult>,
-                                  action: ActionConfig, args: Map<String, String>) {
+                                  action: ActionConfig, triggerMessageSenderName: String, args: Map<String, String>) {
 
         val call: Call<ExecutionDetails>
         try {
             call = actionDriver.buildApiClient().runJob(
                     jobId = action.jobId,
-                    executionOptions = ExecutionOptions(argString = buildArgString(args))
+                    executionOptions = ExecutionOptions(argString = buildArgString(args),
+                            asUser = triggerMessageSenderName)
             )
         } catch(e: Exception) {
             future.completeExceptionally(e)
