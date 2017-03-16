@@ -10,6 +10,7 @@ import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.driver.rundeck.model.ExecutionDetails
 import com.gatehill.corebot.driver.rundeck.model.ExecutionInfo
 import com.gatehill.corebot.driver.rundeck.model.ExecutionOptions
+import com.gatehill.corebot.driver.rundeck.model.ExecutionOutput
 import org.apache.logging.log4j.LogManager
 import retrofit2.Call
 import retrofit2.Callback
@@ -30,13 +31,14 @@ class RundeckTriggerJobService @Inject constructor(private val actionDriver: Run
 
     override fun triggerExecution(channelId: String, triggerMessageTimestamp: String,
                                   future: CompletableFuture<PerformActionResult>,
-                                  action: ActionConfig, args: Map<String, String>) {
+                                  action: ActionConfig, triggerMessageSenderName: String, args: Map<String, String>) {
 
         val call: Call<ExecutionDetails>
         try {
             call = actionDriver.buildApiClient().runJob(
                     jobId = action.jobId,
-                    executionOptions = ExecutionOptions(argString = buildArgString(args))
+                    executionOptions = ExecutionOptions(argString = buildArgString(args),
+                            asUser = triggerMessageSenderName)
             )
         } catch(e: Exception) {
             future.completeExceptionally(e)
@@ -111,6 +113,34 @@ class RundeckTriggerJobService @Inject constructor(private val actionDriver: Run
 
                 } else {
                     handleStatusPollError(action, channelId, executionId, triggerMessageTimestamp, response.errorBody().string())
+                }
+            }
+        })
+    }
+
+    override fun fetchExecutionOutput(channelId: String, triggerMessageTimestamp: String, action: ActionConfig,
+                                      executionId: Int) {
+
+        val call = actionDriver.buildApiClient().fetchExecutionOutput(
+                executionId = executionId.toString()
+        )
+
+        call.enqueue(object : Callback<ExecutionOutput> {
+            override fun onFailure(call: Call<ExecutionOutput>, cause: Throwable) =
+                    handleOutputFailure(action, channelId, executionId, cause, triggerMessageTimestamp)
+
+            override fun onResponse(call: Call<ExecutionOutput>, response: Response<ExecutionOutput>) {
+                if (response.isSuccessful) {
+                    var output: String = ""
+                    for (entry in response.body().entries){
+                        output += entry.log + "\n"
+                    }
+                    if (output.length > 0) {
+                        sendOutput(channelId, action, executionId, output)
+                    }
+
+                } else {
+                    handleOutputError(action, channelId, executionId, triggerMessageTimestamp, response.errorBody().string())
                 }
             }
         })

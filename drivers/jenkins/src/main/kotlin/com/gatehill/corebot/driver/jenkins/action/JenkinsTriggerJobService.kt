@@ -30,7 +30,7 @@ class JenkinsTriggerJobService @Inject constructor(private val actionDriver: Jen
 
     override fun triggerExecution(channelId: String, triggerMessageTimestamp: String,
                                   future: CompletableFuture<PerformActionResult>,
-                                  action: ActionConfig, args: Map<String, String>) {
+                                  action: ActionConfig, triggerMessageSenderName: String, args: Map<String, String>) {
 
         val apiClient: JenkinsApi
         val call: Call<Void>
@@ -232,5 +232,11 @@ class JenkinsTriggerJobService @Inject constructor(private val actionDriver: Jen
                 }
             }
         })
+    }
+
+    override fun fetchExecutionOutput(channelId: String, triggerMessageTimestamp: String, action: ActionConfig,
+                                      executionId: Int) {
+
+        //TODO: implement.
     }
 }

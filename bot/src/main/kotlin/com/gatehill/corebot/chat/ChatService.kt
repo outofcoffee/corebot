@@ -153,7 +153,7 @@ class ChatService @Inject constructor(private val sessionService: SlackSessionSe
 
         // schedule action execution
         val actionDriver = actionDriverFactory.driverFor(action.driver)
-        val future = actionDriver.perform(event.channel.id, event.sender.id, event.timestamp,
+        val future = actionDriver.perform(event.channel.id, event.sender.id, event.sender.userName, event.timestamp,
                 action.actionType, action.actionConfig, action.args)
 
         future.whenComplete { result, throwable ->

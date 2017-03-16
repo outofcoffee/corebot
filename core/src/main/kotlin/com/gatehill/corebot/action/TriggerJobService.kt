@@ -15,5 +15,5 @@ interface TriggerJobService {
      */
     fun trigger(channelId: String, triggerMessageTimestamp: String,
                 future: CompletableFuture<PerformActionResult>,
-                action: ActionConfig, args: Map<String, String>)
+                action: ActionConfig, triggerMessageSenderName: String, args: Map<String, String>)
 }

@@ -28,7 +28,7 @@ abstract class BaseTriggerJobService(private val lockService: LockService,
      */
     override fun trigger(channelId: String, triggerMessageTimestamp: String,
                          future: CompletableFuture<PerformActionResult>,
-                         action: ActionConfig, args: Map<String, String>) {
+                         action: ActionConfig, triggerMessageSenderName: String, args: Map<String, String>) {
 
         // user specified options override static values
         val allArgs = mutableMapOf<String, String>()
@@ -49,7 +49,8 @@ abstract class BaseTriggerJobService(private val lockService: LockService,
 
                     } ?: run {
                         logger.info("Triggering action: {} with job ID: {} and args: {}", action.name, action.jobId, allArgs)
-                        triggerExecution(channelId, triggerMessageTimestamp, future, action, allArgs)
+                        triggerExecution(channelId, triggerMessageTimestamp, future, action,
+                                triggerMessageSenderName,allArgs)
                     }
                 }
             }
@@ -78,6 +79,8 @@ abstract class BaseTriggerJobService(private val lockService: LockService,
         sessionService.addReaction(channelId, triggerMessageTimestamp, emoji)
         sessionService.sendMessage(channelId,
                 "${reaction} *${action.name}* #${executionId} finished with status: _${actionStatus.toSentenceCase()}_.")
+
+        fetchExecutionOutput(channelId, triggerMessageTimestamp, action, executionId)
     }
 
     /**
@@ -168,10 +171,32 @@ abstract class BaseTriggerJobService(private val lockService: LockService,
         }
     }
 
+    protected fun sendOutput(channelId: String, action: ActionConfig, executionId: Int, output: String) {
+
+        sessionService.sendMessage(channelId, "${action.name} #${executionId} finished with output: ${output}")
+    }
+
+    protected fun handleOutputFailure(action: ActionConfig, channelId: String, executionId: Int, cause: Throwable,
+                                      triggerMessageTimestamp: String) {
+
+        logger.error("Failed to check execution {} output", executionId, cause)
+        notifyFailure(action, channelId, cause.message, triggerMessageTimestamp)
+    }
+
+    protected fun handleOutputError(action: ActionConfig, channelId: String, executionId: Int,
+                                    triggerMessageTimestamp: String, errorMessage: String?) {
+
+        logger.error("Error checking for execution {} output: {}", executionId, errorMessage)
+        notifyFailure(action, channelId, errorMessage, triggerMessageTimestamp)
+    }
+
     protected abstract fun triggerExecution(channelId: String, triggerMessageTimestamp: String,
                                             future: CompletableFuture<PerformActionResult>, action:
-                                            ActionConfig, args: Map<String, String>)
+                                            ActionConfig, triggerMessageSenderName: String, args: Map<String, String>)
 
     protected abstract fun fetchExecutionInfo(channelId: String, triggerMessageTimestamp: String, action: ActionConfig,
                                               executionId: Int, startTime: Long)
+
+    protected abstract fun fetchExecutionOutput(channelId: String, triggerMessageTimestamp: String,
+                                                action: ActionConfig, executionId: Int)
 }
