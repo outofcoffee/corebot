@@ -134,7 +134,9 @@ class RundeckTriggerJobService @Inject constructor(private val actionDriver: Run
                     for (entry in response.body().entries){
                         output += entry.log + "\n"
                     }
-                    sendOutput(channelId, action, executionId, output)
+                    if (output.length > 0) {
+                        sendOutput(channelId, action, executionId, output)
+                    }
 
                 } else {
                     handleOutputError(action, channelId, executionId, triggerMessageTimestamp, response.errorBody().string())
