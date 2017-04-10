@@ -11,6 +11,7 @@ import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.driver.rundeck.model.ExecutionDetails
 import com.gatehill.corebot.driver.rundeck.model.ExecutionInfo
 import com.gatehill.corebot.driver.rundeck.model.ExecutionOptions
+import com.gatehill.corebot.driver.rundeck.model.ExecutionOutput
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import retrofit2.Call
@@ -110,6 +111,33 @@ class RundeckJobTriggerService @Inject constructor(private val actionDriver: Run
 
                 } else {
                     handleStatusPollError(trigger, action, executionId, response.errorBody().string())
+                }
+            }
+        })
+    }
+
+    override fun fetchExecutionOutput(trigger: TriggerContext, action: ActionConfig, executionId: Int) {
+
+        val call = actionDriver.buildApiClient().fetchExecutionOutput(
+                executionId = executionId.toString()
+        )
+
+        call.enqueue(object : Callback<ExecutionOutput> {
+            override fun onFailure(call: Call<ExecutionOutput>, cause: Throwable) =
+                    handleOutputFailure(trigger, action, executionId, cause)
+
+            override fun onResponse(call: Call<ExecutionOutput>, response: Response<ExecutionOutput>) {
+                if (response.isSuccessful) {
+                    var output: String = ""
+                    for (entry in response.body().entries){
+                        output += entry.log + "\n"
+                    }
+                    if (output.length > 0) {
+                        sendOutput(trigger, action, executionId, output)
+                    }
+
+                } else {
+                    handleOutputError(trigger, action, executionId, response.errorBody().string())
                 }
             }
         })
