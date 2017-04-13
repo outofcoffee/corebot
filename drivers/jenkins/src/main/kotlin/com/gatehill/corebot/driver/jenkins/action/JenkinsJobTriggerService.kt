@@ -1,16 +1,17 @@
 package com.gatehill.corebot.driver.jenkins.action
 
-import com.gatehill.corebot.action.BaseTriggerJobService
+import com.gatehill.corebot.action.ActionOutcomeService
+import com.gatehill.corebot.action.BaseJobTriggerService
 import com.gatehill.corebot.action.LockService
 import com.gatehill.corebot.action.model.ActionStatus
 import com.gatehill.corebot.action.model.PerformActionResult
+import com.gatehill.corebot.action.model.TriggerContext
 import com.gatehill.corebot.action.model.TriggeredAction
-import com.gatehill.corebot.chat.ChatLines
-import com.gatehill.corebot.chat.SessionService
 import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.driver.jenkins.config.DriverSettings
 import com.gatehill.corebot.driver.jenkins.model.BuildDetails
 import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -22,14 +23,13 @@ import javax.inject.Inject
  *
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
-class JenkinsTriggerJobService @Inject constructor(private val actionDriver: JenkinsActionDriver,
+class JenkinsJobTriggerService @Inject constructor(private val actionDriver: JenkinsActionDriver,
                                                    lockService: LockService,
-                                                   private val sessionService: SessionService) : BaseTriggerJobService(lockService, sessionService) {
+                                                   private val actionOutcomeService: ActionOutcomeService) : BaseJobTriggerService(lockService, actionOutcomeService) {
 
-    private val logger = LogManager.getLogger(JenkinsTriggerJobService::class.java)!!
+    private val logger: Logger = LogManager.getLogger(JenkinsJobTriggerService::class.java)
 
-    override fun triggerExecution(channelId: String, triggerMessageTimestamp: String,
-                                  future: CompletableFuture<PerformActionResult>,
+    override fun triggerExecution(trigger: TriggerContext, future: CompletableFuture<PerformActionResult>,
                                   action: ActionConfig, args: Map<String, String>) {
 
         val apiClient: JenkinsApi
@@ -58,7 +58,7 @@ class JenkinsTriggerJobService @Inject constructor(private val actionDriver: Jen
 
             override fun onResponse(call: Call<Void>, response: Response<Void>) {
                 if (response.isSuccessful) {
-                    handleTriggerResponse(action, apiClient, args, channelId, future, response, triggerMessageTimestamp)
+                    handleTriggerResponse(trigger, action, apiClient, args, future, response)
 
                 } else {
                     val errorBody = response.errorBody().string()
@@ -74,9 +74,9 @@ class JenkinsTriggerJobService @Inject constructor(private val actionDriver: Jen
     /**
      * Process the response to triggering a build.
      */
-    private fun handleTriggerResponse(action: ActionConfig, apiClient: JenkinsApi, args: Map<String, String>,
-                                      channelId: String, future: CompletableFuture<PerformActionResult>,
-                                      response: Response<Void>, triggerMessageTimestamp: String) {
+    private fun handleTriggerResponse(trigger: TriggerContext, action: ActionConfig, apiClient: JenkinsApi,
+                                      args: Map<String, String>, future: CompletableFuture<PerformActionResult>,
+                                      response: Response<Void>) {
 
         when (response.code()) {
             201 -> {
@@ -89,7 +89,7 @@ class JenkinsTriggerJobService @Inject constructor(private val actionDriver: Jen
                     logger.debug("Queued item URL: $queuedItemUrl for job with ID: ${action.jobId} and args: ${args}")
 
                     // poll the queued item until reified into a build
-                    processQueuedBuild(action, apiClient, args, channelId, future, triggerMessageTimestamp, queuedItemUrl)
+                    processQueuedBuild(trigger, action, apiClient, args, future, queuedItemUrl)
                 }
             }
             else -> {
@@ -112,10 +112,9 @@ class JenkinsTriggerJobService @Inject constructor(private val actionDriver: Jen
         val response = apiClient.fetchCrumb().execute()
 
         when (response.code()) {
-            404 -> {
-                logger.debug("CSRF protection is disabled in Jenkins")
-            }
-            else -> {
+            401 -> throw IllegalStateException("Jenkins authentication failed")
+            404 -> logger.debug("CSRF protection is disabled in Jenkins")
+            200 -> {
                 logger.debug("CSRF token obtained from Jenkins")
                 val csrfToken = response.body().string()
 
@@ -126,6 +125,7 @@ class JenkinsTriggerJobService @Inject constructor(private val actionDriver: Jen
 
                 tokenPair ?: throw IllegalStateException("Unable to parse CSRF token")
             }
+            else -> throw RuntimeException("Jenkins returned HTTP ${response.code()} ${response.message()}")
         }
 
         return tokenPair
@@ -134,15 +134,15 @@ class JenkinsTriggerJobService @Inject constructor(private val actionDriver: Jen
     /**
      * Poll the queued item until reified into a build.
      */
-    private fun processQueuedBuild(action: ActionConfig, apiClient: JenkinsApi, args: Map<String, String>,
-                                   channelId: String, triggerResponseFuture: CompletableFuture<PerformActionResult>,
-                                   triggerMessageTimestamp: String, queuedItemUrl: String) {
+    private fun processQueuedBuild(trigger: TriggerContext, action: ActionConfig, apiClient: JenkinsApi,
+                                   args: Map<String, String>, triggerResponseFuture: CompletableFuture<PerformActionResult>,
+                                   queuedItemUrl: String) {
 
         // notify user that job is queued
-        sessionService.sendMessage(channelId, "Build for *${action.name}* is queued - ${ChatLines.pleaseWait().toLowerCase()}...")
+        actionOutcomeService.notifyQueued(trigger, action)
 
         // reify into build
-        val fetchBuildIdFuture = fetchBuildIdFromQueuedItem(channelId, triggerMessageTimestamp, apiClient, queuedItemUrl)
+        val fetchBuildIdFuture = fetchBuildIdFromQueuedItem(trigger, action, apiClient, queuedItemUrl)
         fetchBuildIdFuture.whenComplete { buildId, cause ->
             if (fetchBuildIdFuture.isCompletedExceptionally) {
                 triggerResponseFuture.completeExceptionally(RuntimeException(
@@ -161,7 +161,7 @@ class JenkinsTriggerJobService @Inject constructor(private val actionDriver: Jen
                 val triggeredAction = TriggeredAction(executionDetails.number, executionDetails.url,
                         mapStatus(executionDetails))
 
-                checkStatus(action, channelId, triggeredAction, triggerResponseFuture, triggerMessageTimestamp)
+                checkStatus(trigger, action, triggeredAction, triggerResponseFuture)
             }
         }
     }
@@ -177,20 +177,20 @@ class JenkinsTriggerJobService @Inject constructor(private val actionDriver: Jen
             ActionStatus.UNKNOWN
     }
 
-    private fun fetchBuildIdFromQueuedItem(channelId: String, triggerMessageTimestamp: String,
-                                           apiClient: JenkinsApi, url: String): CompletableFuture<Int> {
+    private fun fetchBuildIdFromQueuedItem(trigger: TriggerContext, action: ActionConfig, apiClient: JenkinsApi,
+                                           url: String): CompletableFuture<Int> {
 
         val future = CompletableFuture<Int>()
 
         val queuedItemUrl = if (url.endsWith('/')) url.substring(0..url.length - 2) else url
         val itemId = queuedItemUrl.substring(queuedItemUrl.lastIndexOf('/') + 1)
 
-        pollQueuedItem(channelId, triggerMessageTimestamp, apiClient, future, itemId)
+        pollQueuedItem(trigger, action, apiClient, future, itemId)
 
         return future
     }
 
-    private fun pollQueuedItem(channelId: String, triggerMessageTimestamp: String,
+    private fun pollQueuedItem(trigger: TriggerContext, action: ActionConfig,
                                apiClient: JenkinsApi, future: CompletableFuture<Int>, itemId: String,
                                startTime: Long = System.currentTimeMillis()) {
 
@@ -203,15 +203,13 @@ class JenkinsTriggerJobService @Inject constructor(private val actionDriver: Jen
             future.complete(queuedItem.executable.number)
 
         } ?: run {
-            doUnlessTimedOut(channelId, startTime, triggerMessageTimestamp, "polling queued item #${itemId}") {
-                pollQueuedItem(channelId, triggerMessageTimestamp, apiClient, future, itemId, startTime)
+            doUnlessTimedOut(trigger, action, startTime, "polling queued item #${itemId}") {
+                pollQueuedItem(trigger, action, apiClient, future, itemId, startTime)
             }
         }
     }
 
-    override fun fetchExecutionInfo(channelId: String, triggerMessageTimestamp: String, action: ActionConfig,
-                                    executionId: Int, startTime: Long) {
-
+    override fun fetchExecutionInfo(trigger: TriggerContext, action: ActionConfig, executionId: Int, startTime: Long) {
         val call = actionDriver.buildApiClient().fetchBuild(
                 jobName = action.jobId,
                 buildId = executionId.toString(),
@@ -220,15 +218,15 @@ class JenkinsTriggerJobService @Inject constructor(private val actionDriver: Jen
 
         call.enqueue(object : Callback<BuildDetails> {
             override fun onFailure(call: Call<BuildDetails>, cause: Throwable) =
-                    handleStatusPollFailure(action, channelId, executionId, cause, triggerMessageTimestamp)
+                    handleStatusPollFailure(trigger, action, executionId, cause)
 
             override fun onResponse(call: Call<BuildDetails>, response: Response<BuildDetails>) {
                 if (response.isSuccessful) {
                     val status = mapStatus(response.body())
-                    processExecutionInfo(channelId, triggerMessageTimestamp, action, executionId, startTime, status)
+                    processExecutionInfo(trigger, action, executionId, startTime, status)
 
                 } else {
-                    handleStatusPollError(action, channelId, executionId, triggerMessageTimestamp, response.errorBody().string())
+                    handleStatusPollError(trigger, action, executionId, response.errorBody().string())
                 }
             }
         })

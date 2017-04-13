@@ -1,9 +1,10 @@
 package com.gatehill.corebot.driver.rundeck.action
 
-import com.gatehill.corebot.action.ActionDriver
-import com.gatehill.corebot.action.BaseActionDriver
+import com.gatehill.corebot.action.driver.ActionDriver
+import com.gatehill.corebot.action.driver.BaseActionDriver
 import com.gatehill.corebot.action.LockService
 import com.gatehill.corebot.action.model.PerformActionResult
+import com.gatehill.corebot.action.model.TriggerContext
 import com.gatehill.corebot.chat.model.action.ActionType
 import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.driver.base.action.ApiClientBuilder
@@ -17,7 +18,7 @@ import javax.inject.Inject
  */
 interface RundeckActionDriver : ActionDriver, ApiClientBuilder<RundeckApi>
 
-class RundeckActionDriverImpl @Inject constructor(triggerJobService: RundeckTriggerJobService,
+class RundeckActionDriverImpl @Inject constructor(triggerJobService: RundeckJobTriggerService,
                                                   lockService: LockService,
                                                   private val executionStatusService: ExecutionStatusService) : BaseActionDriver(triggerJobService, lockService), RundeckActionDriver {
     override val baseUrl: String
@@ -29,9 +30,8 @@ class RundeckActionDriverImpl @Inject constructor(triggerJobService: RundeckTrig
         return buildApiClient(RundeckApi::class.java, allHeaders)
     }
 
-    override fun handleAction(channelId: String, triggerMessageSenderId: String, triggerMessageTimestamp: String,
-                              future: CompletableFuture<PerformActionResult>, actionType: ActionType,
-                              action: ActionConfig, args: Map<String, String>): Boolean {
+    override fun handleAction(trigger: TriggerContext, future: CompletableFuture<PerformActionResult>,
+                              actionType: ActionType, action: ActionConfig, args: Map<String, String>): Boolean {
 
         try {
             when (actionType) {

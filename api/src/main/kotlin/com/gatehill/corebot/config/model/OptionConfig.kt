@@ -2,6 +2,8 @@ package com.gatehill.corebot.config.model
 
 /**
  * Models configuration for action options.
+ *
+ * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
 class OptionConfig(value: String?,
                    transformers: List<TransformType>?,

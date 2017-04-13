@@ -1,0 +1,27 @@
+---
+machine:
+  java:
+    version: openjdk8
+  services:
+    - docker
+
+dependencies:
+  override:
+    - ./gradlew dependencies --refresh-dependencies
+
+compile:
+  override:
+    - ./gradlew clean installdist --stacktrace
+
+deployment:
+  production:
+    branch: master
+    commands:
+      - ./gradlew publish --stacktrace
+      - /bin/bash ./scripts/docker-build.sh latest
+
+  experimental:
+    branch: develop
+    commands:
+      - ./gradlew publish --stacktrace
+      - /bin/bash ./scripts/docker-build.sh experimental

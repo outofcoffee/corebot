@@ -5,6 +5,7 @@ import com.gatehill.corebot.config.ConfigService
 import com.gatehill.corebot.config.model.SecurityConfig
 import com.gatehill.corebot.config.model.SecurityUserConfig
 import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 import javax.inject.Inject
 
 /**
@@ -13,7 +14,7 @@ import javax.inject.Inject
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
 class AuthorisationService @Inject constructor(private val configService: ConfigService) {
-    private val logger = LogManager.getLogger(AuthorisationService::class.java)!!
+    private val logger: Logger = LogManager.getLogger(AuthorisationService::class.java)
 
     fun checkPermission(action: Action, callback: (Boolean) -> Unit, userName: String?) {
         val security = configService.security()
