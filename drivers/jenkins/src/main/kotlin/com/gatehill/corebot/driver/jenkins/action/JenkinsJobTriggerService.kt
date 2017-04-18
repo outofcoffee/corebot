@@ -233,6 +233,6 @@ class JenkinsJobTriggerService @Inject constructor(private val actionDriver: Jen
     }
 
     override fun fetchExecutionOutput(trigger: TriggerContext, action: ActionConfig, executionId: Int) {
-        //TODO: implement.
+        logger.warn("Method not implemented yet")
     }
 }

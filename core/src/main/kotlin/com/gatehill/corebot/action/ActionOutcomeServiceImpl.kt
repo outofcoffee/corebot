@@ -39,9 +39,10 @@ open class ActionOutcomeServiceImpl @Inject constructor(private val sessionServi
         }
 
         sessionService.addReaction(trigger.channelId, trigger.messageTimestamp, emoji)
-        sessionService.sendMessage(trigger.channelId,
-                "${reaction} *${action.name}* #${executionId} finished with status: _${actionStatus.toSentenceCase()}_.")
-
+        if(action.showJobInfo == "true") {
+            sessionService.sendMessage(trigger.channelId,
+                    "${reaction} *${action.name}* #${executionId} finished with status: _${actionStatus.toSentenceCase()}_.")
+        }
     }
 
     override fun handlePollFailure(trigger: TriggerContext, action: ActionConfig, errorMessage: String?) {
@@ -67,7 +68,9 @@ open class ActionOutcomeServiceImpl @Inject constructor(private val sessionServi
     }
 
     override fun handleFinalOutput(trigger: TriggerContext, action: ActionConfig, executionId: Int, output: String) {
-        sessionService.sendMessage(trigger.channelId, "${action.name} #${executionId} output: ${output}")
+        if (action.showJobOutput == "true") {
+            sessionService.sendMessage(trigger.channelId, "${action.name} #${executionId} output: ${output}")
+        }
     }
 
 }

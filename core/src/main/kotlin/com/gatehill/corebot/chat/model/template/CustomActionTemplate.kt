@@ -18,7 +18,7 @@ abstract class CustomActionTemplate : BaseActionTemplate() {
             val options = transform(actionConfig, placeholderValues)
             CustomAction(actionType,
                     buildShortDescription(actionConfig),
-                    if (actionMessageMode == ActionMessageMode.INDIVIDUAL) buildStartMessage(options, actionConfig) else null,
+                    if (actionMessageMode == ActionMessageMode.INDIVIDUAL && actionConfig.showJobInfo=="true") buildStartMessage(options, actionConfig) else null,
                     actionConfig.tags,
                     actionConfig.driver,
                     actionConfig,

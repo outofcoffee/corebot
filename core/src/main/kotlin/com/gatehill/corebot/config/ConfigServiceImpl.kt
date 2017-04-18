@@ -55,7 +55,6 @@ open class ConfigServiceImpl : ConfigService {
      */
     private val configCache: Cache<String, Any> = CacheBuilder.newBuilder()
             .expireAfterWrite(Settings.configCacheSecs, TimeUnit.SECONDS)
-            .removalListener({ logger.debug("Cached configuration '${it.key}' expired") })
             .build<String, Any>()
 
     /**
@@ -91,7 +90,9 @@ open class ConfigServiceImpl : ConfigService {
                         action.key,
                         options,
                         combinedTags,
-                        action.value.driver)
+                        action.value.driver,
+                        action.value.showJobOutput,
+                        action.value.showJobInfo)
             }
         }
         return actions
