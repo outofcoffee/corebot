@@ -128,10 +128,7 @@ class RundeckJobTriggerService @Inject constructor(private val actionDriver: Run
 
             override fun onResponse(call: Call<ExecutionOutput>, response: Response<ExecutionOutput>) {
                 if (response.isSuccessful) {
-                    var output: String = ""
-                    for (entry in response.body().entries){
-                        output += entry.log + "\n"
-                    }
+                    var output = response.body().entries.map { it.log }.joinToString(separator = "\n") { it }
                     if (output.length > 0) {
                         sendOutput(trigger, action, executionId, output)
                     }
