@@ -312,7 +312,7 @@ Here, two actions are defined: `deploy-services` and `restart-services`, both ta
 
 #### Customised output
 
-Sometimes the bots reaction is enough to see the status. To do this, set the `showJobInfo` option to `false`. Default is `true`.
+Sometimes the bots reaction is enough to see the status. To do this, set the `showJobOutcome` option to `false`. Default is `true`.
  
 Sometimes the output of the job is needed to be given back by the bot. To do this, set the `showJobOutput` option to `true`. Default is `false`.
 
@@ -323,7 +323,7 @@ actions:
     jobId: 9374f1c8-7b3f-4145-8556-6b55551fb60f
     template: deploy services {version} to {environment}
     showJobOutput: true
-    showJobInfo: false    
+    showJobOutcome: false    
 ```
 
 #### Security

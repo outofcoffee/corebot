@@ -39,7 +39,7 @@ open class ActionOutcomeServiceImpl @Inject constructor(private val sessionServi
         }
 
         sessionService.addReaction(trigger.channelId, trigger.messageTimestamp, emoji)
-        if(action.showJobInfo == "true") {
+        if(action.showJobOutcome == "true") {
             sessionService.sendMessage(trigger.channelId,
                     "${reaction} *${action.name}* #${executionId} finished with status: _${actionStatus.toSentenceCase()}_.")
         }

@@ -92,7 +92,7 @@ open class ConfigServiceImpl : ConfigService {
                         combinedTags,
                         action.value.driver,
                         action.value.showJobOutput,
-                        action.value.showJobInfo)
+                        action.value.showJobOutcome)
             }
         }
         return actions

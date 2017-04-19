@@ -64,7 +64,7 @@ abstract class BaseJobTriggerService(private val lockService: LockService,
                 .contains(executionDetails.status)) " :thumbsup:" else ""
 
         future.complete(PerformActionResult(
-                if(action.showJobInfo=="true"){
+                if(action.showJobOutcome=="true"){
                     "Job #${executionDetails.id} status: _${executionDetails.status.toSentenceCase()}_${triggerEmoji} (${executionDetails.url})"
                 }else{""}, false))
 
