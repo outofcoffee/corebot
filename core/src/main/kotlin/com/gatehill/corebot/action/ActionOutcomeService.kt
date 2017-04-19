@@ -36,7 +36,7 @@ interface ActionOutcomeService {
     fun handleOutputFailure(trigger: TriggerContext, action: ActionConfig, errorMessage: String?)
 
     /**
-     * Notify the user thew final output of the job
+     * Notify the user the final output of the job
      */
     fun handleFinalOutput(trigger: TriggerContext, action: ActionConfig, executionId: Int, output: String)
 }
