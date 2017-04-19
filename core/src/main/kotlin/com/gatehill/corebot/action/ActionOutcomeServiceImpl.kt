@@ -39,7 +39,7 @@ open class ActionOutcomeServiceImpl @Inject constructor(private val sessionServi
         }
 
         sessionService.addReaction(trigger.channelId, trigger.messageTimestamp, emoji)
-        if(action.showJobOutcome == "true") {
+        if(action.showJobOutcome) {
             sessionService.sendMessage(trigger.channelId,
                     "${reaction} *${action.name}* #${executionId} finished with status: _${actionStatus.toSentenceCase()}_.")
         }
@@ -68,7 +68,7 @@ open class ActionOutcomeServiceImpl @Inject constructor(private val sessionServi
     }
 
     override fun handleFinalOutput(trigger: TriggerContext, action: ActionConfig, executionId: Int, output: String) {
-        if (action.showJobOutput == "true") {
+        if (action.showJobOutput) {
             sessionService.sendMessage(trigger.channelId, "${action.name} #${executionId} output: ${output}")
         }
     }

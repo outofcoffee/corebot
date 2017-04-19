@@ -64,7 +64,7 @@ abstract class BaseJobTriggerService(private val lockService: LockService,
                 .contains(executionDetails.status)) " :thumbsup:" else ""
 
         future.complete(PerformActionResult(
-                if(action.showJobOutcome=="true"){
+                if(action.showJobOutcome){
                     "Job #${executionDetails.id} status: _${executionDetails.status.toSentenceCase()}_${triggerEmoji} (${executionDetails.url})"
                 }else{""}, false))
 
@@ -75,7 +75,7 @@ abstract class BaseJobTriggerService(private val lockService: LockService,
         } else {
             // already finished
             actionOutcomeService.handleFinalStatus(trigger, action, executionDetails.id, executionDetails.status)
-            if (action.showJobOutput == "true") {
+            if (action.showJobOutput) {
                 fetchExecutionOutput(trigger, action, executionDetails.id)
             }
         }
@@ -129,7 +129,7 @@ abstract class BaseJobTriggerService(private val lockService: LockService,
             pollExecutionInfo(trigger, action, executionId, startTime)
         } else {
             actionOutcomeService.handleFinalStatus(trigger, action, executionId, actionStatus)
-            if (action.showJobOutput == "true"){
+            if (action.showJobOutput){
                 fetchExecutionOutput(trigger, action, executionId)
             }
         }
