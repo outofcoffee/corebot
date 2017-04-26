@@ -52,7 +52,7 @@ open class SlackChatServiceImpl @Inject constructor(private val sessionService: 
 
         try {
             val messageContent = event.messageContent.trim()
-            val splitCmd = messageContent.split("\\s".toRegex()).filterNot(String::isBlank)
+            val splitCmd = messageContent.split("\"?( |$)(?=(([^\"]*\"){2})*[^\"]*$)\"?".toRegex()).filterNot(String::isBlank)
 
             if (splitCmd.isNotEmpty() && isAddressedToBot(session.sessionPersona(), splitCmd[0])) {
                 // indicate busy...
