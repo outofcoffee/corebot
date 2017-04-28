@@ -310,6 +310,22 @@ Here, two actions are defined: `deploy-services` and `restart-services`, both ta
 
 > Tip: There is a special tag set on all actions, named 'all'. This means you can do things like `@corebot lock all`.
 
+#### Customised output
+
+Sometimes the bots reaction is enough to see the status. To do this, set the `showJobOutcome` option to `false`. Default is `true`.
+ 
+Sometimes the output of the job is needed to be given back by the bot. To do this, set the `showJobOutput` option to `true`. Default is `false`.
+
+```
+version: '1'
+actions:
+  deploy-services:
+    jobId: 9374f1c8-7b3f-4145-8556-6b55551fb60f
+    template: deploy services {version} to {environment}
+    showJobOutput: true
+    showJobOutcome: false    
+```
+
 #### Security
 
 You can choose which users are authorised to perform actions, using the `security` block:

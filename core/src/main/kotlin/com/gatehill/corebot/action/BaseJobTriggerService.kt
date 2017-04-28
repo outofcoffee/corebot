@@ -64,7 +64,9 @@ abstract class BaseJobTriggerService(private val lockService: LockService,
                 .contains(executionDetails.status)) " :thumbsup:" else ""
 
         future.complete(PerformActionResult(
-                "Job #${executionDetails.id} status: _${executionDetails.status.toSentenceCase()}_${triggerEmoji} (${executionDetails.url})", false))
+                if(action.showJobOutcome){
+                    "Job #${executionDetails.id} status: _${executionDetails.status.toSentenceCase()}_${triggerEmoji} (${executionDetails.url})"
+                }else{""}, false))
 
         if (executionDetails.status == ActionStatus.RUNNING) {
             // poll for updates
@@ -73,6 +75,9 @@ abstract class BaseJobTriggerService(private val lockService: LockService,
         } else {
             // already finished
             actionOutcomeService.handleFinalStatus(trigger, action, executionDetails.id, executionDetails.status)
+            if (action.showJobOutput) {
+                fetchExecutionOutput(trigger, action, executionDetails.id)
+            }
         }
     }
 
@@ -124,7 +129,29 @@ abstract class BaseJobTriggerService(private val lockService: LockService,
             pollExecutionInfo(trigger, action, executionId, startTime)
         } else {
             actionOutcomeService.handleFinalStatus(trigger, action, executionId, actionStatus)
+            if (action.showJobOutput){
+                fetchExecutionOutput(trigger, action, executionId)
+            }
         }
+    }
+
+    protected fun sendOutput(trigger: TriggerContext, action: ActionConfig, executionId: Int, output: String) {
+
+        actionOutcomeService.handleFinalOutput(trigger, action, executionId, output)
+    }
+
+    protected fun handleOutputFailure(trigger: TriggerContext, action: ActionConfig, executionId: Int,
+                                      cause: Throwable) {
+
+        logger.error("Failed to check execution {} output", executionId, cause)
+        actionOutcomeService.handleOutputFailure(trigger, action, cause.message)
+    }
+
+    protected fun handleOutputError(trigger: TriggerContext, action: ActionConfig, executionId: Int,
+                                      errorMessage: String?) {
+
+        logger.error("Failed to check execution {} output", executionId, errorMessage)
+        actionOutcomeService.handleOutputFailure(trigger, action, errorMessage)
     }
 
     protected abstract fun triggerExecution(trigger: TriggerContext, future: CompletableFuture<PerformActionResult>,
@@ -132,4 +159,6 @@ abstract class BaseJobTriggerService(private val lockService: LockService,
 
     protected abstract fun fetchExecutionInfo(trigger: TriggerContext, action: ActionConfig, executionId: Int,
                                               startTime: Long)
+
+    protected abstract fun fetchExecutionOutput(trigger: TriggerContext, action: ActionConfig, executionId: Int)
 }

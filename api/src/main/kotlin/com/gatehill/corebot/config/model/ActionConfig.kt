@@ -11,22 +11,28 @@ class ActionConfig(val template: String,
                    val jobId: String,
                    name: String?,
                    options: Map<String, OptionConfig>?,
-                   tags: List<String>?, driver: String?) {
+                   tags: List<String>?, driver: String?,
+                   showJobOutput: Boolean?, showJobOutcome: Boolean?) {
 
     val name: String
     val options: Map<String, OptionConfig>
     val tags: List<String>
     val driver: String
+    val showJobOutput: Boolean
+    val showJobOutcome: Boolean
 
     init {
         this.name = name ?: ""
         this.options = options ?: emptyMap()
         this.tags = tags ?: emptyList()
         this.driver = driver ?: defaultDriver
+        this.showJobOutput = showJobOutput ?: false
+        this.showJobOutcome = showJobOutcome ?: true
     }
 
     override fun toString(): String {
-        return "ActionConfig(name='$name', jobId='$jobId', options=$options, template='$template', tags=$tags, driver='$driver')"
+        return "ActionConfig(name='$name', jobId='$jobId', options=$options, template='$template', tags=$tags, " +
+                "driver='$driver', showJobOutput='$showJobOutput', showJobOutcome='$showJobOutcome')"
     }
 
     override fun equals(other: Any?): Boolean {

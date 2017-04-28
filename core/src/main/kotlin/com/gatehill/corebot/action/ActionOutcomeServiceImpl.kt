@@ -39,8 +39,10 @@ open class ActionOutcomeServiceImpl @Inject constructor(private val sessionServi
         }
 
         sessionService.addReaction(trigger.channelId, trigger.messageTimestamp, emoji)
-        sessionService.sendMessage(trigger.channelId,
-                "${reaction} *${action.name}* #${executionId} finished with status: _${actionStatus.toSentenceCase()}_.")
+        if(action.showJobOutcome) {
+            sessionService.sendMessage(trigger.channelId,
+                    "${reaction} *${action.name}* #${executionId} finished with status: _${actionStatus.toSentenceCase()}_.")
+        }
     }
 
     override fun handlePollFailure(trigger: TriggerContext, action: ActionConfig, errorMessage: String?) {
@@ -58,4 +60,17 @@ open class ActionOutcomeServiceImpl @Inject constructor(private val sessionServi
         sessionService.sendMessage(trigger.channelId,
                 "Gave up ${blockDescription} after ${timeoutSecs} seconds.")
     }
+
+    override fun handleOutputFailure(trigger: TriggerContext, action: ActionConfig, errorMessage: String?) {
+        sessionService.addReaction(trigger.channelId, trigger.messageTimestamp, "x")
+        sessionService.sendMessage(trigger.channelId,
+                "Error getting output for *${action.name}*:\r\n```$errorMessage```")
+    }
+
+    override fun handleFinalOutput(trigger: TriggerContext, action: ActionConfig, executionId: Int, output: String) {
+        if (action.showJobOutput) {
+            sessionService.sendMessage(trigger.channelId, "${action.name} #${executionId} output: ${output}")
+        }
+    }
+
 }

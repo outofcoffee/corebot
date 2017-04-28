@@ -91,7 +91,9 @@ open class ConfigServiceImpl : ConfigService {
                         action.key,
                         options,
                         combinedTags,
-                        action.value.driver)
+                        action.value.driver,
+                        action.value.showJobOutput,
+                        action.value.showJobOutcome)
             }
         }
         return actions

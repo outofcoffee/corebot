@@ -29,4 +29,14 @@ interface ActionOutcomeService {
      * Notify the user of a timeout.
      */
     fun handleTimeout(trigger: TriggerContext, action: ActionConfig, blockDescription: String)
+
+    /**
+     * Notify the user of final output failure
+     */
+    fun handleOutputFailure(trigger: TriggerContext, action: ActionConfig, errorMessage: String?)
+
+    /**
+     * Notify the user the final output of the job
+     */
+    fun handleFinalOutput(trigger: TriggerContext, action: ActionConfig, executionId: Int, output: String)
 }
