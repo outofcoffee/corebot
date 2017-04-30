@@ -1,6 +1,7 @@
 package com.gatehill.corebot
 
 import com.gatehill.corebot.action.*
+import com.gatehill.corebot.action.driver.ActionDriver
 import com.gatehill.corebot.action.driver.ActionDriverFactory
 import com.gatehill.corebot.chat.*
 import com.gatehill.corebot.chat.model.template.*
@@ -25,9 +26,20 @@ class Bot @Inject constructor(actionDriverFactory: ActionDriverFactory,
                               templateService: TemplateService,
                               private val chatService: ChatService) {
     init {
-        // standard drivers
-        actionDriverFactory.registerDriver("rundeck", RundeckActionDriver::class.java)
-        actionDriverFactory.registerDriver("jenkins", JenkinsActionDriver::class.java)
+        // drivers
+        System.getProperty(driverFactorySystemProperty)?.let {
+            val (driverName, driverClass) = it.split("=").let { factory -> Pair(factory[0], factory[1]) }
+            logger.debug("Registering '$driverName' driver factory: $driverClass")
+
+            @Suppress("UNCHECKED_CAST")
+            actionDriverFactory.registerDriver(driverName, Class.forName(driverClass) as Class<out ActionDriver>)
+
+        } ?: run {
+            // default drivers
+            logger.debug("Registering default driver factories")
+            actionDriverFactory.registerDriver("rundeck", RundeckActionDriver::class.java)
+            actionDriverFactory.registerDriver("jenkins", JenkinsActionDriver::class.java)
+        }
 
         // built-in templates
         templateService.registerTemplate(ShowHelpTemplate::class.java)
@@ -51,6 +63,8 @@ class Bot @Inject constructor(actionDriverFactory: ActionDriverFactory,
      * Constructs `Bot` instances.
      */
     companion object Builder {
+        private val driverFactorySystemProperty = "com.gatehill.corebot.DriverFactory"
+        private val driverModuleSystemProperty = "com.gatehill.corebot.DriverModule"
         private val injectionModuleSystemProperty = "com.gatehill.corebot.InjectionModule"
         private val logger: Logger = LogManager.getLogger(Builder::class.java)
 
@@ -81,10 +95,18 @@ class Bot @Inject constructor(actionDriverFactory: ActionDriverFactory,
                 bind(ActionOutcomeService::class.java).to(ActionOutcomeServiceImpl::class.java)
 
                 // drivers
-                install(JenkinsDriverModule())
-                install(RundeckDriverModule())
+                System.getProperty(driverModuleSystemProperty)?.let {
+                    logger.debug("Installing driver module: $it")
+                    install(Class.forName(it).newInstance() as Module)
 
-                // extension point
+                } ?: run {
+                    // default drivers
+                    logger.debug("Installing default driver modules")
+                    install(JenkinsDriverModule())
+                    install(RundeckDriverModule())
+                }
+
+                // generic extension point
                 System.getProperty(injectionModuleSystemProperty)?.let {
                     logger.debug("Installing injection module: $it")
                     install(Class.forName(it).newInstance() as Module)

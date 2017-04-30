@@ -17,7 +17,10 @@ class TemplateService @Inject constructor(private val injector: Injector,
      */
     data class TemplateContext(var candidates: MutableList<ActionTemplate>)
 
-    private val actionTemplates = mutableListOf<Class<out ActionTemplate>>()
+    /**
+     * Unique set of templates.
+     */
+    private val actionTemplates = mutableSetOf<Class<out ActionTemplate>>()
 
     fun registerTemplate(template: Class<out ActionTemplate>) {
         actionTemplates.add(template)
