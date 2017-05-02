@@ -81,7 +81,11 @@ class RundeckJobTriggerService @Inject constructor(private val actionDriver: Run
             argString.append("-")
             argString.append(it.key)
             argString.append(" ")
-            argString.append(it.value)
+            if (it.value.contains(" ")) {
+                argString.append("\"").append(it.value).append("\"")
+            }else{
+                argString.append(it.value)
+            }
         }
         return argString.toString()
     }
