@@ -44,21 +44,20 @@ open class SlackChatServiceImpl @Inject constructor(private val sessionService: 
      */
     protected open val messagePostedListeners = listOf(SlackMessagePostedListener { event, session ->
         // filter out messages from other channels
-        if (!Settings.chat.channelNames.map { channelName -> session.findChannelByName(channelName).id }
+        if (!event.channel.isDirect && !Settings.chat.channelNames.map { channelName -> session.findChannelByName(channelName).id }
                 .contains(event.channel.id)) return@SlackMessagePostedListener
 
         // ignore own messages
         if (session.sessionPersona().id == event.sender.id) return@SlackMessagePostedListener
-
         try {
             val messageContent = event.messageContent.trim()
             val splitCmd = messageContent.split("\"?( |$)(?=(([^\"]*\"){2})*[^\"]*$)\"?".toRegex()).filterNot(String::isBlank)
 
-            if (splitCmd.isNotEmpty() && isAddressedToBot(session.sessionPersona(), splitCmd[0])) {
+            if (splitCmd.isNotEmpty() && (isAddressedToBot(session.sessionPersona(), splitCmd[0]) || event.channel.isDirect)) {
                 // indicate busy...
                 session.addReactionToMessage(event.channel, event.timeStamp, "hourglass_flowing_sand")
 
-                val parsed = parseMessage(splitCmd)
+                val parsed = parseMessage(splitCmd, event.channel.isDirect && isAddressedToBot(session.sessionPersona(), splitCmd[0]))
                 parsed?.let {
                     logger.info("Handling command '{}' from {}", messageContent, event.sender.userName)
                     parsed.groupStartMessage?.let { session.sendMessage(event.channel, it) }
@@ -82,14 +81,15 @@ open class SlackChatServiceImpl @Inject constructor(private val sessionService: 
     /**
      * Determine the Action to perform based on the provided command.
      */
-    private fun parseMessage(splitCmd: List<String>): ActionWrapper? {
+    private fun parseMessage(splitCmd: List<String>, directMessage: Boolean): ActionWrapper? {
         val joinedMessage = splitCmd.joinToString()
 
         try {
             val context = templateService.fetchCandidates()
 
-            // skip element 0, which contains the bot's username
-            splitCmd.subList(1, splitCmd.size).forEach {
+            // skip element 0, which contains the bot's username when its not a direct message
+            var elementIndex = if(directMessage){0}else{1}
+            splitCmd.subList(elementIndex, splitCmd.size).forEach {
                 token ->
                 templateService.process(context, token)
             }
