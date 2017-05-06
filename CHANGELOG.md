@@ -3,9 +3,9 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased] - TBC
-### Added
-- ...
+## [0.7.1] - 2017-05-07
+### Changed
+- Only run as trigger user if explicitly set in action configuration.
 
 ## [0.7.0] - 2017-05-06
 ### Added
