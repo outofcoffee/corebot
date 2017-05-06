@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.7.0] - 2017-05-06
+### Added
+- Improves Jenkins error handling when obtaining CSRF token.
+- Adds ability to run a Rundeck job as the initiating Slack user (thanks Anojan Sivarajah).
+- Adds ability to show Rundeck job output in chat (thanks Anojan Sivarajah).
+- Adds ability to handle spaces in arguments using quotes; Rundeck driver only (thanks Anojan Sivarajah).
+- Adds CircleCI configuration.
+- Adds a number of extension points.
+- Adds Maven publishing configuration.
+
+### Changed
+- Bumps Gradle version. Bumps Kotlin version.
+- Internal structural improvements.
+
 ## [0.6.2] - 2016-12-03
 ### Added
 - Adds changelog (this file!)
