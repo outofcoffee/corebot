@@ -93,7 +93,8 @@ open class ConfigServiceImpl : ConfigService {
                         combinedTags,
                         action.value.driver,
                         action.value.showJobOutput,
-                        action.value.showJobOutcome)
+                        action.value.showJobOutcome,
+                        action.value.runAsTriggerUser)
             }
         }
         return actions

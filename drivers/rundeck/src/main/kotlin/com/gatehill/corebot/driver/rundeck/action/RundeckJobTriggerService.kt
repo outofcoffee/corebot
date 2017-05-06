@@ -38,7 +38,8 @@ class RundeckJobTriggerService @Inject constructor(private val actionDriver: Run
         try {
             call = actionDriver.buildApiClient().runJob(
                     jobId = action.jobId,
-                    executionOptions = ExecutionOptions(argString = buildArgString(args), asUser = trigger.username)
+                    executionOptions = ExecutionOptions(argString = buildArgString(args),
+                    asUser = if (action.runAsTriggerUser) trigger.username else "")
             )
         } catch(e: Exception) {
             future.completeExceptionally(e)
