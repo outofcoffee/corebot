@@ -1,7 +1,6 @@
 package com.gatehill.corebot.chat
 
 import com.gatehill.corebot.chat.model.template.ActionTemplate
-import com.gatehill.corebot.chat.model.template.TriggerJobTemplate
 import com.gatehill.corebot.config.ConfigService
 import com.google.inject.Injector
 import javax.inject.Inject
@@ -11,7 +10,8 @@ import javax.inject.Inject
  */
 class TemplateService @Inject constructor(private val injector: Injector,
                                           private val configService: ConfigService,
-                                          private val sessionService: SessionService) {
+                                          private val sessionService: SessionService,
+                                          private val actionTemplateConverter: ActionTemplateConverter) {
     /**
      * Holds candidate templates.
      */
@@ -26,14 +26,10 @@ class TemplateService @Inject constructor(private val injector: Injector,
         actionTemplates.add(template)
     }
 
-    fun fetchCandidates(): TemplateContext {
-        val candidates: MutableList<ActionTemplate> = configService.actions().values
-                .map(::TriggerJobTemplate).toMutableList()
-
-        candidates.addAll(actionTemplates.map({ actionTemplate -> injector.getInstance(actionTemplate) }))
-
-        return TemplateContext(candidates)
-    }
+    fun fetchCandidates(): TemplateContext = TemplateContext(mutableListOf<ActionTemplate>().apply {
+        addAll(actionTemplateConverter.convertConfigToTemplate(configService.actions().values))
+        addAll(actionTemplates.map({ actionTemplate -> injector.getInstance(actionTemplate) }))
+    })
 
     fun process(context: TemplateContext, token: String) {
         // iterate over a copy to prevent concurrent modification issues

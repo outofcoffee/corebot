@@ -29,7 +29,7 @@ open class SlackSessionServiceImpl @Inject constructor(configService: ConfigServ
     /**
      * Allow subclasses to hook into Slack events.
      */
-    protected open val connectedListeners = listOf(SlackConnectedListener { slackConnected, theSession ->
+    protected open val connectedListeners = listOf(SlackConnectedListener { _, theSession ->
         Settings.chat.channelNames.forEach {
             val joinMessage = configService.joinMessage ?:
                     "${ChatLines.greeting()} :simple_smile: ${ChatLines.ready()}."

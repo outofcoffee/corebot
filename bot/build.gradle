@@ -5,7 +5,6 @@ buildscript {
 }
 
 apply plugin: "kotlin"
-apply plugin: "application"
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$version_kotlin"
@@ -25,17 +24,9 @@ dependencies {
     }
 
     compile project(':core')
-    compile project(':drivers:jenkins')
-    compile project(':drivers:rundeck')
 
     testCompile "junit:junit:$version_junit"
     testCompile "org.jetbrains.kotlin:kotlin-test-junit:$version_kotlin"
-}
-
-mainClassName = 'com.gatehill.corebot.MainKt'
-
-task createStartScripts(type: CreateStartScripts) {
-    applicationName = 'corebot'
 }
 
 publishing {

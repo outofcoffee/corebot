@@ -55,7 +55,7 @@ open class ConfigServiceImpl : ConfigService {
      */
     private val configCache: Cache<String, Any> = CacheBuilder.newBuilder()
             .expireAfterWrite(Settings.configCacheSecs, TimeUnit.SECONDS)
-            .removalListener({ logger.debug("Cached configuration '${it.key}' expired") })
+            .removalListener<String, Any>({ logger.debug("Cached configuration '${it.key}' expired") })
             .build<String, Any>()
 
     /**
@@ -124,7 +124,7 @@ open class ConfigServiceImpl : ConfigService {
 
         if (config.security?.users?.isNotEmpty() == true) {
             // users defined in config always override defaults
-            allUsers.putAll(config.security!!.users)
+            allUsers.putAll(config.security.users)
         } else {
             allUsers.putAll(defaultSecurity.users)
         }

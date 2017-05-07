@@ -28,6 +28,7 @@ class ActionDriverFactory @Inject constructor(private val injector: Injector) {
     }
 
     fun registerDriver(name: String, driver: Class<out ActionDriver>) {
+        logger.debug("Registering '$name' driver: ${driver.canonicalName}")
         drivers[name] = driver
     }
 }

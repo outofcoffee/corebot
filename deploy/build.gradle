@@ -5,23 +5,21 @@ buildscript {
 }
 
 apply plugin: "kotlin"
+apply plugin: "application"
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib:$version_kotlin"
-    compile "org.jetbrains.kotlin:kotlin-reflect:$version_kotlin"
-
-    compile "org.apache.logging.log4j:log4j-api:$version_log4j"
-
-    compile "com.fasterxml.jackson.module:jackson-module-kotlin:$version_jackson"
-    compile "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$version_jackson"
-
-    compile "com.google.guava:guava:$version_guava"
-    compile "com.google.inject:guice:$version_guice"
-
-    compile project(':api')
+    compile project(':bot')
+    compile project(':drivers:jenkins')
+    compile project(':drivers:rundeck')
 
     testCompile "junit:junit:$version_junit"
     testCompile "org.jetbrains.kotlin:kotlin-test-junit:$version_kotlin"
+}
+
+mainClassName = 'com.gatehill.corebot.MainKt'
+
+task createStartScripts(type: CreateStartScripts) {
+    applicationName = 'corebot'
 }
 
 publishing {
