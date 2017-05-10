@@ -19,7 +19,8 @@ open class ActionOutcomeServiceImpl @Inject constructor(private val sessionServi
     private val logger = LogManager.getLogger(ActionOutcomeServiceImpl::class.java)!!
 
     override fun notifyQueued(trigger: TriggerContext, action: ActionConfig) {
-        sessionService.sendMessage(trigger.channelId, "Build for *${action.name}* is queued - ${ChatLines.pleaseWait().toLowerCase()}...")
+        sessionService.sendMessage(trigger.channelId, trigger.threadTimestamp,
+                "Build for *${action.name}* is queued - ${ChatLines.pleaseWait().toLowerCase()}...")
     }
 
     override fun handleFinalStatus(trigger: TriggerContext, action: ActionConfig, executionId: Int,
@@ -40,14 +41,14 @@ open class ActionOutcomeServiceImpl @Inject constructor(private val sessionServi
 
         sessionService.addReaction(trigger.channelId, trigger.messageTimestamp, emoji)
         if(action.showJobOutcome) {
-            sessionService.sendMessage(trigger.channelId,
+            sessionService.sendMessage(trigger.channelId, trigger.threadTimestamp,
                     "${reaction} *${action.name}* #${executionId} finished with status: _${actionStatus.toSentenceCase()}_.")
         }
     }
 
     override fun handlePollFailure(trigger: TriggerContext, action: ActionConfig, errorMessage: String?) {
         sessionService.addReaction(trigger.channelId, trigger.messageTimestamp, "x")
-        sessionService.sendMessage(trigger.channelId,
+        sessionService.sendMessage(trigger.channelId, trigger.threadTimestamp,
                 "Error polling for *${action.name}* execution status:\r\n```$errorMessage```")
     }
 
@@ -57,19 +58,20 @@ open class ActionOutcomeServiceImpl @Inject constructor(private val sessionServi
         sessionService.addReaction(trigger.channelId, trigger.messageTimestamp, "x")
 
         val timeoutSecs = TimeUnit.MILLISECONDS.toSeconds(Settings.deployment.executionTimeout.toLong())
-        sessionService.sendMessage(trigger.channelId,
+        sessionService.sendMessage(trigger.channelId, trigger.threadTimestamp,
                 "Gave up ${blockDescription} after ${timeoutSecs} seconds.")
     }
 
     override fun handleOutputFailure(trigger: TriggerContext, action: ActionConfig, errorMessage: String?) {
         sessionService.addReaction(trigger.channelId, trigger.messageTimestamp, "x")
-        sessionService.sendMessage(trigger.channelId,
+        sessionService.sendMessage(trigger.channelId, trigger.threadTimestamp,
                 "Error getting output for *${action.name}*:\r\n```$errorMessage```")
     }
 
     override fun handleFinalOutput(trigger: TriggerContext, action: ActionConfig, executionId: Int, output: String) {
         if (action.showJobOutput) {
-            sessionService.sendMessage(trigger.channelId, "${action.name} #${executionId} output: ${output}")
+            sessionService.sendMessage(trigger.channelId, trigger.threadTimestamp,
+                    "${action.name} #${executionId} output: ${output}")
         }
     }
 

@@ -2,6 +2,7 @@ package com.gatehill.corebot.chat
 
 import com.gatehill.corebot.config.ConfigService
 import com.gatehill.corebot.config.Settings
+import com.ullink.slack.simpleslackapi.SlackPreparedMessage
 import com.ullink.slack.simpleslackapi.SlackSession
 import com.ullink.slack.simpleslackapi.impl.SlackSessionFactory
 import com.ullink.slack.simpleslackapi.listeners.SlackConnectedListener
@@ -42,8 +43,18 @@ open class SlackSessionServiceImpl @Inject constructor(configService: ConfigServ
     override val botUsername: String
         get() = session.sessionPersona().userName
 
-    override fun sendMessage(channelId: String, message: String) {
-        session.sendMessage(session.findChannelById(channelId), message)
+    override fun sendMessage(channelId: String, threadTimestamp: String, message: String) {
+        if(threadTimestamp == ""){
+            session.sendMessage(session.findChannelById(channelId), message)
+        }else{
+            val preparedMessage = SlackPreparedMessage.Builder()
+                    .withMessage(message)
+                    .withUnfurl(true)
+                    .withThreadTimestamp(threadTimestamp)
+                    .build()
+            session.sendMessage(session.findChannelById(channelId), preparedMessage)
+        }
+
     }
 
     override fun addReaction(channelId: String, messageTimestamp: String, emojiCode: String) {
