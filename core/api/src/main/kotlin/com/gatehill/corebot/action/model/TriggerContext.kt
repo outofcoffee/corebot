@@ -6,4 +6,5 @@ package com.gatehill.corebot.action.model
 data class TriggerContext(val channelId: String,
                           val userId: String,
                           val username: String,
-                          val messageTimestamp: String)
+                          val messageTimestamp: String,
+                          val threadTimestamp: String)
