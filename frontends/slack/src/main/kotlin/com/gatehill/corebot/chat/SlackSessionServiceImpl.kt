@@ -84,4 +84,7 @@ open class SlackSessionServiceImpl @Inject constructor(configService: ConfigServ
     override fun addReaction(triggerContext: TriggerContext, emojiCode: String) {
         session.addReactionToMessage(session.findChannelById(triggerContext.channelId), triggerContext.messageTimestamp, emojiCode)
     }
+
+    override fun lookupUser(userId: String): String =
+            session.findUserById(userId).userName
 }

@@ -7,8 +7,8 @@ private val defaultDriver = "rundeck"
  *
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
-class ActionConfig(val template: String,
-                   val jobId: String,
+class ActionConfig(template: String?,
+                   jobId: String?,
                    name: String?,
                    options: Map<String, OptionConfig>?,
                    tags: List<String>?,
@@ -17,23 +17,15 @@ class ActionConfig(val template: String,
                    showJobOutcome: Boolean?,
                    runAsTriggerUser: Boolean?) {
 
-    val name: String
-    val options: Map<String, OptionConfig>
-    val tags: List<String>
-    val driver: String
-    val showJobOutput: Boolean
-    val showJobOutcome: Boolean
-    val runAsTriggerUser: Boolean
-
-    init {
-        this.name = name ?: ""
-        this.options = options ?: emptyMap()
-        this.tags = tags ?: emptyList()
-        this.driver = driver ?: defaultDriver
-        this.showJobOutput = showJobOutput ?: false
-        this.showJobOutcome = showJobOutcome ?: true
-        this.runAsTriggerUser = runAsTriggerUser ?: false
-    }
+    val template: String = template ?: ""
+    val jobId: String = jobId ?: ""
+    val name: String = name ?: ""
+    val options: Map<String, OptionConfig> = options ?: emptyMap()
+    val tags: List<String> = tags ?: emptyList()
+    val driver: String = driver ?: defaultDriver
+    val showJobOutput: Boolean = showJobOutput ?: false
+    val showJobOutcome: Boolean = showJobOutcome ?: true
+    val runAsTriggerUser: Boolean = runAsTriggerUser ?: false
 
     override fun toString(): String {
         return "ActionConfig(name='$name', jobId='$jobId', options=$options, template='$template', tags=$tags, " +

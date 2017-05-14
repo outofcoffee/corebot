@@ -93,9 +93,10 @@ open class SlackChatServiceImpl @Inject constructor(private val sessionService: 
             }
 
             // remove unsatisfied candidates
-            when (context.candidates.filter { candidate -> candidate.tokens.isEmpty() }.size) {
+            val satisfied = context.candidates.filter { candidate -> candidate.tokens.isEmpty() }
+            when (satisfied.size) {
                 1 -> {
-                    val candidate = context.candidates[0]
+                    val candidate = satisfied.first()
                     return ActionWrapper(candidate.buildActions(),
                             if (candidate.actionMessageMode == ActionMessageMode.GROUP) candidate.buildStartMessage() else null,
                             if (candidate.actionMessageMode == ActionMessageMode.GROUP) candidate.buildCompleteMessage() else null)

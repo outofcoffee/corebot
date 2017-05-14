@@ -60,8 +60,11 @@ class TemplateService @Inject constructor(private val injector: Injector,
             usage.appendln(); usage.appendln()
         }
 
-        usage.append("*Built-in actions*")
-        candidates.filter(ActionTemplate::showInUsage).filter(ActionTemplate::builtIn).forEach(printTemplate)
+        val builtInActions = candidates.filter(ActionTemplate::showInUsage).filter(ActionTemplate::builtIn)
+        if (builtInActions.isNotEmpty()) {
+            usage.append("*Built-in actions*")
+            builtInActions.forEach(printTemplate)
+        }
         return usage
     }
 }
