@@ -1,3 +1,11 @@
 rootProject.name = 'corebot'
 
-include ':api', ':core', ':bot', ':drivers:base', ':drivers:jenkins', ':drivers:rundeck', ':deploy'
+include ':backends:deployment:jobs'
+include ':backends:deployment:jenkins'
+include ':backends:deployment:rundeck'
+include ':bots:common'
+include ':bots:slack-deploy'
+include ':core:api'
+include ':core:engine'
+include ':core:rest'
+include ':frontends:slack'

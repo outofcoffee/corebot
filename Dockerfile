@@ -4,8 +4,8 @@ MAINTAINER Pete Cornish <outofcoffee@gmail.com>
 
 RUN mkdir -p /opt/corebot /opt/corebot/config
 
-ADD deploy/build/install/deploy /opt/corebot
+ADD bots/slack-deploy/build/install/slack-deploy /opt/corebot
 
 WORKDIR "/opt/corebot"
 
-ENTRYPOINT [ "./bin/deploy" ]
+ENTRYPOINT [ "./bin/slack-deploy" ]

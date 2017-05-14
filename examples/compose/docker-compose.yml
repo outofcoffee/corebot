@@ -1,0 +1,25 @@
+version: '2'
+
+# Example Compose file, using Rundeck
+# Place this in the root of the project before starting the stack.
+# Ensure you set the Slack auth token first.
+
+services:
+  corebot:
+    image: outofcoffee/corebot
+    build: .
+    environment:
+      SLACK_AUTH_TOKEN: "CHANGEME"
+      SLACK_CHANNELS: "general"
+      RUNDECK_API_TOKEN: "CHANGEME"
+      RUNDECK_BASE_URL: "http://rundeck:4440"
+    volumes:
+      - "./examples/config/simple-rundeck-action.yml:/opt/corebot/actions.yml"
+
+  rundeck:
+    image: jordan/rundeck
+    container_name: rundeck
+    environment:
+      SERVER_URL: "http://localhost:4440"
+    ports:
+      - "4440:4440"

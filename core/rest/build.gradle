@@ -1,0 +1,38 @@
+buildscript {
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$version_kotlin"
+    }
+}
+
+apply plugin: "kotlin"
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$version_kotlin"
+
+    compile "org.apache.logging.log4j:log4j-api:$version_log4j"
+
+    compile "com.squareup.retrofit2:retrofit:$version_retrofit"
+    compile "com.squareup.retrofit2:converter-jackson:$version_retrofit"
+
+    compile project(':core:engine')
+
+    testCompile "junit:junit:$version_junit"
+    testCompile "org.jetbrains.kotlin:kotlin-test-junit:$version_kotlin"
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+            repositories {
+                maven {
+                    url mavenSnapshotRepository
+                    credentials(AwsCredentials) {
+                        accessKey awsAccessKey
+                        secretKey awsSecretKey
+                    }
+                }
+            }
+        }
+    }
+}
