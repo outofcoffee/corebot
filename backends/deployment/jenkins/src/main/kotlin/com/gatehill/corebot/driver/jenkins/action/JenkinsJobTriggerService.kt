@@ -10,6 +10,7 @@ import com.gatehill.corebot.action.model.TriggeredAction
 import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.driver.jenkins.config.DriverSettings
 import com.gatehill.corebot.driver.jenkins.model.BuildDetails
+import com.gatehill.corebot.util.onException
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import retrofit2.Call
@@ -83,17 +84,17 @@ class JenkinsJobTriggerService @Inject constructor(private val actionDriver: Jen
                 val queuedItemUrl: String? = response.headers()["Location"]
                 if (queuedItemUrl == null) {
                     future.completeExceptionally(RuntimeException(
-                            "No item was queued for triggered job with ID: ${action.jobId} and args: ${args}"))
+                            "No item was queued for triggered job with ID: ${action.jobId} and args: $args"))
 
                 } else {
-                    logger.debug("Queued item URL: $queuedItemUrl for job with ID: ${action.jobId} and args: ${args}")
+                    logger.debug("Queued item URL: $queuedItemUrl for job with ID: ${action.jobId} and args: $args")
 
                     // poll the queued item until reified into a build
                     processQueuedBuild(trigger, action, apiClient, args, future, queuedItemUrl)
                 }
             }
             else -> {
-                val errMsg = "Unsuccessfully triggered job with ID: ${action.jobId} and args: ${args} - response code: {response.code()}"
+                val errMsg = "Unsuccessfully triggered job with ID: ${action.jobId} and args: $args - response code: {response.code()}"
                 logger.error(errMsg)
                 future.completeExceptionally(RuntimeException(errMsg))
             }
@@ -120,7 +121,7 @@ class JenkinsJobTriggerService @Inject constructor(private val actionDriver: Jen
 
                 // Jenkins 1.x and 2.x support (see https://issues.jenkins-ci.org/browse/JENKINS-12875)
                 arrayOf(".crumb", "Jenkins-Crumb").forEach {
-                    if (csrfToken.startsWith("${it}:")) tokenPair = Pair(it, csrfToken.substring(it.length + 1))
+                    if (csrfToken.startsWith("$it:")) tokenPair = Pair(it, csrfToken.substring(it.length + 1))
                 }
 
                 tokenPair ?: throw IllegalStateException("Unable to parse CSRF token")
@@ -142,27 +143,24 @@ class JenkinsJobTriggerService @Inject constructor(private val actionDriver: Jen
         actionOutcomeService.notifyQueued(trigger, action)
 
         // reify into build
-        val fetchBuildIdFuture = fetchBuildIdFromQueuedItem(trigger, action, apiClient, queuedItemUrl)
-        fetchBuildIdFuture.whenComplete { buildId, cause ->
-            if (fetchBuildIdFuture.isCompletedExceptionally) {
-                triggerResponseFuture.completeExceptionally(RuntimeException(
-                        "Unable to fetch build ID from queued item: ${queuedItemUrl}", cause))
+        fetchBuildIdFromQueuedItem(trigger, action, apiClient, queuedItemUrl).thenAccept { buildId ->
+            val executionDetails = apiClient.fetchBuild(
+                    jobName = action.jobId,
+                    buildId = buildId.toString(),
+                    token = DriverSettings.deployment.apiToken
+            ).execute().body()
 
-            } else {
-                val executionDetails = apiClient.fetchBuild(
-                        jobName = action.jobId,
-                        buildId = buildId.toString(),
-                        token = DriverSettings.deployment.apiToken
-                ).execute().body()
+            logger.info("Successfully triggered job with ID: {} and args: {} - response: {}",
+                    action.jobId, args, executionDetails)
 
-                logger.info("Successfully triggered job with ID: {} and args: {} - response: {}",
-                        action.jobId, args, executionDetails)
+            val triggeredAction = TriggeredAction(executionDetails.number, executionDetails.url,
+                    mapStatus(executionDetails))
 
-                val triggeredAction = TriggeredAction(executionDetails.number, executionDetails.url,
-                        mapStatus(executionDetails))
+            checkStatus(trigger, action, triggeredAction, triggerResponseFuture)
 
-                checkStatus(trigger, action, triggeredAction, triggerResponseFuture)
-            }
+        }.onException { ex ->
+            triggerResponseFuture.completeExceptionally(RuntimeException(
+                    "Unable to fetch build ID from queued item: $queuedItemUrl", ex))
         }
     }
 
@@ -203,7 +201,7 @@ class JenkinsJobTriggerService @Inject constructor(private val actionDriver: Jen
             future.complete(queuedItem.executable.number)
 
         } ?: run {
-            doUnlessTimedOut(trigger, action, startTime, "polling queued item #${itemId}") {
+            doUnlessTimedOut(trigger, action, startTime, "polling queued item #$itemId") {
                 pollQueuedItem(trigger, action, apiClient, future, itemId, startTime)
             }
         }

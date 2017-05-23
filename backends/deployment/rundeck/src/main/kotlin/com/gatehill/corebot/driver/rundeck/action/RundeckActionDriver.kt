@@ -38,7 +38,7 @@ class RundeckActionDriverImpl @Inject constructor(triggerJobService: RundeckJobT
             when (actionType) {
                 JobActionType.ENABLE -> executionStatusService.enableExecutions(future, action, false)
                 JobActionType.DISABLE -> executionStatusService.enableExecutions(future, action, true)
-                else -> return false
+                else -> return super.handleAction(trigger, future, actionType, action, args)
             }
             return true
 

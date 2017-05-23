@@ -10,6 +10,7 @@ import com.gatehill.corebot.chat.model.template.ActionMessageMode
 import com.gatehill.corebot.config.ConfigService
 import com.gatehill.corebot.config.Settings
 import com.gatehill.corebot.security.AuthorisationService
+import com.gatehill.corebot.util.onException
 import com.ullink.slack.simpleslackapi.SlackPersona
 import com.ullink.slack.simpleslackapi.SlackSession
 import com.ullink.slack.simpleslackapi.events.SlackMessagePosted
@@ -97,7 +98,7 @@ open class SlackChatServiceImpl @Inject constructor(private val sessionService: 
                             if (candidate.actionMessageMode == ActionMessageMode.GROUP) candidate.buildStartMessage() else null,
                             if (candidate.actionMessageMode == ActionMessageMode.GROUP) candidate.buildCompleteMessage() else null)
                 }
-                else -> throw IllegalStateException("Could not find a unique matching action for command: ${joinedMessage}")
+                else -> throw IllegalStateException("Could not find a unique matching action for command: $joinedMessage")
             }
 
         } catch(e: IllegalStateException) {
@@ -157,20 +158,17 @@ open class SlackChatServiceImpl @Inject constructor(private val sessionService: 
 
         // schedule action execution
         val request = PerformActionRequest.Builder.build(trigger, action.actionType, action.actionConfig, action.args)
-        val future = actionPerformService.perform(request)
 
-        future.whenComplete { (message, finalResult), throwable ->
-            if (future.isCompletedExceptionally) {
-                logger.error("Error performing custom action ${action}", throwable)
+        actionPerformService.perform(request).thenAccept { (message, finalResult) ->
+            postSuccessfulReaction(session, event, finalResult, actionWrapper)
+            message?.let { session.sendMessage(event.channel, it) }
 
-                session.addReactionToMessage(event.channel, event.timeStamp, "x")
-                session.sendMessage(event.channel,
-                        "Hmm, something went wrong :face_with_head_bandage:\r\n```${throwable.message}```")
+        }.onException { ex ->
+            logger.error("Error performing custom action $action", ex)
 
-            } else {
-                postSuccessfulReaction(session, event, finalResult, actionWrapper)
-                message?.let { session.sendMessage(event.channel, it) }
-            }
+            session.addReactionToMessage(event.channel, event.timeStamp, "x")
+            session.sendMessage(event.channel,
+                    "Hmm, something went wrong :face_with_head_bandage:\r\n```${ex.message}```")
         }
     }
 

@@ -16,25 +16,19 @@ import javax.inject.Inject
 abstract class JobBaseActionDriver @Inject constructor(private val jobTriggerService: JobTriggerService,
                                                        lockService: LockService) : BaseActionDriver(lockService) {
 
-    /**
-     * Route the specified action to a handler.
-     */
-    override fun perform(trigger: TriggerContext, actionType: ActionType, action: ActionConfig,
-                         args: Map<String, String>): CompletableFuture<PerformActionResult> {
+    override fun handleAction(trigger: TriggerContext, future: CompletableFuture<PerformActionResult>,
+                              actionType: ActionType, action: ActionConfig, args: Map<String, String>): Boolean {
 
-        val future = CompletableFuture<PerformActionResult>()
         try {
             when (actionType) {
                 JobActionType.TRIGGER -> jobTriggerService.trigger(trigger, future, action, args)
-                else -> {
-                    // delegate to driver
-                    if (!handleAction(trigger, future, actionType, action, args)) throw UnsupportedOperationException(
-                            "Action type $actionType is not supported by ${javaClass.canonicalName}")
-                }
+                else -> return false
             }
+            return true
+
         } catch(e: Exception) {
             future.completeExceptionally(e)
+            return false
         }
-        return future
     }
 }

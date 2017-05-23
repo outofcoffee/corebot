@@ -3,15 +3,10 @@ package com.gatehill.corebot.driver.jenkins.action
 import com.gatehill.corebot.action.LockService
 import com.gatehill.corebot.action.driver.ActionDriver
 import com.gatehill.corebot.action.driver.JobBaseActionDriver
-import com.gatehill.corebot.action.model.PerformActionResult
-import com.gatehill.corebot.action.model.TriggerContext
-import com.gatehill.corebot.chat.model.action.ActionType
-import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.driver.base.action.ApiClientBuilder
 import com.gatehill.corebot.driver.jenkins.config.DriverSettings
 import okhttp3.Credentials
 import java.util.*
-import java.util.concurrent.CompletableFuture
 import javax.inject.Inject
 
 /**
@@ -33,12 +28,5 @@ class JenkinsActionDriverImpl @Inject constructor(triggerJobService: JenkinsJobT
         }
 
         return buildApiClient(JenkinsApi::class.java, allHeaders)
-    }
-
-    override fun handleAction(trigger: TriggerContext, future: CompletableFuture<PerformActionResult>,
-                              actionType: ActionType, action: ActionConfig, args: Map<String, String>): Boolean {
-
-        // no other action types are supported
-        return false
     }
 }

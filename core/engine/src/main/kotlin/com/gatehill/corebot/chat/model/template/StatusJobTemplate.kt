@@ -12,5 +12,5 @@ import javax.inject.Inject
 class StatusJobTemplate @Inject constructor(configService: ConfigService) : NamedActionTemplate(configService) {
     override val actionType: ActionType = CoreActionType.STATUS
     override val actionMessageMode = ActionMessageMode.INDIVIDUAL
-    override val tokens = LinkedList(listOf("status", "{${actionPlaceholder}}"))
+    override val tokens = LinkedList(listOf("status", "{$actionPlaceholder}"))
 }
