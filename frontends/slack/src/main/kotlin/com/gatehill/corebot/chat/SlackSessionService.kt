@@ -1,5 +1,6 @@
 package com.gatehill.corebot.chat
 
+import com.ullink.slack.simpleslackapi.SlackChannel
 import com.ullink.slack.simpleslackapi.SlackSession
 
 /**
@@ -7,4 +8,6 @@ import com.ullink.slack.simpleslackapi.SlackSession
  */
 interface SlackSessionService : SessionService {
     val session: SlackSession
+
+    fun sendMessage(channel: SlackChannel, triggerMessageTimestamp: String, message: String)
 }
