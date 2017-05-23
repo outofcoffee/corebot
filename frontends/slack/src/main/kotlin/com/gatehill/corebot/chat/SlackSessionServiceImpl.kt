@@ -44,17 +44,12 @@ open class SlackSessionServiceImpl @Inject constructor(configService: ConfigServ
         get() = session.sessionPersona().userName
 
     override fun sendMessage(channelId: String, threadTimestamp: String, message: String) {
-        if(threadTimestamp == ""){
-            session.sendMessage(session.findChannelById(channelId), message)
-        }else{
-            val preparedMessage = SlackPreparedMessage.Builder()
-                    .withMessage(message)
-                    .withUnfurl(true)
-                    .withThreadTimestamp(threadTimestamp)
-                    .build()
-            session.sendMessage(session.findChannelById(channelId), preparedMessage)
-        }
-
+        val preparedMessage = SlackPreparedMessage.Builder()
+                .withMessage(message)
+                .withUnfurl(true)
+                .withThreadTimestamp(if(Settings.chat.replyInThread) threadTimestamp else "")
+                .build()
+        session.sendMessage(session.findChannelById(channelId), preparedMessage)
     }
 
     override fun addReaction(channelId: String, messageTimestamp: String, emojiCode: String) {
