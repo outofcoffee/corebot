@@ -20,8 +20,8 @@ deployment:
       - ./gradlew publish --stacktrace
       - /bin/bash ./scripts/docker-build.sh latest
 
-  experimental:
+  beta:
     branch: develop
     commands:
       - ./gradlew publish --stacktrace
-      - /bin/bash ./scripts/docker-build.sh experimental
+      - /bin/bash ./scripts/docker-build.sh beta
