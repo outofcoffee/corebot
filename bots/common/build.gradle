@@ -19,10 +19,6 @@ dependencies {
     compile "com.fasterxml.jackson.module:jackson-module-kotlin:$version_jackson"
     compile "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$version_jackson"
 
-    compile("com.github.ullink:simple-slack-api:$version_slackapi") {
-        exclude module: 'logback-classic'
-    }
-
     compile project(':core:engine')
 
     testCompile "junit:junit:$version_junit"
