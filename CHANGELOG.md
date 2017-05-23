@@ -3,9 +3,9 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased] - TBD
-### Added
-- ...
+## [0.7.2] - 2017-05-23
+### Fixed
+- Fixes non-trigger events being sunk in action drivers.
 
 ## [0.7.1] - 2017-05-07
 ### Changed
