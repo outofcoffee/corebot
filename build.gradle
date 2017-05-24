@@ -13,9 +13,10 @@ allprojects {
         ext.version_log4j = '2.5'
         ext.version_jackson = '2.8.8'
         ext.version_retrofit = '2.1.0'
-        ext.version_slackapi = '0.6.0'
+        ext.version_slackapi = '0c58385'
         ext.version_guava = '18.0'
         ext.version_guice = '4.1.0'
+        ext.version_tyrus = '1.8.3'
 
         repositories {
             mavenCentral()

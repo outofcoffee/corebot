@@ -17,6 +17,7 @@ object Settings {
         val channelNames by lazy {
             (System.getenv("SLACK_CHANNELS") ?: "corebot").split(",").map(String::trim)
         }
+        val replyInThread by lazy { (System.getenv("SLACK_REPLY_IN_THREAD")?.toBoolean() ?: false) }
     }
 
     class Deployment {

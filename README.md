@@ -115,6 +115,10 @@ The cache expiry controls the period of time, in seconds, corebot holds the acti
 
 The execution status timeout controls the period of time, in seconds, corebot will poll a running job for status updates, after which it gives up.
 
+    SLACK_REPLY_IN_THREAD="true"
+    
+Posts replies from the bot to a thread starting from the initiating message.
+
 ## Actions
 
 Corebot has both built-in actions and custom actions. Examples of built in actions are the lock/unlock actions. Custom actions are triggers for your Rundeck/Jenkins jobs, configured using a configuration file, typically called `actions.yml`.
