@@ -1,0 +1,13 @@
+buildscript {
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$version_kotlin"
+    }
+}
+
+apply plugin: "kotlin"
+
+dependencies {
+    compile project(':core:engine')
+
+    compile('redis.clients:jedis:2.9.0')
+}

@@ -6,7 +6,7 @@ package com.gatehill.corebot.store
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
 interface DataStore {
-    fun <K, V> partition(partitionId: String): DataStorePartition<K, V>
+    fun <K, V> partition(partitionId: String, clazz: Class<V>): DataStorePartition<K, V>
 }
 
 /**

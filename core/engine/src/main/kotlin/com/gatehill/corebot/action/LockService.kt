@@ -27,10 +27,10 @@ class LockService @Inject constructor(@Named("lockStore") private val lockStore:
                           val optionValue: String)
 
     private val actionLocks
-        get() = lockStore.partition<ActionConfig, ActionLock>("actionLocks")
+        get() = lockStore.partition<String, ActionLock>("actionLocks", ActionLock::class.java)
 
     private val optionLocks
-        get() = lockStore.partition<ActionConfig, OptionLock>("optionLocks")
+        get() = lockStore.partition<String, OptionLock>("optionLocks", OptionLock::class.java)
 
     fun lockAction(future: CompletableFuture<PerformActionResult>, action: ActionConfig,
                    triggerMessageSenderId: String) {
@@ -49,7 +49,7 @@ class LockService @Inject constructor(@Named("lockStore") private val lockStore:
 
             } ?: run {
                 // acquire
-                actionLocks[action] = ActionLock(triggerMessageSenderId)
+                actionLocks[action.name] = ActionLock(triggerMessageSenderId)
                 future.complete(PerformActionResult("OK, I've locked :lock: *${action.name}* for you."))
             }
         }
@@ -59,7 +59,7 @@ class LockService @Inject constructor(@Named("lockStore") private val lockStore:
         checkActionLock(action) { lock ->
             lock?.let {
                 // unlock
-                actionLocks.remove(action)
+                actionLocks.remove(action.name)
                 future.complete(PerformActionResult("OK, I've unlocked :unlock: *${action.name}* for you."))
 
             } ?: run {
@@ -69,7 +69,7 @@ class LockService @Inject constructor(@Named("lockStore") private val lockStore:
         }
     }
 
-    fun checkActionLock(action: ActionConfig, callback: (ActionLock?) -> Unit) = callback(actionLocks[action])
+    fun checkActionLock(action: ActionConfig, callback: (ActionLock?) -> Unit) = callback(actionLocks[action.name])
 
     fun lockOption(future: CompletableFuture<PerformActionResult>, action: ActionConfig, args: Map<String, String>,
                    triggerMessageSenderId: String) {
@@ -77,7 +77,7 @@ class LockService @Inject constructor(@Named("lockStore") private val lockStore:
         val optionName = args[BaseLockOptionTemplate.optionNamePlaceholder]!!
         val optionValue = args[BaseLockOptionTemplate.optionValuePlaceholder]!!
 
-        val lock = optionLocks[action]
+        val lock = optionLocks[action.name]
         if (isOptionLocked(lock, optionName, optionValue)) {
             if (lock!!.owner == triggerMessageSenderId) {
                 // already locked by self
@@ -91,7 +91,7 @@ class LockService @Inject constructor(@Named("lockStore") private val lockStore:
 
         } else {
             // acquire
-            optionLocks[action] = OptionLock(
+            optionLocks[action.name] = OptionLock(
                     triggerMessageSenderId,
                     optionName,
                     optionValue)
@@ -104,9 +104,9 @@ class LockService @Inject constructor(@Named("lockStore") private val lockStore:
         val optionName = args[BaseLockOptionTemplate.optionNamePlaceholder]!!
         val optionValue = args[BaseLockOptionTemplate.optionValuePlaceholder]!!
 
-        val lock = optionLocks[action]
+        val lock = optionLocks[action.name]
         if (isOptionLocked(lock, optionName, optionValue)) {
-            optionLocks.remove(action)
+            optionLocks.remove(action.name)
         }
 
         future.complete(PerformActionResult())
@@ -116,7 +116,7 @@ class LockService @Inject constructor(@Named("lockStore") private val lockStore:
             lock?.let { it.optionName == optionName && it.optionValue == optionValue } ?: false
 
     fun checkOptionLock(action: ActionConfig, args: Map<String, String>, callback: (OptionLock?) -> Unit) {
-        val lock = optionLocks[action]
+        val lock = optionLocks[action.name]
 
         val locked = lock?.let {
             args.filter { arg -> arg.key.equals(lock.optionName, ignoreCase = true) }
