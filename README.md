@@ -103,9 +103,9 @@ Configure the bot using the following environment variables.
     
 > Note: typically you will specify the username and password for accessing a Jenkins instance. The token approach is rarely used and can be omitted.
 
-### Tuning variables
+### Advanced variables
 
-Advanced variables to tune performance:
+Advanced variables to tune behaviour and performance:
 
     CACHE_EXPIRY="60"
 
@@ -117,7 +117,11 @@ The execution status timeout controls the period of time, in seconds, corebot wi
 
     SLACK_REPLY_IN_THREAD="true"
     
-Posts replies from the bot to a thread starting from the initiating message.
+Posts replies from the bot to a thread starting from the trigger message. Default: `false`.
+    
+    SLACK_ALLOW_THREADED_TRIGGERS="true"
+    
+Child thread messages be trigger messages. Implies `SLACK_REPLY_IN_THREAD="true"`. Default: `false`.
 
 ## Actions
 

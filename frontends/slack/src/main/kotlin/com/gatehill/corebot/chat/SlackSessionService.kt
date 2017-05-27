@@ -1,7 +1,7 @@
 package com.gatehill.corebot.chat
 
-import com.ullink.slack.simpleslackapi.SlackChannel
 import com.ullink.slack.simpleslackapi.SlackSession
+import com.ullink.slack.simpleslackapi.events.SlackMessagePosted
 
 /**
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
@@ -9,5 +9,5 @@ import com.ullink.slack.simpleslackapi.SlackSession
 interface SlackSessionService : SessionService {
     val session: SlackSession
 
-    fun sendMessage(channel: SlackChannel, triggerMessageTimestamp: String, message: String)
+    fun sendMessage(event: SlackMessagePosted, message: String)
 }
