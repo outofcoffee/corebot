@@ -7,7 +7,7 @@ allprojects {
     ext.awsSecretKey = System.getenv('AWS_SECRET_ACCESS_KEY') ?: project.findProperty('AWS_SECRET_ACCESS_KEY')
 
     buildscript {
-        ext.version_kotlin = '1.1.2-3'
+        ext.version_kotlin = '1.1.2-4'
         ext.version_junit = '4.11'
         ext.version_vertx = '3.2.1'
         ext.version_log4j = '2.5'

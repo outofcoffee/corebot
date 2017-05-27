@@ -3,14 +3,17 @@ package com.gatehill.corebot.action
 import com.gatehill.corebot.action.model.PerformActionResult
 import com.gatehill.corebot.chat.model.template.BaseLockOptionTemplate
 import com.gatehill.corebot.config.model.ActionConfig
+import com.gatehill.corebot.store.DataStore
 import java.util.concurrent.CompletableFuture
+import javax.inject.Inject
+import javax.inject.Named
 
 /**
  * Allows an action to be locked or unlocked by a user.
  *
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
-class LockService {
+class LockService @Inject constructor(@Named("lockStore") private val lockStore: DataStore) {
     /**
      * A lock held on an action.
      */
@@ -23,8 +26,11 @@ class LockService {
                           val optionName: String,
                           val optionValue: String)
 
-    private val actionLocks = mutableMapOf<ActionConfig, ActionLock>()
-    private val optionLocks = mutableMapOf<ActionConfig, OptionLock>()
+    private val actionLocks
+        get() = lockStore.partition<ActionConfig, ActionLock>("actionLocks")
+
+    private val optionLocks
+        get() = lockStore.partition<ActionConfig, OptionLock>("optionLocks")
 
     fun lockAction(future: CompletableFuture<PerformActionResult>, action: ActionConfig,
                    triggerMessageSenderId: String) {
