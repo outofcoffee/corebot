@@ -7,6 +7,7 @@ import com.gatehill.corebot.chat.model.action.Action
 import com.gatehill.corebot.chat.model.action.ActionWrapper
 import com.gatehill.corebot.chat.model.action.CustomAction
 import com.gatehill.corebot.chat.model.template.ActionMessageMode
+import com.gatehill.corebot.config.ChatSettings
 import com.gatehill.corebot.config.ConfigService
 import com.gatehill.corebot.config.Settings
 import com.gatehill.corebot.security.AuthorisationService
@@ -41,7 +42,7 @@ open class SlackChatServiceImpl @Inject constructor(private val sessionService: 
      */
     protected open val messagePostedListeners = listOf(SlackMessagePostedListener { event, session ->
         // filter out messages from other channels
-        if (!Settings.chat.channelNames.map { channelName -> session.findChannelByName(channelName).id }
+        if (!ChatSettings.chat.channelNames.map { channelName -> session.findChannelByName(channelName).id }
                 .contains(event.channel.id)) return@SlackMessagePostedListener
 
         // ignore own messages

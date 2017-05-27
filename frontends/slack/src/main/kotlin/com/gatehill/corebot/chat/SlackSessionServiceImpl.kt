@@ -1,7 +1,7 @@
 package com.gatehill.corebot.chat
 
 import com.gatehill.corebot.config.ConfigService
-import com.gatehill.corebot.config.Settings
+import com.gatehill.corebot.config.ChatSettings
 import com.ullink.slack.simpleslackapi.SlackSession
 import com.ullink.slack.simpleslackapi.impl.SlackSessionFactory
 import com.ullink.slack.simpleslackapi.listeners.SlackConnectedListener
@@ -18,7 +18,7 @@ open class SlackSessionServiceImpl @Inject constructor(configService: ConfigServ
     override val session: SlackSession by lazy {
         logger.info("Connecting to Slack...")
 
-        val session = SlackSessionFactory.createWebSocketSlackSession(Settings.chat.authToken)
+        val session = SlackSessionFactory.createWebSocketSlackSession(ChatSettings.chat.authToken)
         connectedListeners.forEach { session.addSlackConnectedListener(it) }
         session.connect()
 
@@ -30,7 +30,7 @@ open class SlackSessionServiceImpl @Inject constructor(configService: ConfigServ
      * Allow subclasses to hook into Slack events.
      */
     protected open val connectedListeners = listOf(SlackConnectedListener { _, theSession ->
-        Settings.chat.channelNames.forEach {
+        ChatSettings.chat.channelNames.forEach {
             val joinMessage = configService.joinMessage ?:
                     "${ChatLines.greeting()} :simple_smile: ${ChatLines.ready()}."
 
