@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+### Added
+- Adds support for external data stores. This includes things like action locks and option locks, but can support other types in future.
+- Adds in-memory data store implementation, which is the default.
+- Adds Redis data store implementation.
+
 ## [0.7.2] - 2017-05-23
 ### Fixed
 - Fixes non-trigger events being sunk in action drivers.
