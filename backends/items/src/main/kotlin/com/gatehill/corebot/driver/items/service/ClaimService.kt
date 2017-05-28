@@ -4,21 +4,28 @@ import com.gatehill.corebot.action.model.PerformActionResult
 import com.gatehill.corebot.chat.SessionService
 import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.driver.items.chat.model.template.BorrowItemTemplate
+import com.gatehill.corebot.store.DataStore
 import java.util.concurrent.CompletableFuture
 import javax.inject.Inject
+import javax.inject.Named
 
 /**
  * Allows an item to be locked or unlocked by a user.
  *
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
-class ClaimService @Inject constructor(private val sessionService: SessionService) {
+class ClaimService @Inject constructor(private val sessionService: SessionService,
+                                       @Named("itemStore") private val dataStore: DataStore) {
+
     /**
      * A claim held on an item.
      */
     data class ItemClaim(val owner: String, val reason: String)
 
-    private val itemClaims = mutableMapOf<String, List<ItemClaim>>()
+    data class ItemClaims(val claims: List<ItemClaim>)
+
+    private val itemClaims =
+            dataStore.partition<String, ItemClaims>("items", ItemClaims::class.java)
 
     fun claimItem(future: CompletableFuture<PerformActionResult>, action: ActionConfig, args: Map<String, String>,
                   triggerMessageSenderId: String) {
@@ -28,7 +35,7 @@ class ClaimService @Inject constructor(private val sessionService: SessionServic
             checkItemClaims(action) { claims ->
                 val reason = args[BorrowItemTemplate.reasonPlaceholder]!!
 
-                itemClaims[itemName] = claims.toMutableList().apply {
+                itemClaims[itemName] = ItemClaims(claims.toMutableList().apply {
 
                     // any existing claim will be replaced
                     claims.firstOrNull { it.owner == triggerMessageSenderId }?.let { existing ->
@@ -36,7 +43,7 @@ class ClaimService @Inject constructor(private val sessionService: SessionServic
                     }
 
                     add(ItemClaim(triggerMessageSenderId, reason))
-                }
+                })
 
                 future.complete(PerformActionResult("You've borrowed :lock: *$itemName* for _${reason}_."))
             }
@@ -52,9 +59,9 @@ class ClaimService @Inject constructor(private val sessionService: SessionServic
 
                 // check for existing claim for current user
                 claims.firstOrNull { it.owner == triggerMessageSenderId }?.let { claim ->
-                    itemClaims[itemName] = claims.toMutableList().apply {
+                    itemClaims[itemName] = ItemClaims(claims.toMutableList().apply {
                         remove(claim)
-                    }
+                    })
 
                     future.complete(PerformActionResult("You've returned *$itemName*."))
 
@@ -71,7 +78,7 @@ class ClaimService @Inject constructor(private val sessionService: SessionServic
         val itemName = action.name
         synchronized(itemName) {
             checkItemClaims(action) { claims ->
-                itemClaims[itemName] = emptyList()
+                itemClaims.remove(itemName)
 
                 val nonSelfBorrowers = claims
                         .map{ it.owner }
@@ -90,7 +97,7 @@ class ClaimService @Inject constructor(private val sessionService: SessionServic
     }
 
     fun checkItemClaims(itemName: String, callback: (List<ClaimService.ItemClaim>) -> Unit) =
-            callback(itemClaims[itemName] ?: emptyList())
+            callback(itemClaims[itemName]?.claims ?: emptyList())
 
     fun checkItemClaims(action: ActionConfig, callback: (List<ClaimService.ItemClaim>) -> Unit) =
             checkItemClaims(action.name, callback)

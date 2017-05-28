@@ -12,6 +12,7 @@ dependencies {
 
     compile project(':bots:common')
     compile project(':backends:items')
+    compile project(':stores:redis')
     compile project(':frontends:slack')
 
     testCompile "junit:junit:$version_junit"
