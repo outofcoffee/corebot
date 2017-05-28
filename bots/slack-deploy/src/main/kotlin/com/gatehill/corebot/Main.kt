@@ -16,7 +16,7 @@ private class DeployBotModule : AbstractModule() {
         bind(Bootstrap::class.java).asEagerSingleton()
         bind(ActionTemplateConverter::class.java).to(TriggerActionTemplateConverter::class.java).asSingleton()
 
-        install(DataStoreModule())
+        install(DataStoreModule("lockStore"))
 
         // drivers
         install(JenkinsDriverModule())

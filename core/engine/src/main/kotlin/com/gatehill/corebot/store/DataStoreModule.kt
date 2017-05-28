@@ -11,14 +11,14 @@ import org.apache.logging.log4j.LogManager
  *
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
-class DataStoreModule : AbstractModule() {
+class DataStoreModule(private val storeName: String) : AbstractModule() {
     private val logger = LogManager.getLogger(DataStoreModule::class.java)
 
     override fun configure() {
         val dataStoreImplClass = Settings.dataStores.implementationClass
-        logger.debug("Using data store implementation: $dataStoreImplClass")
+        logger.debug("Using '$storeName' data store implementation: ${dataStoreImplClass.canonicalName}")
 
-        bind(DataStore::class.java).annotatedWith(Names.named("lockStore"))
+        bind(DataStore::class.java).annotatedWith(Names.named(storeName))
                 .to(dataStoreImplClass).asSingleton()
     }
 }
