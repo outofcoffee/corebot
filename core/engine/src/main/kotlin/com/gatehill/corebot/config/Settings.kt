@@ -1,5 +1,7 @@
 package com.gatehill.corebot.config
 
+import com.gatehill.corebot.store.DataStore
+import com.gatehill.corebot.store.InMemoryDataStoreImpl
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.io.File
@@ -17,6 +19,17 @@ object Settings {
     }
 
     val deployment = Deployment()
+
+    class DataStores {
+        /**
+         * The implementation for the `DataStore`.
+         */
+        @Suppress("UNCHECKED_CAST")
+        val implementationClass = Class.forName(System.getenv("DATA_STORE_IMPL") ?:
+                InMemoryDataStoreImpl::class.java.canonicalName) as Class<DataStore>
+    }
+
+    val dataStores = DataStores()
 
     /**
      * The file containing the action configuration.

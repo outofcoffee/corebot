@@ -13,6 +13,7 @@ dependencies {
     compile project(':bots:common')
     compile project(':backends:deployment:jenkins')
     compile project(':backends:deployment:rundeck')
+    compile project(':stores:redis')
     compile project(':frontends:slack')
 
     testCompile "junit:junit:$version_junit"
