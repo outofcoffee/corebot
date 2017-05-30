@@ -27,6 +27,6 @@ abstract class BaseItemTemplate @Inject constructor(private val configService: C
     }
 
     companion object {
-        val itemPlaceholder = "item name"
+        val itemPlaceholder = "itemName"
     }
 }

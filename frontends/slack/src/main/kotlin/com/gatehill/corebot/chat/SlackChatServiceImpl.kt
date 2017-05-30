@@ -49,25 +49,24 @@ open class SlackChatServiceImpl @Inject constructor(private val sessionService: 
         if (session.sessionPersona().id == event.sender.id) return@SlackMessagePostedListener
 
         try {
-            event.messageContent?.trim()?.let { messageContent ->
-                val splitCmd = messageContent.split("\"?( |$)(?=(([^\"]*\"){2})*[^\"]*$)\"?".toRegex()).filterNot(String::isBlank)
+            val messageContent = event.messageContent.trim()
+            val splitCmd = messageContent.split("\"?( |$)(?=(([^\"]*\"){2})*[^\"]*$)\"?".toRegex()).filterNot(String::isBlank)
 
-                if (splitCmd.isNotEmpty() && isAddressedToBot(session.sessionPersona(), splitCmd[0])) {
-                    // indicate busy...
-                    session.addReactionToMessage(event.channel, event.timeStamp, "hourglass_flowing_sand")
+            if (splitCmd.isNotEmpty() && isAddressedToBot(session.sessionPersona(), splitCmd[0])) {
+                // indicate busy...
+                session.addReactionToMessage(event.channel, event.timeStamp, "hourglass_flowing_sand")
 
-                    parseMessage(splitCmd)?.let { parsed ->
-                        logger.info("Handling command '$messageContent' from ${event.sender.userName}")
-                        parsed.groupStartMessage?.let { sessionService.sendMessage(event, it) }
-                        parsed.actions.forEach { action -> handleAction(session, event, action, parsed) }
+                parseMessage(splitCmd)?.let { parsed ->
+                    logger.info("Handling command '$messageContent' from ${event.sender.userName}")
+                    parsed.groupStartMessage?.let { session.sendMessage(event.channel, it) }
+                    parsed.actions.forEach { action -> handleAction(session, event, action, parsed) }
 
-                    } ?: run {
-                        logger.warn("Ignored command '$messageContent' from ${event.sender.userName}")
-                        session.addReactionToMessage(event.channel, event.timeStamp, "question")
-                        printUsage(event)
-                    }
+                } ?: run {
+                    logger.warn("Ignored command '$messageContent' from ${event.sender.userName}")
+                    session.addReactionToMessage(event.channel, event.timeStamp, "question")
+                    printUsage(event)
                 }
-            } ?: logger.trace("Ignoring event with null message: $event")
+            }
 
         } catch(e: Exception) {
             logger.error("Error parsing message event: $event", e)
@@ -81,31 +80,21 @@ open class SlackChatServiceImpl @Inject constructor(private val sessionService: 
      * Determine the Action to perform based on the provided command.
      */
     private fun parseMessage(splitCmd: List<String>): ActionWrapper? {
-        val joinedMessage = splitCmd.joinToString()
-
         try {
-            val context = templateService.fetchCandidates()
-
-            // skip element 0, which contains the bot's username
-            splitCmd.subList(1, splitCmd.size).forEach {
-                token ->
-                templateService.process(context, token)
-            }
-
-            // remove unsatisfied candidates
-            val satisfied = context.candidates.filter { candidate -> candidate.tokens.isEmpty() }
-            when (satisfied.size) {
-                1 -> {
-                    val candidate = satisfied.first()
-                    return ActionWrapper(candidate.buildActions(),
-                            if (candidate.actionMessageMode == ActionMessageMode.GROUP) candidate.buildStartMessage() else null,
-                            if (candidate.actionMessageMode == ActionMessageMode.GROUP) candidate.buildCompleteMessage() else null)
+            templateService.findSatisfiedTemplates(splitCmd).let { satisfied ->
+                if (satisfied.size == 1) {
+                    return with(satisfied.first()) {
+                        ActionWrapper(buildActions(),
+                                if (actionMessageMode == ActionMessageMode.GROUP) buildStartMessage() else null,
+                                if (actionMessageMode == ActionMessageMode.GROUP) buildCompleteMessage() else null)
+                    }
+                } else {
+                    throw IllegalStateException("Could not find a unique matching action for command: $splitCmd")
                 }
-                else -> throw IllegalStateException("Could not find a unique matching action for command: $joinedMessage")
             }
 
         } catch(e: IllegalStateException) {
-            logger.warn("Unable to parse message: $joinedMessage - ${e.message}")
+            logger.warn("Unable to parse message: $splitCmd - ${e.message}")
             return null
         }
     }
