@@ -10,11 +10,11 @@ apply plugin: "application"
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$version_kotlin"
 
-    compile project(':bots:common')
-    compile project(':backends:deployment:jenkins')
-    compile project(':backends:deployment:rundeck')
-    compile project(':stores:redis')
-    compile project(':frontends:slack')
+    compile project(':bots:bots-common')
+    compile project(':backends:deployment:backends-deployment-jenkins')
+    compile project(':backends:deployment:backends-deployment-rundeck')
+    compile project(':stores:stores-redis')
+    compile project(':frontends:frontends-slack')
 }
 
 mainClassName = 'com.gatehill.corebot.MainKt'

@@ -19,7 +19,7 @@ dependencies {
     compile "com.fasterxml.jackson.module:jackson-module-kotlin:$version_jackson"
     compile "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$version_jackson"
 
-    compile project(':core:engine')
+    compile project(':core:core-engine')
 }
 
 publishing {

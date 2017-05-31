@@ -14,7 +14,7 @@ dependencies {
     compile "com.squareup.retrofit2:retrofit:$version_retrofit"
     compile "com.squareup.retrofit2:converter-jackson:$version_retrofit"
 
-    compile project(':core:engine')
+    compile project(':core:core-engine')
 }
 
 publishing {

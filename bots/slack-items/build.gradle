@@ -10,10 +10,10 @@ apply plugin: "application"
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$version_kotlin"
 
-    compile project(':bots:common')
-    compile project(':backends:items')
-    compile project(':stores:redis')
-    compile project(':frontends:slack')
+    compile project(':bots:bots-common')
+    compile project(':backends:backends-items')
+    compile project(':stores:stores-redis')
+    compile project(':frontends:frontends-slack')
 
     testCompile "junit:junit:$version_junit"
     testCompile "org.jetbrains.kotlin:kotlin-test-junit:$version_kotlin"

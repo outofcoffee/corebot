@@ -30,7 +30,6 @@ class Bot @Inject constructor(private val chatService: ChatService) {
      * Constructs `Bot` instances.
      */
     companion object Builder {
-        private val injectionModuleSystemProperty = "com.gatehill.corebot.InjectionModule"
         private val logger: Logger = LogManager.getLogger(Builder::class.java)
 
         /**
@@ -59,14 +58,9 @@ class Bot @Inject constructor(private val chatService: ChatService) {
                 bind(ActionOutcomeService::class.java).to(ActionOutcomeServiceImpl::class.java)
 
                 // extension point
-                with(extensionModules.toMutableList()) {
-                    System.getProperty(injectionModuleSystemProperty)?.let {
-                        add(Class.forName(it).newInstance() as Module)
-                    }
-                    forEach {
-                        logger.debug("Installing injection module: ${it.javaClass.canonicalName}")
-                        install(it)
-                    }
+                extensionModules.forEach {
+                    logger.debug("Installing injection module: ${it.javaClass.canonicalName}")
+                    install(it)
                 }
             }
         })
