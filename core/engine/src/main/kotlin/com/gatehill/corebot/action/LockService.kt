@@ -4,6 +4,7 @@ import com.gatehill.corebot.action.model.PerformActionResult
 import com.gatehill.corebot.chat.model.template.BaseLockOptionTemplate
 import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.store.DataStore
+import com.gatehill.corebot.store.partition
 import java.util.concurrent.CompletableFuture
 import javax.inject.Inject
 import javax.inject.Named
@@ -27,10 +28,10 @@ class LockService @Inject constructor(@Named("lockStore") private val lockStore:
                           val optionValue: String)
 
     private val actionLocks
-        get() = lockStore.partition<String, ActionLock>("actionLocks", ActionLock::class.java)
+        get() = lockStore.partition<String, ActionLock>("actionLocks")
 
     private val optionLocks
-        get() = lockStore.partition<String, OptionLock>("optionLocks", OptionLock::class.java)
+        get() = lockStore.partition<String, OptionLock>("optionLocks")
 
     fun lockAction(future: CompletableFuture<PerformActionResult>, action: ActionConfig,
                    triggerMessageSenderId: String) {

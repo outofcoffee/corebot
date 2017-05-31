@@ -5,6 +5,7 @@ import com.gatehill.corebot.chat.SessionService
 import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.driver.items.chat.model.template.BorrowItemTemplate
 import com.gatehill.corebot.store.DataStore
+import com.gatehill.corebot.store.partition
 import java.util.concurrent.CompletableFuture
 import javax.inject.Inject
 import javax.inject.Named
@@ -24,8 +25,8 @@ class ClaimService @Inject constructor(private val sessionService: SessionServic
 
     data class ItemClaims(val claims: List<ItemClaim>)
 
-    private val itemClaims =
-            dataStore.partition<String, ItemClaims>("items", ItemClaims::class.java)
+    private val itemClaims
+        get() = dataStore.partition<String, ItemClaims>("itemClaims")
 
     fun claimItem(future: CompletableFuture<PerformActionResult>, action: ActionConfig, args: Map<String, String>,
                   triggerMessageSenderId: String) {
@@ -81,7 +82,7 @@ class ClaimService @Inject constructor(private val sessionService: SessionServic
                 itemClaims.remove(itemName)
 
                 val nonSelfBorrowers = claims
-                        .map{ it.owner }
+                        .map { it.owner }
                         .filter { it != triggerMessageSenderId }
 
                 val previousBorrowers = if (nonSelfBorrowers.isEmpty()) {
