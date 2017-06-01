@@ -13,13 +13,14 @@ import javax.inject.Inject
  */
 class BorrowItemTemplate @Inject constructor(configService: ConfigService) : BaseItemTemplate(configService) {
     override val actionType: ActionType = ItemsActionType.ITEM_BORROW
-    override val tokens = LinkedList(listOf("{$itemPlaceholder}", "{$reasonPlaceholder}"))
+    override val tokens = LinkedList(listOf("borrow", "{$itemPlaceholder}", "{$subItemPlaceholder}", "for", "{$reasonPlaceholder}"))
     override val templateRegex: Pattern?
-        get() = "borrow (?<itemName>[a-zA-Z0-9]+) for (?<reason>.+)".toPattern()
+        get() = "borrow\\s+(?<itemName>[a-zA-Z0-9]+)\\s*(?<optionalSubItemName>.*)\\s+for\\s+(?<reason>.+)".toPattern()
 
     override fun buildStartMessage(options: Map<String, String>, actionConfig: ActionConfig?) = ""
 
     companion object {
+        val subItemPlaceholder = "optionalSubItemName"
         val reasonPlaceholder = "reason"
     }
 }

@@ -1,5 +1,6 @@
 package com.gatehill.corebot.driver.items.service
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.gatehill.corebot.action.model.PerformActionResult
 import com.gatehill.corebot.chat.SessionService
 import com.gatehill.corebot.config.model.ActionConfig
@@ -21,7 +22,10 @@ class ClaimService @Inject constructor(private val sessionService: SessionServic
     /**
      * A claim held on an item.
      */
-    data class ItemClaim(val owner: String, val reason: String)
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    data class ItemClaim(val owner: String,
+                         val reason: String,
+                         val subItem: String?)
 
     data class ItemClaims(val claims: List<ItemClaim>)
 
@@ -34,7 +38,8 @@ class ClaimService @Inject constructor(private val sessionService: SessionServic
         val itemName = action.name
         synchronized(itemName) {
             checkItemClaims(action) { claims ->
-                val reason = args[BorrowItemTemplate.reasonPlaceholder]!!
+                val reason : String = args[BorrowItemTemplate.reasonPlaceholder]!!
+                val subItem : String? = args[BorrowItemTemplate.subItemPlaceholder]
 
                 itemClaims[itemName] = ItemClaims(claims.toMutableList().apply {
 
@@ -43,7 +48,7 @@ class ClaimService @Inject constructor(private val sessionService: SessionServic
                         remove(existing)
                     }
 
-                    add(ItemClaim(triggerMessageSenderId, reason))
+                    add(ItemClaim(triggerMessageSenderId, reason, subItem))
                 })
 
                 future.complete(PerformActionResult("You've borrowed :lock: *$itemName* for _${reason}_."))
@@ -116,13 +121,17 @@ class ClaimService @Inject constructor(private val sessionService: SessionServic
                 claims.size == 1 -> {
                     val claim = claims.first()
                     val ownerUsername = sessionService.lookupUser(claim.owner)
-                    "There is a single borrower of *$itemName*: $ownerUsername - ${claim.reason}"
+                    val subItemDescription = claim.subItem?.let { " (${claim.subItem})" } ?: ""
+
+                    "There is a single borrower of *$itemName*$subItemDescription: $ownerUsername - ${claim.reason}"
                 }
                 else -> {
                     val claimsList = StringBuilder()
-                    claims.forEach { (owner, reason) ->
+                    claims.forEach { (owner, reason, subItem) ->
                         val ownerUsername = sessionService.lookupUser(owner)
-                        claimsList.append("\n• $ownerUsername - $reason")
+                        val subItemDescription = subItem?.let { "$subItem: " } ?: ""
+
+                        claimsList.append("\n• $subItemDescription$ownerUsername - $reason")
                     }
                     "There are ${claims.size} borrowers of *$itemName*:$claimsList"
                 }
