@@ -9,6 +9,7 @@ security:
       permissions:
         - help
         - item_borrow
+        - item_borrow_as_user
         - item_return
         - item_evict
         - item_status

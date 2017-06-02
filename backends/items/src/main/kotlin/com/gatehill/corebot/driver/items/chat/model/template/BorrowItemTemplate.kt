@@ -11,7 +11,7 @@ import javax.inject.Inject
 /**
  * Borrow an item.
  */
-class BorrowItemTemplate @Inject constructor(configService: ConfigService) : BaseItemTemplate(configService) {
+open class BorrowItemTemplate @Inject constructor(configService: ConfigService) : BaseItemTemplate(configService) {
     override val actionType: ActionType = ItemsActionType.ITEM_BORROW
     override val tokens = LinkedList(listOf("borrow", "{$itemPlaceholder}", "{$subItemPlaceholder}", "for", "{$reasonPlaceholder}"))
     override val templateRegex: Pattern?

@@ -19,6 +19,7 @@ class Bootstrap @Inject constructor(actionDriverFactory: ActionDriverFactory,
         // templates
         templateService.registerTemplate(ShowHelpTemplate::class.java)
         templateService.registerTemplate(BorrowItemTemplate::class.java)
+        templateService.registerTemplate(BorrowItemAsUserTemplate::class.java)
         templateService.registerTemplate(ReturnItemTemplate::class.java)
         templateService.registerTemplate(EvictItemTemplate::class.java)
         templateService.registerTemplate(StatusItemTemplate::class.java)
