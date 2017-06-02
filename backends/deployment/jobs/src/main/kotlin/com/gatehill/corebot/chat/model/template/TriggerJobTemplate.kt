@@ -3,7 +3,8 @@ package com.gatehill.corebot.chat.model.template
 import com.gatehill.corebot.chat.ChatGenerator
 import com.gatehill.corebot.chat.model.action.ActionType
 import com.gatehill.corebot.config.model.ActionConfig
-import java.util.*
+import java.util.LinkedList
+import java.util.Queue
 
 /**
  * Triggers job execution.

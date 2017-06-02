@@ -4,7 +4,12 @@ import com.gatehill.corebot.action.driver.ActionDriverFactory
 import com.gatehill.corebot.chat.TemplateService
 import com.gatehill.corebot.chat.model.template.ShowHelpTemplate
 import com.gatehill.corebot.driver.items.action.ItemsActionDriverImpl
-import com.gatehill.corebot.driver.items.chat.model.template.*
+import com.gatehill.corebot.driver.items.chat.model.template.BorrowItemAsUserTemplate
+import com.gatehill.corebot.driver.items.chat.model.template.BorrowItemTemplate
+import com.gatehill.corebot.driver.items.chat.model.template.EvictItemTemplate
+import com.gatehill.corebot.driver.items.chat.model.template.ReturnItemTemplate
+import com.gatehill.corebot.driver.items.chat.model.template.StatusAllTemplate
+import com.gatehill.corebot.driver.items.chat.model.template.StatusItemTemplate
 import javax.inject.Inject
 
 /**

@@ -6,7 +6,7 @@ import com.gatehill.corebot.action.driver.JobBaseActionDriver
 import com.gatehill.corebot.driver.base.action.ApiClientBuilder
 import com.gatehill.corebot.driver.jenkins.config.DriverSettings
 import okhttp3.Credentials
-import java.util.*
+import java.util.HashMap
 import javax.inject.Inject
 
 /**

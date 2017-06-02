@@ -28,7 +28,7 @@ class ItemsActionDriverImpl @Inject constructor(private val claimService: ClaimS
                             "Action type $actionType is not supported by ${javaClass.canonicalName}")
                 }
             }
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             future.completeExceptionally(e)
         }
         return future

@@ -10,7 +10,7 @@ import com.gatehill.corebot.chat.model.template.JobActionType
 import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.driver.base.action.ApiClientBuilder
 import com.gatehill.corebot.driver.rundeck.config.DriverSettings
-import java.util.*
+import java.util.HashMap
 import java.util.concurrent.CompletableFuture
 import javax.inject.Inject
 
@@ -42,7 +42,7 @@ class RundeckActionDriverImpl @Inject constructor(triggerJobService: RundeckJobT
             }
             return true
 
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             future.completeExceptionally(e)
             return false
         }

@@ -46,7 +46,7 @@ class JenkinsJobTriggerService @Inject constructor(private val actionDriver: Jen
                     parameters = args
             )
 
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             future.completeExceptionally(RuntimeException("Error building API client or obtaining CSRF token", e))
             return
         }

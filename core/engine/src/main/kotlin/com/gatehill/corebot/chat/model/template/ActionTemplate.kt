@@ -3,7 +3,7 @@ package com.gatehill.corebot.chat.model.template
 import com.gatehill.corebot.chat.model.action.Action
 import com.gatehill.corebot.chat.model.action.ActionType
 import com.gatehill.corebot.config.model.ActionConfig
-import java.util.*
+import java.util.Queue
 import java.util.regex.Pattern
 
 /**

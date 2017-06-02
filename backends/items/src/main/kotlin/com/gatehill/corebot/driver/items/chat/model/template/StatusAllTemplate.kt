@@ -6,7 +6,7 @@ import com.gatehill.corebot.chat.model.template.SystemActionTemplate
 import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.driver.items.action.model.ItemsActionType
 import com.gatehill.corebot.driver.items.service.ClaimService
-import java.util.*
+import java.util.LinkedList
 import javax.inject.Inject
 
 /**

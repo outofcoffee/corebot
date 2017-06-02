@@ -2,9 +2,8 @@ package com.gatehill.corebot.driver.items.chat.model.template
 
 import com.gatehill.corebot.chat.model.action.ActionType
 import com.gatehill.corebot.config.ConfigService
-import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.driver.items.action.model.ItemsActionType
-import java.util.*
+import java.util.LinkedList
 import java.util.regex.Pattern
 import javax.inject.Inject
 

@@ -68,7 +68,7 @@ open class SlackChatServiceImpl @Inject constructor(private val sessionService: 
                 }
             }
 
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             logger.error("Error parsing message event: $event", e)
             session.addReactionToMessage(event.channel, event.timeStamp, "x")
             printUsage(event)
@@ -93,7 +93,7 @@ open class SlackChatServiceImpl @Inject constructor(private val sessionService: 
                 }
             }
 
-        } catch(e: IllegalStateException) {
+        } catch (e: IllegalStateException) {
             logger.warn("Unable to parse message: $splitCmd - ${e.message}")
             return null
         }

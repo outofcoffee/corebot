@@ -4,7 +4,7 @@ import com.gatehill.corebot.chat.ChatGenerator
 import com.gatehill.corebot.chat.TemplateService
 import com.gatehill.corebot.chat.model.action.CoreActionType
 import com.gatehill.corebot.config.model.ActionConfig
-import java.util.*
+import java.util.LinkedList
 import javax.inject.Inject
 
 /**

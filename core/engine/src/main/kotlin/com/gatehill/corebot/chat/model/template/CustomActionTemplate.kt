@@ -4,7 +4,7 @@ import com.gatehill.corebot.chat.model.action.Action
 import com.gatehill.corebot.chat.model.action.CustomAction
 import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.config.model.TransformType
-import java.util.*
+import java.util.HashMap
 
 /**
  * Represents a custom action.

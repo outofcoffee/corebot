@@ -26,7 +26,7 @@ abstract class JobBaseActionDriver @Inject constructor(private val jobTriggerSer
             }
             return true
 
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             future.completeExceptionally(e)
             return false
         }

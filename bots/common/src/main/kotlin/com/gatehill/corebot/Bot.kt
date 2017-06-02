@@ -1,6 +1,10 @@
 package com.gatehill.corebot
 
-import com.gatehill.corebot.action.*
+import com.gatehill.corebot.action.ActionOutcomeService
+import com.gatehill.corebot.action.ActionOutcomeServiceImpl
+import com.gatehill.corebot.action.ActionPerformService
+import com.gatehill.corebot.action.DirectActionPerformServiceImpl
+import com.gatehill.corebot.action.LockService
 import com.gatehill.corebot.action.driver.ActionDriverFactory
 import com.gatehill.corebot.chat.ChatGenerator
 import com.gatehill.corebot.chat.ChatService
