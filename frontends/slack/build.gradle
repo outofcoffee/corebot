@@ -12,6 +12,7 @@ dependencies {
     compile("com.github.ullink:simple-slack-api:$version_slackapi") {
         exclude module: 'logback-classic'
     }
+    compile "org.glassfish.tyrus.bundles:tyrus-standalone-client:$version_tyrus"
 
     compile project(':core:engine')
     compile project(':bots:common')

@@ -1,8 +1,12 @@
 package com.gatehill.corebot.chat
 
-import com.gatehill.corebot.config.ConfigService
+import com.gatehill.corebot.action.model.TriggerContext
 import com.gatehill.corebot.config.ChatSettings
+import com.gatehill.corebot.config.ConfigService
+import com.ullink.slack.simpleslackapi.SlackChannel
+import com.ullink.slack.simpleslackapi.SlackPreparedMessage
 import com.ullink.slack.simpleslackapi.SlackSession
+import com.ullink.slack.simpleslackapi.events.SlackMessagePosted
 import com.ullink.slack.simpleslackapi.impl.SlackSessionFactory
 import com.ullink.slack.simpleslackapi.listeners.SlackConnectedListener
 import org.apache.logging.log4j.LogManager
@@ -42,11 +46,40 @@ open class SlackSessionServiceImpl @Inject constructor(configService: ConfigServ
     override val botUsername: String
         get() = session.sessionPersona().userName
 
-    override fun sendMessage(channelId: String, message: String) {
-        session.sendMessage(session.findChannelById(channelId), message)
+    override fun sendMessage(triggerContext: TriggerContext, message: String) {
+        sendMessage(session.findChannelById(triggerContext.channelId), triggerContext.messageTimestamp,
+                triggerContext.messageThreadTimestamp, message)
     }
 
-    override fun addReaction(channelId: String, messageTimestamp: String, emojiCode: String) {
-        session.addReactionToMessage(session.findChannelById(channelId), messageTimestamp, emojiCode)
+    override fun sendMessage(event: SlackMessagePosted, message: String) {
+        sendMessage(event.channel, event.timestamp, event.threadTimestamp, message)
+    }
+
+    private fun sendMessage(channel: SlackChannel, triggerMessageTimestamp: String,
+                            triggerMessageThreadTimestamp: String?, message: String) {
+
+        val messageBuilder = SlackPreparedMessage.Builder().apply {
+            withMessage(message)
+            withUnfurl(true)
+
+            // the 'replyInThread' setting implies 'allowThreadedTriggers'
+            if (ChatSettings.threads.replyInThread || ChatSettings.threads.allowThreadedTriggers) {
+                // according to: https://api.slack.com/docs/message-threading
+                // using the message timestamp is enough to attach a reply to a thread
+                val timestamp = if (ChatSettings.threads.allowThreadedTriggers) {
+                    triggerMessageThreadTimestamp ?: triggerMessageTimestamp
+                } else {
+                    triggerMessageTimestamp
+                }
+
+                withThreadTimestamp(timestamp)
+            }
+        }
+
+        session.sendMessage(channel, messageBuilder.build())
+    }
+
+    override fun addReaction(triggerContext: TriggerContext, emojiCode: String) {
+        session.addReactionToMessage(session.findChannelById(triggerContext.channelId), triggerContext.messageTimestamp, emojiCode)
     }
 }

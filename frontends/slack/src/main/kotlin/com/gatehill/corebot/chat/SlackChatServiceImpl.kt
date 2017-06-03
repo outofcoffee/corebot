@@ -58,20 +58,20 @@ open class SlackChatServiceImpl @Inject constructor(private val sessionService: 
 
                 parseMessage(splitCmd)?.let { parsed ->
                     logger.info("Handling command '{}' from {}", messageContent, event.sender.userName)
-                    parsed.groupStartMessage?.let { session.sendMessage(event.channel, it) }
+                    parsed.groupStartMessage?.let { sessionService.sendMessage(event, it) }
                     parsed.actions.forEach { action -> handleAction(session, event, action, parsed) }
 
                 } ?: run {
                     logger.warn("Ignored command '{}' from {}", messageContent, event.sender.userName)
                     session.addReactionToMessage(event.channel, event.timeStamp, "question")
-                    printUsage(event, session)
+                    printUsage(event)
                 }
             }
 
         } catch(e: Exception) {
             logger.error("Error parsing message event: {}", event, e)
             session.addReactionToMessage(event.channel, event.timeStamp, "x")
-            printUsage(event, session)
+            printUsage(event)
             return@SlackMessagePostedListener
         }
     })
@@ -111,7 +111,7 @@ open class SlackChatServiceImpl @Inject constructor(private val sessionService: 
     /**
      * Post a message with usage information.
      */
-    private fun printUsage(event: SlackMessagePosted, session: SlackSession) {
+    private fun printUsage(event: SlackMessagePosted) {
         val msg = StringBuilder()
 
         if (configService.actions().isEmpty()) {
@@ -120,7 +120,7 @@ open class SlackChatServiceImpl @Inject constructor(private val sessionService: 
             msg.append("Sorry, I didn't understand :confused: Try typing _@${sessionService.botUsername} help_ for examples.")
         }
 
-        session.sendMessage(event.channel, msg.toString())
+        sessionService.sendMessage(event, msg.toString())
     }
 
     /**
@@ -134,7 +134,7 @@ open class SlackChatServiceImpl @Inject constructor(private val sessionService: 
         authorisationService.checkPermission(action, { permitted ->
             if (permitted) {
                 // respond with acknowledgement
-                action.startMessage?.let { session.sendMessage(event.channel, it) }
+                action.startMessage?.let { sessionService.sendMessage(event, it) }
 
                 when (action) {
                     is CustomAction -> performCustomAction(session, event, action, actionWrapper)
@@ -143,7 +143,7 @@ open class SlackChatServiceImpl @Inject constructor(private val sessionService: 
 
             } else {
                 session.addReactionToMessage(event.channel, event.timeStamp, "no_entry")
-                session.sendMessage(event.channel,
+                sessionService.sendMessage(event,
                         "Sorry, <@${event.sender.id}>, you're not allowed to perform ${action.shortDescription}.")
             }
         }, event.sender.userName)
@@ -155,20 +155,20 @@ open class SlackChatServiceImpl @Inject constructor(private val sessionService: 
     private fun performCustomAction(session: SlackSession, event: SlackMessagePosted, action: CustomAction,
                                     actionWrapper: ActionWrapper) {
 
-        val trigger = TriggerContext(event.channel.id, event.sender.id, event.sender.userName, event.timestamp)
+        val trigger = TriggerContext(event.channel.id, event.sender.id, event.sender.userName, event.timestamp, event.threadTimestamp)
 
         // schedule action execution
         val request = PerformActionRequest.Builder.build(trigger, action.actionType, action.actionConfig, action.args)
 
         actionPerformService.perform(request).thenAccept { (message, finalResult) ->
             postSuccessfulReaction(session, event, finalResult, actionWrapper)
-            message?.let { session.sendMessage(event.channel, it) }
+            message?.let { sessionService.sendMessage(event, it) }
 
         }.onException { ex ->
             logger.error("Error performing custom action $action", ex)
 
             session.addReactionToMessage(event.channel, event.timeStamp, "x")
-            session.sendMessage(event.channel,
+            sessionService.sendMessage(event,
                     "Hmm, something went wrong :face_with_head_bandage:\r\n```${ex.message}```")
         }
     }
@@ -179,7 +179,7 @@ open class SlackChatServiceImpl @Inject constructor(private val sessionService: 
         session.addReactionToMessage(event.channel, event.timeStamp, if (finalResult) "white_check_mark" else "ok")
 
         if (++actionWrapper.successful == actionWrapper.actions.size)
-            actionWrapper.groupCompleteMessage?.let { session.sendMessage(event.channel, it) }
+            actionWrapper.groupCompleteMessage?.let { sessionService.sendMessage(event, it) }
     }
 }
 
