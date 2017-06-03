@@ -15,7 +15,6 @@ dependencies {
     compile "org.glassfish.tyrus.bundles:tyrus-standalone-client:$version_tyrus"
 
     compile project(':core:core-engine')
-    compile project(':bots:bots-common')
 }
 
 publishing {
