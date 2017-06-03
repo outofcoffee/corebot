@@ -121,7 +121,7 @@ Posts replies from the bot to a thread starting from the trigger message. Defaul
     
     SLACK_ALLOW_THREADED_TRIGGERS="true"
     
-Child thread messages be trigger messages. Implies `SLACK_REPLY_IN_THREAD="true"`. Default: `false`.
+Allows child thread messages to be trigger messages. Implies `SLACK_REPLY_IN_THREAD="true"`. Default: `false`.
 
 ## Actions
 
