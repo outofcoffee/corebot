@@ -30,6 +30,9 @@ project(':core:engine').name = 'core-engine'
 include ':core:rest'
 project(':core:rest').name = 'core-rest'
 
+include ':frontends:common'
+project(':frontends:common').name = 'frontends-common'
+
 include ':frontends:slack'
 project(':frontends:slack').name = 'frontends-slack'
 
