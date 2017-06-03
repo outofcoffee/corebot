@@ -28,12 +28,11 @@ class TemplateService @Inject constructor(private val injector: Injector,
 
     /**
      * Find the templates that match the specified command.
+     *
+     * @param commandOnly - the command, excluding any initial bot reference
      */
-    fun findSatisfiedTemplates(splitCmd: List<String>): Collection<ActionTemplate> {
+    fun findSatisfiedTemplates(commandOnly: List<String>): Collection<ActionTemplate> {
         val candidates = fetchCandidates()
-
-        // skip element 0, which contains the bot's username
-        val commandOnly = splitCmd.subList(1, splitCmd.size)
 
         // include those satisfying templates
         return mutableSetOf<ActionTemplate>().apply {

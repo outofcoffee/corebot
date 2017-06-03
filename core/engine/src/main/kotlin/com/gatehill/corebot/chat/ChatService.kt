@@ -7,4 +7,5 @@ package com.gatehill.corebot.chat
  */
 interface ChatService {
     fun listenForEvents()
+    fun stopListening()
 }

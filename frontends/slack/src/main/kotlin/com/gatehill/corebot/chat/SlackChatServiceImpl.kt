@@ -37,6 +37,10 @@ open class SlackChatServiceImpl @Inject constructor(private val sessionService: 
         messagePostedListeners.forEach { sessionService.session.addMessagePostedListener(it) }
     }
 
+    override fun stopListening() {
+        sessionService.session.disconnect()
+    }
+
     /**
      * Allow subclasses to hook into Slack events.
      */
@@ -56,7 +60,10 @@ open class SlackChatServiceImpl @Inject constructor(private val sessionService: 
                 // indicate busy...
                 session.addReactionToMessage(event.channel, event.timeStamp, "hourglass_flowing_sand")
 
-                parseMessage(splitCmd)?.let { parsed ->
+                // skip element 0, which contains the bot's username
+                val commandOnly = splitCmd.subList(1, splitCmd.size)
+
+                parseMessage(commandOnly)?.let { parsed ->
                     logger.info("Handling command '$messageContent' from ${event.sender.userName}")
                     parsed.groupStartMessage?.let { session.sendMessage(event.channel, it) }
                     parsed.actions.forEach { action -> handleAction(session, event, action, parsed) }
@@ -79,9 +86,9 @@ open class SlackChatServiceImpl @Inject constructor(private val sessionService: 
     /**
      * Determine the Action to perform based on the provided command.
      */
-    private fun parseMessage(splitCmd: List<String>): ActionWrapper? {
+    private fun parseMessage(commandOnly: List<String>): ActionWrapper? {
         try {
-            templateService.findSatisfiedTemplates(splitCmd).let { satisfied ->
+            templateService.findSatisfiedTemplates(commandOnly).let { satisfied ->
                 if (satisfied.size == 1) {
                     return with(satisfied.first()) {
                         ActionWrapper(buildActions(),
@@ -89,12 +96,12 @@ open class SlackChatServiceImpl @Inject constructor(private val sessionService: 
                                 if (actionMessageMode == ActionMessageMode.GROUP) buildCompleteMessage() else null)
                     }
                 } else {
-                    throw IllegalStateException("Could not find a unique matching action for command: $splitCmd")
+                    throw IllegalStateException("Could not find a unique matching action for command: $commandOnly")
                 }
             }
 
         } catch (e: IllegalStateException) {
-            logger.warn("Unable to parse message: $splitCmd - ${e.message}")
+            logger.warn("Unable to parse message: $commandOnly - ${e.message}")
             return null
         }
     }

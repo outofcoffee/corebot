@@ -4,7 +4,6 @@ import com.gatehill.corebot.action.ActionOutcomeService
 import com.gatehill.corebot.action.ActionOutcomeServiceImpl
 import com.gatehill.corebot.action.ActionPerformService
 import com.gatehill.corebot.action.DirectActionPerformServiceImpl
-import com.gatehill.corebot.action.LockService
 import com.gatehill.corebot.action.driver.ActionDriverFactory
 import com.gatehill.corebot.chat.ChatGenerator
 import com.gatehill.corebot.chat.ChatService
@@ -30,6 +29,10 @@ class Bot @Inject constructor(private val chatService: ChatService) {
         chatService.listenForEvents()
     }
 
+    fun stop() {
+        chatService.stopListening()
+    }
+
     /**
      * Constructs `Bot` instances.
      */
@@ -49,7 +52,6 @@ class Bot @Inject constructor(private val chatService: ChatService) {
             override fun configure() {
                 // utility
                 bind(ConfigService::class.java).to(ConfigServiceImpl::class.java).asSingleton()
-                bind(LockService::class.java).asSingleton()
                 bind(AuthorisationService::class.java).asSingleton()
 
                 // chat

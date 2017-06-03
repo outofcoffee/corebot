@@ -15,7 +15,7 @@ private class ItemsBotModule : AbstractModule() {
         bind(Bootstrap::class.java).asEagerSingleton()
         bind(ActionTemplateConverter::class.java).to(NoOpActionTemplateConverter::class.java).asSingleton()
 
-        install(DataStoreModule("lockStore"))
+        // data stores
         install(DataStoreModule("itemStore"))
 
         // drivers
