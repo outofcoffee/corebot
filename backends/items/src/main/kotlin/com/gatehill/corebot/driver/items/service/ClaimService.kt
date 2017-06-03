@@ -8,6 +8,7 @@ import com.gatehill.corebot.config.ConfigService
 import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.driver.items.chat.model.template.BorrowItemAsUserTemplate
 import com.gatehill.corebot.driver.items.chat.model.template.BorrowItemTemplate
+import com.gatehill.corebot.driver.items.config.OwnerDisplayMode
 import com.gatehill.corebot.driver.items.config.ItemSettings
 import com.gatehill.corebot.store.DataStore
 import com.gatehill.corebot.store.partition
@@ -139,25 +140,31 @@ class ClaimService @Inject constructor(private val configService: ConfigService,
                 claims.isEmpty() -> "No one is borrowing *$itemName*."
                 claims.size == 1 -> {
                     val claim = claims.first()
-                    val ownerUsername = sessionService.lookupUser(claim.owner)
                     val subItemDescription = claim.subItem?.let { if (it.isNotBlank()) " ($it)" else null } ?: ""
 
-                    "There is a single borrower of *$itemName*$subItemDescription: $ownerUsername - ${claim.reason}"
+                    "There is a single borrower of *$itemName*$subItemDescription: ${describeOwner(claim.owner)} - ${claim.reason}"
                 }
                 else -> {
                     val claimsList = StringBuilder()
                     claims.forEach { (owner, reason, subItem) ->
-                        val ownerUsername = sessionService.lookupUser(owner)
                         val subItemDescription = subItem?.let { if (it.isNotBlank()) "$it: " else null } ?: ""
-
-                        claimsList.append("\n• $subItemDescription$ownerUsername - $reason")
+                        claimsList.append("\n• $subItemDescription${describeOwner(owner)} - $reason")
                     }
+
                     "There are ${claims.size} borrowers of *$itemName*:$claimsList"
                 }
             }
 
             callback(message)
         }
+    }
+
+    /**
+     * Describe the owner, based on the display mode.
+     */
+    private fun describeOwner(owner: String) = when (ItemSettings.ownerDisplayMode) {
+        OwnerDisplayMode.USERNAME -> sessionService.lookupUsername(owner)
+        OwnerDisplayMode.REAL_NAME -> sessionService.lookupUserRealName(owner)
     }
 
     fun describeAllItemStatus(): String {
