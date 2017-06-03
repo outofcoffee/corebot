@@ -118,7 +118,7 @@ class ClaimService @Inject constructor(private val configService: ConfigService,
         future.complete(PerformActionResult(message))
 
         if (ItemSettings.showStatusOnChange) {
-            sessionService.sendMessage(trigger.channelId, describeAllItemStatus())
+            sessionService.sendMessage(trigger, describeAllItemStatus())
         }
     }
 
