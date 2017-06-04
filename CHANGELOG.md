@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Adds support for external data stores. This includes things like action locks and option locks, but can support other types in future.
 - Adds in-memory data store implementation, which is the default.
 - Adds Redis data store implementation.
+- Adds the ability to trigger thr bot from a thread, as well as reply to triggers within a thread (thanks Anojan Sivarajah).
 
 ## [0.7.2] - 2017-05-23
 ### Fixed
