@@ -1,5 +1,6 @@
 package com.gatehill.corebot.chat.model.template
 
+import com.gatehill.corebot.chat.ChatGenerator
 import com.gatehill.corebot.chat.model.action.ActionType
 import com.gatehill.corebot.config.model.ActionConfig
 import java.util.*
@@ -7,7 +8,9 @@ import java.util.*
 /**
  * Triggers job execution.
  */
-class TriggerJobTemplate(action: ActionConfig) : CustomActionTemplate() {
+class TriggerJobTemplate(action: ActionConfig,
+                         private val chatGenerator: ChatGenerator) : CustomActionTemplate() {
+
     override val builtIn = false
     override val showInUsage = true
     override val actionType: ActionType = JobActionType.TRIGGER
@@ -24,7 +27,7 @@ class TriggerJobTemplate(action: ActionConfig) : CustomActionTemplate() {
         actionConfig ?: throw IllegalArgumentException("Empty actionConfig")
 
         val msg = StringBuilder()
-        msg.append("${com.gatehill.corebot.chat.ChatLines.pleaseWait()}, I'm running *${actionConfig.name}*")
+        msg.append("${chatGenerator.pleaseWait()}, I'm running *${actionConfig.name}*")
 
         if (options.isNotEmpty()) {
             msg.append(" with these options:")

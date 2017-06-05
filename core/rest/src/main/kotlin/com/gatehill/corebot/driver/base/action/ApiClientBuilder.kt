@@ -1,12 +1,9 @@
 package com.gatehill.corebot.driver.base.action
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import com.gatehill.corebot.util.jsonMapper
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
-
-private val objectMapper = ObjectMapper().registerKotlinModule()
 
 /**
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
@@ -31,7 +28,7 @@ interface ApiClientBuilder<T> {
         return Retrofit.Builder()
                 .client(clientBuilder.build())
                 .baseUrl(baseUrl)
-                .addConverterFactory(JacksonConverterFactory.create(objectMapper))
+                .addConverterFactory(JacksonConverterFactory.create(jsonMapper))
                 .build()
                 .create(clazz)
     }

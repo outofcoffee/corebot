@@ -2,7 +2,7 @@ package com.gatehill.corebot.action
 
 import com.gatehill.corebot.action.model.ActionStatus
 import com.gatehill.corebot.action.model.TriggerContext
-import com.gatehill.corebot.chat.ChatLines
+import com.gatehill.corebot.chat.ChatGenerator
 import com.gatehill.corebot.chat.SessionService
 import com.gatehill.corebot.config.Settings
 import com.gatehill.corebot.config.model.ActionConfig
@@ -15,20 +15,22 @@ import javax.inject.Inject
  *
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
-open class ActionOutcomeServiceImpl @Inject constructor(private val sessionService: SessionService) : ActionOutcomeService {
+open class ActionOutcomeServiceImpl @Inject constructor(private val sessionService: SessionService,
+                                                        private val chatGenerator: ChatGenerator) : ActionOutcomeService {
+
     private val logger = LogManager.getLogger(ActionOutcomeServiceImpl::class.java)!!
 
     override fun notifyQueued(trigger: TriggerContext, action: ActionConfig) {
         sessionService.sendMessage(trigger,
-                "Build for *${action.name}* is queued - ${ChatLines.pleaseWait().toLowerCase()}...")
+                "Build for *${action.name}* is queued - ${chatGenerator.pleaseWait().toLowerCase()}...")
     }
 
     override fun handleFinalStatus(trigger: TriggerContext, action: ActionConfig, executionId: Int,
                                    actionStatus: ActionStatus) {
 
         val (reaction, emoji) = when (actionStatus) {
-            ActionStatus.SUCCEEDED -> ChatLines.goodNews() to "white_check_mark"
-            else -> ChatLines.badNews() to "x"
+            ActionStatus.SUCCEEDED -> chatGenerator.goodNews() to "white_check_mark"
+            else -> chatGenerator.badNews() to "x"
         }
 
         sessionService.addReaction(trigger, emoji)
@@ -45,11 +47,11 @@ open class ActionOutcomeServiceImpl @Inject constructor(private val sessionServi
     }
 
     override fun handleTimeout(trigger: TriggerContext, action: ActionConfig, blockDescription: String) {
-        logger.error("Timed out '$blockDescription' after ${Settings.deployment.executionTimeout}ms")
+        logger.error("Timed out '$blockDescription' after ${Settings.execution.executionTimeout}ms")
 
         sessionService.addReaction(trigger, "x")
 
-        val timeoutSecs = TimeUnit.MILLISECONDS.toSeconds(Settings.deployment.executionTimeout.toLong())
+        val timeoutSecs = TimeUnit.MILLISECONDS.toSeconds(Settings.execution.executionTimeout.toLong())
         sessionService.sendMessage(trigger, "Gave up $blockDescription after $timeoutSecs seconds.")
     }
 

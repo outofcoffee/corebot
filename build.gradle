@@ -8,8 +8,9 @@ allprojects {
 
     buildscript {
         ext.version_kotlin = '1.1.2-4'
-        ext.version_junit = '4.11'
-        ext.version_vertx = '3.2.1'
+        ext.version_junit_platform_gradle = '1.0.0-M4'
+        ext.version_spek = '1.1.2'
+        ext.version_kluent = '1.22'
         ext.version_log4j = '2.5'
         ext.version_jackson = '2.8.8'
         ext.version_retrofit = '2.1.0'
@@ -25,6 +26,7 @@ allprojects {
 
     repositories {
         mavenCentral()
+        jcenter()
         maven { url "https://jitpack.io" }
     }
 

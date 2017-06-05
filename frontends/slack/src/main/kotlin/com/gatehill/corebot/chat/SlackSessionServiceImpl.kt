@@ -16,7 +16,9 @@ import javax.inject.Inject
 /**
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
-open class SlackSessionServiceImpl @Inject constructor(configService: ConfigService) : SlackSessionService {
+open class SlackSessionServiceImpl @Inject constructor(configService: ConfigService,
+                                                       private val chatGenerator: ChatGenerator) : SlackSessionService {
+
     private val logger: Logger = LogManager.getLogger(SlackSessionServiceImpl::class.java)
 
     override val session: SlackSession by lazy {
@@ -36,7 +38,7 @@ open class SlackSessionServiceImpl @Inject constructor(configService: ConfigServ
     protected open val connectedListeners = listOf(SlackConnectedListener { _, theSession ->
         ChatSettings.chat.channelNames.forEach {
             val joinMessage = configService.joinMessage ?:
-                    "${ChatLines.greeting()} :simple_smile: ${ChatLines.ready()}."
+                    "${chatGenerator.greeting()} :simple_smile: ${chatGenerator.ready()}."
 
             theSession.findChannelByName(it)?.let { channel -> theSession.sendMessage(channel, joinMessage) }
                     ?: logger.warn("Unable to find channel: $it")

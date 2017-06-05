@@ -1,10 +1,9 @@
 package com.gatehill.corebot.config
 
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.config.model.SecurityConfig
 import com.gatehill.corebot.config.model.SecurityUserConfig
+import com.gatehill.corebot.util.yamlMapper
 import com.google.common.cache.Cache
 import com.google.common.cache.CacheBuilder
 import org.apache.logging.log4j.LogManager
@@ -40,7 +39,6 @@ open class ConfigServiceImpl : ConfigService {
 
     private val configFileVersion = "1"
     private val logger: Logger = LogManager.getLogger(ConfigServiceImpl::class.java)
-    private val objectMapper = YAMLMapper().registerKotlinModule()
 
     /**
      * Immutable default security configuration.
@@ -150,7 +148,7 @@ open class ConfigServiceImpl : ConfigService {
      */
     protected fun <T : VersionedConfig> loadFile(configFile: InputStream, clazz: Class<T>): T {
         configFile.use {
-            val config = objectMapper.readValue(configFile, clazz) ?:
+            val config = yamlMapper.readValue(configFile, clazz) ?:
                     throw IllegalStateException("Configuration in ${configFile} was null")
 
             assert(configFileVersion == config.version) {
