@@ -5,6 +5,9 @@ import com.gatehill.corebot.store.InMemoryDataStoreImpl
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.io.File
+import java.io.InputStream
+import java.nio.file.Files
+import java.nio.file.Paths
 
 /**
  * Engine settings.
@@ -14,11 +17,11 @@ import java.io.File
 object Settings {
     private val logger: Logger = LogManager.getLogger(Settings::class.java)
 
-    class Deployment {
+    class Execution {
         val executionTimeout by lazy { (System.getenv("EXECUTION_STATUS_TIMEOUT")?.toInt() ?: 120) * 1000 }
     }
 
-    val deployment = Deployment()
+    val execution = Execution()
 
     class DataStores {
         /**
@@ -30,6 +33,14 @@ object Settings {
     }
 
     val dataStores = DataStores()
+
+    class Chat {
+        val chatGenerator: InputStream = System.getenv("CHAT_GENERATOR_FILE")
+                ?.let { Files.newInputStream(Paths.get(it)) }
+                ?: this.javaClass.getResourceAsStream("/default-chat.yml")
+    }
+
+    val chat = Chat()
 
     /**
      * The file containing the action configuration.

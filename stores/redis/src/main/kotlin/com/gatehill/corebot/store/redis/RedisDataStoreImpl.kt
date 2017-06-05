@@ -1,10 +1,10 @@
 package com.gatehill.corebot.store.redis
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.gatehill.corebot.store.DataStore
 import com.gatehill.corebot.store.DataStorePartition
 import com.gatehill.corebot.store.redis.config.StoreSettings
+import com.gatehill.corebot.util.jsonMapper
 import redis.clients.jedis.Jedis
 
 /**
@@ -13,13 +13,12 @@ import redis.clients.jedis.Jedis
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
 class RedisDataStoreImpl : DataStore {
-    private val mapper = ObjectMapper().registerKotlinModule()
     private val partitions = mutableMapOf<String, DataStorePartition<*, *>>()
 
     @Suppress("UNCHECKED_CAST")
     override fun <K, V> partition(partitionId: String, clazz: Class<V>): DataStorePartition<K, V> =
             partitions[partitionId] as DataStorePartition<K, V>? ?:
-                    RedisDataStorePartitionImpl<K, V>(mapper, clazz, partitionId).apply { partitions[partitionId] = this }
+                    RedisDataStorePartitionImpl<K, V>(jsonMapper, clazz, partitionId).apply { partitions[partitionId] = this }
 }
 
 /**

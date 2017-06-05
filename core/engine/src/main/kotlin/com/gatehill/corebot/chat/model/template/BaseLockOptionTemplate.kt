@@ -1,6 +1,6 @@
 package com.gatehill.corebot.chat.model.template
 
-import com.gatehill.corebot.chat.ChatLines
+import com.gatehill.corebot.chat.ChatGenerator
 import com.gatehill.corebot.chat.model.action.CoreActionType
 import com.gatehill.corebot.config.ConfigService
 import com.gatehill.corebot.config.model.ActionConfig
@@ -9,7 +9,9 @@ import javax.inject.Inject
 /**
  * Locks or unlocks an option value.
  */
-abstract class BaseLockOptionTemplate @Inject constructor(private val configService: ConfigService) : CustomActionTemplate() {
+abstract class BaseLockOptionTemplate @Inject constructor(private val configService: ConfigService,
+                                                          private val chatGenerator: ChatGenerator) : CustomActionTemplate() {
+
     override val builtIn = true
     override val showInUsage = true
     override val actionMessageMode = ActionMessageMode.GROUP
@@ -35,7 +37,7 @@ abstract class BaseLockOptionTemplate @Inject constructor(private val configServ
     }
 
     override fun buildStartMessage(options: Map<String, String>, actionConfig: ActionConfig?): String {
-        return "${ChatLines.pleaseWait()}, I'm ${if (actionType == CoreActionType.LOCK_OPTION) "locking" else "unlocking"} *$optionName $optionValue*..."
+        return "${chatGenerator.pleaseWait()}, I'm ${if (actionType == CoreActionType.LOCK_OPTION) "locking" else "unlocking"} *$optionName $optionValue*..."
     }
 
     override fun buildCompleteMessage(): String {

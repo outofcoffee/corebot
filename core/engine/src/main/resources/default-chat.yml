@@ -1,0 +1,38 @@
+# Default chat lines.
+---
+ready:
+ - "Reporting for duty"
+ - "Ready for action"
+
+pleaseWait:
+ - "Just a min"
+ - "Hang on"
+ - "Hold on"
+ - "One moment"
+ - "One min"
+ - "Just a moment"
+ - "Give me a min"
+
+goodNews:
+ - "Hooray ${goodNewsEmoji}"
+ - "Awesome ${goodNewsEmoji}"
+ - "Good news ${goodNewsEmoji}"
+ - "Sweet ${goodNewsEmoji}"
+    
+goodNewsEmoji:
+ - "raised_hands"
+ - "tada"
+    
+badNews:
+ - "Oh dear ${badNewsEmoji}"
+ - "Oh no ${badNewsEmoji}"
+ - "Bad news ${badNewsEmoji}"
+    
+badNewsEmoji:
+ - "cry"
+ - "scream"
+    
+greeting:
+ - "Hi"
+ - "Hello"
+ - "Hey"

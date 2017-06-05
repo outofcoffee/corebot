@@ -2,6 +2,7 @@ package com.gatehill.corebot
 
 import com.gatehill.corebot.action.*
 import com.gatehill.corebot.action.driver.ActionDriverFactory
+import com.gatehill.corebot.chat.ChatGenerator
 import com.gatehill.corebot.chat.ChatService
 import com.gatehill.corebot.chat.TemplateService
 import com.gatehill.corebot.config.ConfigService
@@ -50,6 +51,7 @@ class Bot @Inject constructor(private val chatService: ChatService) {
 
                 // chat
                 bind(TemplateService::class.java).asSingleton()
+                bind(ChatGenerator::class.java).asSingleton()
 
                 // actions
                 bind(ActionPerformService::class.java).to(DirectActionPerformServiceImpl::class.java)

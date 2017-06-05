@@ -4,7 +4,7 @@ buildscript {
     }
 }
 
-apply plugin: "kotlin"
+apply plugin: 'kotlin'
 apply plugin: "application"
 
 dependencies {
@@ -15,9 +15,6 @@ dependencies {
     compile project(':backends:deployment:rundeck')
     compile project(':stores:redis')
     compile project(':frontends:slack')
-
-    testCompile "junit:junit:$version_junit"
-    testCompile "org.jetbrains.kotlin:kotlin-test-junit:$version_kotlin"
 }
 
 mainClassName = 'com.gatehill.corebot.MainKt'

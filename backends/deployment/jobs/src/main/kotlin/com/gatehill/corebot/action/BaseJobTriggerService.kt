@@ -109,7 +109,7 @@ abstract class BaseJobTriggerService(private val lockService: LockService,
     protected fun doUnlessTimedOut(trigger: TriggerContext, action: ActionConfig, startTime: Long,
                                    blockDescription: String, block: () -> Unit) {
 
-        if (System.currentTimeMillis() - startTime < Settings.deployment.executionTimeout) {
+        if (System.currentTimeMillis() - startTime < Settings.execution.executionTimeout) {
             // enough time left to retry
             Timer().schedule(object : TimerTask() {
                 override fun run() {

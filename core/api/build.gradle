@@ -4,13 +4,10 @@ buildscript {
     }
 }
 
-apply plugin: "kotlin"
+apply plugin: 'kotlin'
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$version_kotlin"
-
-    testCompile "junit:junit:$version_junit"
-    testCompile "org.jetbrains.kotlin:kotlin-test-junit:$version_kotlin"
 }
 
 publishing {
