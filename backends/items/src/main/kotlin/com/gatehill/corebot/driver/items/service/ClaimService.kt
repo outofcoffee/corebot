@@ -3,6 +3,7 @@ package com.gatehill.corebot.driver.items.service
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.gatehill.corebot.action.model.PerformActionResult
 import com.gatehill.corebot.action.model.TriggerContext
+import com.gatehill.corebot.chat.ChatGenerator
 import com.gatehill.corebot.chat.SessionService
 import com.gatehill.corebot.config.ConfigService
 import com.gatehill.corebot.config.model.ActionConfig
@@ -23,6 +24,7 @@ import javax.inject.Named
  */
 class ClaimService @Inject constructor(private val configService: ConfigService,
                                        private val sessionService: SessionService,
+                                       private val chatGenerator: ChatGenerator,
                                        @Named("itemStore") private val dataStore: DataStore) {
 
     /**
@@ -118,7 +120,7 @@ class ClaimService @Inject constructor(private val configService: ConfigService,
         future.complete(PerformActionResult(message))
 
         if (ItemSettings.showStatusOnChange) {
-            sessionService.sendMessage(trigger, describeAllItemStatus())
+            sessionService.sendMessage(trigger, buildAllItemStatus())
         }
     }
 
@@ -167,7 +169,9 @@ class ClaimService @Inject constructor(private val configService: ConfigService,
         OwnerDisplayMode.REAL_NAME -> sessionService.lookupUserRealName(owner)
     }
 
-    fun describeAllItemStatus(): String {
+    fun describeAllItemStatus() = "${chatGenerator.greeting()} :simple_smile: ${buildAllItemStatus()}"
+
+    private fun buildAllItemStatus(): String {
         val status = StringBuilder()
 
         configService.actions().keys.forEach { itemName ->
