@@ -8,8 +8,8 @@ import com.gatehill.corebot.config.ConfigService
 import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.driver.items.chat.model.template.BorrowItemAsUserTemplate
 import com.gatehill.corebot.driver.items.chat.model.template.BorrowItemTemplate
-import com.gatehill.corebot.driver.items.config.OwnerDisplayMode
 import com.gatehill.corebot.driver.items.config.ItemSettings
+import com.gatehill.corebot.driver.items.config.OwnerDisplayMode
 import com.gatehill.corebot.store.DataStore
 import com.gatehill.corebot.store.partition
 import java.util.concurrent.CompletableFuture
@@ -48,7 +48,7 @@ class ClaimService @Inject constructor(private val configService: ConfigService,
                 val subItem: String? = args[BorrowItemTemplate.subItemPlaceholder]
 
                 // check if on behalf of another user
-                val borrower = args[BorrowItemAsUserTemplate.borrower] ?: triggerMessageSenderId
+                val borrower = args[BorrowItemAsUserTemplate.borrowerPlaceholder] ?: triggerMessageSenderId
 
                 itemClaims[itemName] = ItemClaims(claims.toMutableList().apply {
 
@@ -61,7 +61,7 @@ class ClaimService @Inject constructor(private val configService: ConfigService,
                 })
 
                 val borrowerDescription = if (borrower == triggerMessageSenderId) " <@$borrower>, you've" else ", <@$borrower> has"
-                completeWithStatusCheck(future, "OK$borrowerDescription borrowed :lock: *$itemName* for _${reason}_.")
+                completeWithStatusCheck(future, "${chatGenerator.confirmation()}$borrowerDescription borrowed :lock: *$itemName* for _${reason}_.")
             }
         }
     }
@@ -77,7 +77,7 @@ class ClaimService @Inject constructor(private val configService: ConfigService,
                     itemClaims[itemName] = ItemClaims(claims.toMutableList().apply {
                         remove(claim)
                     })
-                    completeWithStatusCheck(future, "OK <@$triggerMessageSenderId>, you've returned *$itemName*.")
+                    completeWithStatusCheck(future, "${chatGenerator.confirmation()} <@$triggerMessageSenderId>, you've returned *$itemName*.")
 
                 } ?: run {
                     completeWithStatusCheck(future, "BTW <@$triggerMessageSenderId>, you weren't borrowing *$itemName* :wink:")
@@ -86,6 +86,9 @@ class ClaimService @Inject constructor(private val configService: ConfigService,
         }
     }
 
+    /**
+     * Evict all borrowers from an item.
+     */
     fun evictItemClaims(future: CompletableFuture<PerformActionResult>, action: ActionConfig, triggerMessageSenderId: String) {
         val itemName = action.name
 
@@ -93,17 +96,42 @@ class ClaimService @Inject constructor(private val configService: ConfigService,
             checkItemClaims(action) { claims ->
                 itemClaims.remove(itemName)
 
-                val nonSelfBorrowers = claims
+                val previousBorrowers = claims
                         .map { it.owner }
                         .filter { it != triggerMessageSenderId }
+                        .let { nonSelfBorrowers ->
+                            if (nonSelfBorrowers.isEmpty()) {
+                                ""
+                            } else {
+                                "\n_(FYI ${nonSelfBorrowers.map { "<@$it>" }.joinToString()})_"
+                            }
+                        }
 
-                val previousBorrowers = if (nonSelfBorrowers.isEmpty()) {
-                    ""
-                } else {
-                    "\n_(FYI ${nonSelfBorrowers.map { "<@$it>" }.joinToString()})_"
+                completeWithStatusCheck(future, "${chatGenerator.confirmation()} <@$triggerMessageSenderId>, I've :unlock: evicted all borrowers (${claims.size}) from *$itemName*.$previousBorrowers")
+            }
+        }
+    }
+
+    /**
+     * Evict a single borrower from an item.
+     */
+    fun evictUserFromItem(future: CompletableFuture<PerformActionResult>, action: ActionConfig, args: Map<String, String>, triggerMessageSenderId: String) {
+        val itemName = action.name
+
+        synchronized(itemName) {
+            checkItemClaims(action) { claims ->
+                val borrower = args[BorrowItemAsUserTemplate.borrowerPlaceholder]!!
+
+                when (claims.size) {
+                    1 -> itemClaims.remove(itemName)
+                    else -> itemClaims[itemName] = ItemClaims(claims.toMutableList().apply {
+                        claims.firstOrNull { it.owner == borrower }?.let { existing ->
+                            remove(existing)
+                        }
+                    })
                 }
 
-                completeWithStatusCheck(future, "OK <@$triggerMessageSenderId>, I've :unlock: evicted all borrowers (${claims.size}) from *$itemName*.$previousBorrowers")
+                completeWithStatusCheck(future, "${chatGenerator.confirmation()} <@$triggerMessageSenderId>, I've :unlock: evicted <@$borrower> from *$itemName*.")
             }
         }
     }
@@ -147,7 +175,7 @@ class ClaimService @Inject constructor(private val configService: ConfigService,
                     val claimsList = StringBuilder()
                     claims.forEach { (owner, reason, subItem) ->
                         val subItemDescription = subItem?.let { if (it.isNotBlank()) "$it: " else null } ?: ""
-                        claimsList.append("\n    • $subItemDescription${describeOwner(owner)} - $reason")
+                        claimsList.append("\n${" ".repeat(4)}• $subItemDescription${describeOwner(owner)} - $reason")
                     }
 
                     "There are ${claims.size} borrowers of *$itemName*:$claimsList"

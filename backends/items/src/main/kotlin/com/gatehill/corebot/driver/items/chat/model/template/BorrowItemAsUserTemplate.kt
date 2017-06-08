@@ -12,11 +12,11 @@ import javax.inject.Inject
  */
 class BorrowItemAsUserTemplate @Inject constructor(configService: ConfigService) : BorrowItemTemplate(configService) {
     override val actionType: ActionType = ItemsActionType.ITEM_BORROW_AS_USER
-    override val tokens = LinkedList(listOf("as", "{$borrower}", "borrow", "{$itemPlaceholder}", "{$subItemPlaceholder}", "for", "{$reasonPlaceholder}"))
+    override val tokens = LinkedList(listOf("as", "{$borrowerPlaceholder}", "borrow", "{$itemPlaceholder}", "{$subItemPlaceholder}", "for", "{$reasonPlaceholder}"))
     override val templateRegex: Pattern?
-        get() = "as\\s\\<@(?<borrower>[a-zA-Z0-9]+)\\>\\sborrow\\s+(?<itemName>[a-zA-Z0-9]+)\\s*(?<optionalSubItemName>.*)\\s+for\\s+(?<reason>.+)".toPattern()
+        get() = "as\\s\\<@(?<$borrowerPlaceholder>[a-zA-Z0-9]+)\\>\\sborrow\\s+(?<$itemPlaceholder>[a-zA-Z0-9]+)\\s*(?<optionalSubItemName>.*)\\s+for\\s+(?<reason>.+)".toPattern()
 
     companion object {
-        val borrower = "borrower"
+        val borrowerPlaceholder = "borrower"
     }
 }

@@ -22,6 +22,7 @@ class ItemsActionDriverImpl @Inject constructor(private val claimService: ClaimS
                 ItemsActionType.ITEM_BORROW_AS_USER -> claimService.claimItem(future, action, args, trigger.userId)
                 ItemsActionType.ITEM_RETURN -> claimService.releaseItem(future, action, trigger.userId)
                 ItemsActionType.ITEM_EVICT -> claimService.evictItemClaims(future, action, trigger.userId)
+                ItemsActionType.ITEM_EVICT_USER -> claimService.evictUserFromItem(future, action, args, trigger.userId)
                 ItemsActionType.ITEM_STATUS -> claimService.checkItemStatus(future, action)
                 else -> {
                     throw UnsupportedOperationException(
