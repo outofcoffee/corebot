@@ -49,7 +49,7 @@ open class SlackChatServiceImpl @Inject constructor(private val sessionService: 
         if (session.sessionPersona().id == event.sender.id) return@SlackMessagePostedListener
 
         try {
-            event.messageContent?.let { messageContent ->
+            event.messageContent?.trim()?.let { messageContent ->
                 val splitCmd = messageContent.split("\"?( |$)(?=(([^\"]*\"){2})*[^\"]*$)\"?".toRegex()).filterNot(String::isBlank)
 
                 if (splitCmd.isNotEmpty() && isAddressedToBot(session.sessionPersona(), splitCmd[0])) {
