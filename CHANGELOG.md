@@ -3,13 +3,16 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## [0.8.0] - 2017-06-11
 ### Added
 - Adds support for external data stores. This includes things like action locks and option locks, but can support other types in future.
 - Adds in-memory data store implementation, which is the default.
 - Adds Redis data store implementation.
 - Adds the ability to trigger the bot from a thread, as well as reply to triggers within a thread (thanks Anojan Sivarajah).
 - Externalises chat lines to a configuration file.
+
+### Fixed
+- Skip messages with null content.
 
 ## [0.7.2] - 2017-05-23
 ### Fixed
