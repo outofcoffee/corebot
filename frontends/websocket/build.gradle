@@ -1,0 +1,35 @@
+buildscript {
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$version_kotlin"
+    }
+}
+
+apply plugin: 'kotlin'
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$version_kotlin"
+
+    compile project(':frontends:frontends-common')
+
+    compile "org.glassfish.tyrus:tyrus-server:1.2.1"
+    compile "org.glassfish.tyrus:tyrus-container-grizzly:1.2.1"
+
+    compile project(':core:core-engine')
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+            repositories {
+                maven {
+                    url mavenSnapshotRepository
+                    credentials(AwsCredentials) {
+                        accessKey awsAccessKey
+                        secretKey awsSecretKey
+                    }
+                }
+            }
+        }
+    }
+}

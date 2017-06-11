@@ -1,0 +1,26 @@
+# Default authz rules.
+---
+version: '1'
+
+security:
+  roles:
+    # With great power, comes great responsibility.
+    admin:
+      permissions:
+        - help
+        - item_borrow
+        - item_borrow_as_user
+        - item_return
+        - item_evict
+        - item_status
+        - all_status
+        - set_real_name
+        - set_username
+      tags:
+        - all
+
+  users:
+    # Permits everyone to do everything.
+    "*":
+      roles:
+        - admin
