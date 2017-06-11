@@ -41,16 +41,16 @@ open class SlackChatServiceImpl @Inject constructor(private val sessionService: 
         val trigger = TriggerContext(event.channel.id, event.sender.id, event.sender.userName, event.timestamp, event.threadTimestamp)
 
         try {
-            val messageContent = event.messageContent.trim()
-            val splitCmd = messageContent.split("\"?( |$)(?=(([^\"]*\"){2})*[^\"]*$)\"?".toRegex()).filterNot(String::isBlank)
+            // some message events have null content
+            event.messageContent?.trim()?.let { messageContent ->
+                val splitCmd = messageContent.split("\"?( |$)(?=(([^\"]*\"){2})*[^\"]*$)\"?".toRegex()).filterNot(String::isBlank)
 
-            if (splitCmd.isNotEmpty() && isAddressedToBot(session.sessionPersona(), splitCmd[0])) {
-
-                // skip element 0, which contains the bot's username
-                val commandOnly = splitCmd.subList(1, splitCmd.size)
-
-                messageService.handleMessage(commandOnly, trigger)
-            }
+                if (splitCmd.isNotEmpty() && isAddressedToBot(session.sessionPersona(), splitCmd[0])) {
+                    // skip element 0, which contains the bot's username
+                    val commandOnly = splitCmd.subList(1, splitCmd.size)
+                    messageService.handleMessage(commandOnly, trigger)
+                }
+            } ?: logger.trace("Ignoring event with null message: $event")
 
         } catch (e: Exception) {
             logger.error("Error parsing message event: $event", e)
