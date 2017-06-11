@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+### Added
+- ...
+
 ## [0.8.0] - 2017-06-11
 ### Added
 - Adds support for external data stores. This includes things like action locks and option locks, but can support other types in future.
