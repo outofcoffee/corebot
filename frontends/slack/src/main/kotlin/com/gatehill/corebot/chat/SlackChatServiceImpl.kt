@@ -49,27 +49,28 @@ open class SlackChatServiceImpl @Inject constructor(private val sessionService: 
         if (session.sessionPersona().id == event.sender.id) return@SlackMessagePostedListener
 
         try {
-            val messageContent = event.messageContent.trim()
-            val splitCmd = messageContent.split("\"?( |$)(?=(([^\"]*\"){2})*[^\"]*$)\"?".toRegex()).filterNot(String::isBlank)
+            event.messageContent?.let { messageContent ->
+                val splitCmd = messageContent.split("\"?( |$)(?=(([^\"]*\"){2})*[^\"]*$)\"?".toRegex()).filterNot(String::isBlank)
 
-            if (splitCmd.isNotEmpty() && isAddressedToBot(session.sessionPersona(), splitCmd[0])) {
-                // indicate busy...
-                session.addReactionToMessage(event.channel, event.timeStamp, "hourglass_flowing_sand")
+                if (splitCmd.isNotEmpty() && isAddressedToBot(session.sessionPersona(), splitCmd[0])) {
+                    // indicate busy...
+                    session.addReactionToMessage(event.channel, event.timeStamp, "hourglass_flowing_sand")
 
-                parseMessage(splitCmd)?.let { parsed ->
-                    logger.info("Handling command '{}' from {}", messageContent, event.sender.userName)
-                    parsed.groupStartMessage?.let { sessionService.sendMessage(event, it) }
-                    parsed.actions.forEach { action -> handleAction(session, event, action, parsed) }
+                    parseMessage(splitCmd)?.let { parsed ->
+                        logger.info("Handling command '$messageContent' from ${event.sender.userName}")
+                        parsed.groupStartMessage?.let { sessionService.sendMessage(event, it) }
+                        parsed.actions.forEach { action -> handleAction(session, event, action, parsed) }
 
-                } ?: run {
-                    logger.warn("Ignored command '{}' from {}", messageContent, event.sender.userName)
-                    session.addReactionToMessage(event.channel, event.timeStamp, "question")
-                    printUsage(event)
+                    } ?: run {
+                        logger.warn("Ignored command '$messageContent' from ${event.sender.userName}")
+                        session.addReactionToMessage(event.channel, event.timeStamp, "question")
+                        printUsage(event)
+                    }
                 }
-            }
+            } ?: logger.trace("Ignoring event with null message: $event")
 
         } catch(e: Exception) {
-            logger.error("Error parsing message event: {}", event, e)
+            logger.error("Error parsing message event: $event", e)
             session.addReactionToMessage(event.channel, event.timeStamp, "x")
             printUsage(event)
             return@SlackMessagePostedListener
@@ -103,7 +104,7 @@ open class SlackChatServiceImpl @Inject constructor(private val sessionService: 
             }
 
         } catch(e: IllegalStateException) {
-            logger.warn("Unable to parse message: {} - {}", joinedMessage, e.message)
+            logger.warn("Unable to parse message: $joinedMessage - ${e.message}")
             return null
         }
     }
@@ -129,7 +130,7 @@ open class SlackChatServiceImpl @Inject constructor(private val sessionService: 
     private fun handleAction(session: SlackSession, event: SlackMessagePosted, action: Action,
                              actionWrapper: ActionWrapper) {
 
-        logger.info("Handling action: {}", action)
+        logger.info("Handling action: $action")
 
         authorisationService.checkPermission(action, { permitted ->
             if (permitted) {
