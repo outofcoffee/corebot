@@ -7,6 +7,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - ...
 
+## [0.8.1] - 2017-06-11
+### Added
+- Trims message content prior to parsing.
+
 ## [0.8.0] - 2017-06-11
 ### Added
 - Adds support for external data stores. This includes things like action locks and option locks, but can support other types in future.
