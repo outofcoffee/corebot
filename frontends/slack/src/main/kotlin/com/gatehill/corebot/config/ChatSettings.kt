@@ -11,11 +11,12 @@ object ChatSettings {
         val channelNames by lazy {
             (System.getenv("SLACK_CHANNELS") ?: "corebot").split(",").map(String::trim)
         }
+        val postJoinMessage by lazy { System.getenv("SLACK_ENABLE_JOIN_MESSAGE")?.toBoolean() ?: true }
     }
 
     class Threads {
-        val replyInThread by lazy { (System.getenv("SLACK_REPLY_IN_THREAD")?.toBoolean() ?: false) }
-        val allowThreadedTriggers by lazy { (System.getenv("SLACK_ALLOW_THREADED_TRIGGERS")?.toBoolean() ?: false) }
+        val replyInThread by lazy { System.getenv("SLACK_REPLY_IN_THREAD")?.toBoolean() ?: false }
+        val allowThreadedTriggers by lazy { System.getenv("SLACK_ALLOW_THREADED_TRIGGERS")?.toBoolean() ?: false }
     }
 
     val chat = Chat()

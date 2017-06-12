@@ -36,12 +36,14 @@ open class SlackSessionServiceImpl @Inject constructor(configService: ConfigServ
      * Allow subclasses to hook into Slack events.
      */
     protected open val connectedListeners = listOf(SlackConnectedListener { _, theSession ->
-        ChatSettings.chat.channelNames.forEach {
-            val joinMessage = configService.joinMessage ?:
-                    "${chatGenerator.greeting()} :simple_smile: ${chatGenerator.ready()}."
+        if (ChatSettings.chat.postJoinMessage) {
+            ChatSettings.chat.channelNames.forEach {
+                val joinMessage = configService.joinMessage ?:
+                        "${chatGenerator.greeting()} :simple_smile: ${chatGenerator.ready()}."
 
-            theSession.findChannelByName(it)?.let { channel -> theSession.sendMessage(channel, joinMessage) }
-                    ?: logger.warn("Unable to find channel: $it")
+                theSession.findChannelByName(it)?.let { channel -> theSession.sendMessage(channel, joinMessage) }
+                        ?: logger.warn("Unable to find channel: $it")
+            }
         }
     })
 
