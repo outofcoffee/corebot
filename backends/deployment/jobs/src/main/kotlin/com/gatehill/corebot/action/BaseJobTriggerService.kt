@@ -8,7 +8,8 @@ import com.gatehill.corebot.config.Settings
 import com.gatehill.corebot.config.model.ActionConfig
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
-import java.util.*
+import java.util.Timer
+import java.util.TimerTask
 import java.util.concurrent.CompletableFuture
 
 /**

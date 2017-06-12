@@ -2,7 +2,7 @@ package com.gatehill.corebot.chat
 
 import com.gatehill.corebot.config.Settings
 import com.gatehill.corebot.util.yamlMapper
-import java.util.*
+import java.util.Random
 
 /**
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
@@ -35,4 +35,5 @@ class ChatGenerator(dictionary: Map<String, List<String>>? = null) {
     fun badNewsEmoji() = chooseOne("badNewsEmoji")
     fun greeting() = chooseOne("greeting")
     fun ready() = chooseOne("ready")
+    fun confirmation() = chooseOne("confirmation")
 }

@@ -2,13 +2,15 @@ package com.gatehill.corebot.chat.model.template
 
 import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.config.model.readActionConfigAttribute
+import java.util.regex.Pattern
 
 /**
  * Parses tokens into placeholder values.
  */
 abstract class BaseActionTemplate : ActionTemplate {
-    protected val placeholderValues = mutableMapOf<String, String>()
     protected abstract val actionConfigs: List<ActionConfig>
+    override val placeholderValues = mutableMapOf<String, String>()
+    override val templateRegex: Pattern? = null
 
     override val actionTemplates: String
         get() = readActionConfigAttribute(actionConfigs, ActionConfig::template)
@@ -34,11 +36,6 @@ abstract class BaseActionTemplate : ActionTemplate {
     }
 
     /**
-     * Hook for subclasses.
-     */
-    open fun onTemplateSatisfied() = true
-
-    /**
      * A short, human readable description.
      */
     protected fun buildShortDescription(actionConfig: ActionConfig? = null) =
@@ -49,4 +46,15 @@ abstract class BaseActionTemplate : ActionTemplate {
      */
     override fun buildStartMessage(options: Map<String, String>, actionConfig: ActionConfig?) =
             actionConfig?.let { "I'm working on *${actionConfig.name}*..." } ?: run { "I'm working on it..." }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is BaseActionTemplate) return false
+
+        if (javaClass != other.javaClass) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int = javaClass.hashCode()
 }

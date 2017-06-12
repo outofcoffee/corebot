@@ -38,10 +38,11 @@ class RundeckJobTriggerService @Inject constructor(private val actionDriver: Run
         try {
             call = actionDriver.buildApiClient().runJob(
                     jobId = action.jobId,
-                    executionOptions = ExecutionOptions(argString = buildArgString(args),
-                    asUser = if (action.runAsTriggerUser) trigger.username else "")
+                    executionOptions = ExecutionOptions(
+                            argString = buildArgString(args),
+                            asUser = if (action.runAsTriggerUser) trigger.username else "")
             )
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             future.completeExceptionally(e)
             return
         }
@@ -84,7 +85,7 @@ class RundeckJobTriggerService @Inject constructor(private val actionDriver: Run
             argString.append(" ")
             if (it.value.contains(" ")) {
                 argString.append("\"").append(it.value).append("\"")
-            }else{
+            } else {
                 argString.append(it.value)
             }
         }

@@ -8,7 +8,7 @@ import org.apache.logging.log4j.Logger
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.util.*
+import java.util.HashMap
 import java.util.concurrent.CompletableFuture
 import javax.inject.Inject
 

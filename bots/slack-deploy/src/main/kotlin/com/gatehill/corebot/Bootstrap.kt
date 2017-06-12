@@ -2,7 +2,14 @@ package com.gatehill.corebot
 
 import com.gatehill.corebot.action.driver.ActionDriverFactory
 import com.gatehill.corebot.chat.TemplateService
-import com.gatehill.corebot.chat.model.template.*
+import com.gatehill.corebot.chat.model.template.DisableJobTemplate
+import com.gatehill.corebot.chat.model.template.EnableJobTemplate
+import com.gatehill.corebot.chat.model.template.LockActionTemplate
+import com.gatehill.corebot.chat.model.template.LockOptionTemplate
+import com.gatehill.corebot.chat.model.template.ShowHelpTemplate
+import com.gatehill.corebot.chat.model.template.StatusJobTemplate
+import com.gatehill.corebot.chat.model.template.UnlockActionTemplate
+import com.gatehill.corebot.chat.model.template.UnlockOptionTemplate
 import com.gatehill.corebot.driver.jenkins.action.JenkinsActionDriver
 import com.gatehill.corebot.driver.rundeck.action.RundeckActionDriver
 import javax.inject.Inject

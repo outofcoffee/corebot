@@ -1,12 +1,40 @@
 rootProject.name = 'corebot'
 
-include ':backends:deployment:jobs'
 include ':backends:deployment:jenkins'
+project(':backends:deployment:jenkins').name = 'backends-deployment-jenkins'
+
+include ':backends:deployment:jobs'
+project(':backends:deployment:jobs').name = 'backends-deployment-jobs'
+
 include ':backends:deployment:rundeck'
+project(':backends:deployment:rundeck').name = 'backends-deployment-rundeck'
+
+include ':backends:items'
+project(':backends:items').name = 'backends-items'
+
 include ':bots:common'
+project(':bots:common').name = 'bots-common'
+
 include ':bots:slack-deploy'
+project(':bots:slack-deploy').name = 'bots-slack-deploy'
+
+include ':bots:slack-items'
+project(':bots:slack-items').name = 'bots-slack-items'
+
 include ':core:api'
+project(':core:api').name = 'core-api'
+
 include ':core:engine'
+project(':core:engine').name = 'core-engine'
+
 include ':core:rest'
-include ':stores:redis'
+project(':core:rest').name = 'core-rest'
+
+include ':frontends:common'
+project(':frontends:common').name = 'frontends-common'
+
 include ':frontends:slack'
+project(':frontends:slack').name = 'frontends-slack'
+
+include ':stores:redis'
+project(':stores:redis').name = 'stores-redis'

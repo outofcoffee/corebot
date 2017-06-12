@@ -1,0 +1,10 @@
+# Example for use with the ownable items driver.
+---
+version: '1'
+
+actions:
+  sit:
+    driver: items
+
+  prod:
+    driver: items

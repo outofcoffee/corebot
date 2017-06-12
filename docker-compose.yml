@@ -3,7 +3,7 @@ version: '2'
 services:
   corebot:
     image: outofcoffee/corebot
-    build: .
+    build: ./bots/slack-deploy
     environment:
       SLACK_AUTH_TOKEN: "CHANGEME"
       SLACK_CHANNELS: "corebot"

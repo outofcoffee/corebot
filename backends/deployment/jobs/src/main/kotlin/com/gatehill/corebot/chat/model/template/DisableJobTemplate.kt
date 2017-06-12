@@ -2,7 +2,7 @@ package com.gatehill.corebot.chat.model.template
 
 import com.gatehill.corebot.chat.model.action.ActionType
 import com.gatehill.corebot.config.ConfigService
-import java.util.*
+import java.util.LinkedList
 import javax.inject.Inject
 
 /**

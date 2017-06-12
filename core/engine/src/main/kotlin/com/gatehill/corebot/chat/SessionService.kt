@@ -9,4 +9,6 @@ interface SessionService {
     val botUsername: String
     fun sendMessage(triggerContext: TriggerContext, message: String)
     fun addReaction(triggerContext: TriggerContext, emojiCode: String)
+    fun lookupUsername(userId: String): String
+    fun lookupUserRealName(userId: String): String
 }

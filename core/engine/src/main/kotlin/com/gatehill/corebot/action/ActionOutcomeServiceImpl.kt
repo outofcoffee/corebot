@@ -48,7 +48,6 @@ open class ActionOutcomeServiceImpl @Inject constructor(private val sessionServi
 
     override fun handleTimeout(trigger: TriggerContext, action: ActionConfig, blockDescription: String) {
         logger.error("Timed out '$blockDescription' after ${Settings.execution.executionTimeout}ms")
-
         sessionService.addReaction(trigger, "x")
 
         val timeoutSecs = TimeUnit.MILLISECONDS.toSeconds(Settings.execution.executionTimeout.toLong())

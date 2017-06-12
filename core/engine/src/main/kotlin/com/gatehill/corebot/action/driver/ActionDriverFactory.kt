@@ -22,7 +22,7 @@ class ActionDriverFactory @Inject constructor(private val injector: Injector) {
             logger.trace("Loading driver $driverClass for action driver: $actionDriverName")
             return injector.getInstance(driverClass)
 
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             throw UnsupportedOperationException("Action driver '$actionDriverName' not supported")
         }
     }
