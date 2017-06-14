@@ -1,0 +1,14 @@
+buildscript {
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$version_kotlin"
+    }
+}
+
+apply plugin: 'kotlin'
+
+dependencies {
+    compile project(':core:core-engine')
+
+    compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.42'
+    compile 'org.jetbrains.exposed:exposed:0.8'
+}

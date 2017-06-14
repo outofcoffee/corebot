@@ -27,7 +27,7 @@ deployment:
       - /bin/bash ./scripts/docker-build.sh beta
 
   edge:
-    branch: feature/ownable-items
+    branch: feature/mysql-store
     commands:
       - ./gradlew publish --stacktrace
       - /bin/bash ./scripts/docker-build.sh edge

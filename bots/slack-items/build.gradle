@@ -13,6 +13,7 @@ dependencies {
     compile project(':bots:bots-common')
     compile project(':backends:backends-items')
     compile project(':stores:stores-redis')
+    compile project(':stores:stores-mysql')
     compile project(':frontends:frontends-slack')
 }
 

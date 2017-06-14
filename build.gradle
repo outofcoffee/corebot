@@ -7,7 +7,7 @@ allprojects {
     ext.awsSecretKey = System.getenv('AWS_SECRET_ACCESS_KEY') ?: project.findProperty('AWS_SECRET_ACCESS_KEY')
 
     buildscript {
-        ext.version_kotlin = '1.1.2-4'
+        ext.version_kotlin = '1.1.2-5'
         ext.version_junit_platform_gradle = '1.0.0-M4'
         ext.version_spek = '1.1.2'
         ext.version_kluent = '1.22'
@@ -28,6 +28,7 @@ allprojects {
         mavenCentral()
         jcenter()
         maven { url "https://jitpack.io" }
+        maven { url "http://dl.bintray.com/kotlin/exposed" }
     }
 
     apply plugin: "maven-publish"
