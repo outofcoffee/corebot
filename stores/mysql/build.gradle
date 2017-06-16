@@ -12,3 +12,20 @@ dependencies {
     compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.42'
     compile 'org.jetbrains.exposed:exposed:0.8'
 }
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+            repositories {
+                maven {
+                    url mavenSnapshotRepository
+                    credentials(AwsCredentials) {
+                        accessKey awsAccessKey
+                        secretKey awsSecretKey
+                    }
+                }
+            }
+        }
+    }
+}
