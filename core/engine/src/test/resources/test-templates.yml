@@ -1,0 +1,5 @@
+# Test templates.
+---
+test:
+  - template: stringTemplate
+  - template: /regexTemplate/

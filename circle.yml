@@ -25,3 +25,9 @@ deployment:
     commands:
       - ./gradlew publish --stacktrace
       - /bin/bash ./scripts/docker-build.sh -e beta
+
+  generic:
+    branch: feature/generic-bot
+    commands:
+      - ./gradlew publish --stacktrace
+      - /bin/bash ./scripts/docker-build.sh -e generic

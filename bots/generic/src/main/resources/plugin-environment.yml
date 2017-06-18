@@ -1,0 +1,4 @@
+# Plugin environment configuration.
+---
+repositories:
+  gatehill: "https://gatehillsoftware-maven.s3.amazonaws.com/snapshots/"

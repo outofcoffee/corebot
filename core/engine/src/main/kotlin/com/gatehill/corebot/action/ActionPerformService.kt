@@ -1,7 +1,7 @@
 package com.gatehill.corebot.action
 
-import com.gatehill.corebot.action.model.PerformActionRequest
-import com.gatehill.corebot.action.model.PerformActionResult
+import com.gatehill.corebot.operation.model.PerformActionRequest
+import com.gatehill.corebot.operation.model.PerformActionResult
 import java.util.concurrent.CompletableFuture
 
 /**

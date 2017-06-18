@@ -1,0 +1,43 @@
+apply plugin: 'war'
+
+dependencies {
+    compile(project(':backends:deployment:backends-deployment-jenkins')) {
+        // TODO derive these from the engine and api modules' transitive dependencies
+        exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib'
+        exclude group: 'org.jetbrains.kotlin', module: 'kotlin-reflect'
+        exclude group: 'org.jetbrains', module: 'annotations'
+        exclude group: 'javax.inject', module: 'javax.inject'
+        exclude group: 'org.apache.logging.log4j', module: 'log4j-api'
+        exclude group: 'com.google.inject', module: 'guice'
+        exclude group: 'com.google.guava', module: 'guava'
+        exclude group: 'com.fasterxml.jackson.module', module: 'jackson-module-kotlin'
+        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
+        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-annotations'
+        exclude group: 'com.fasterxml.jackson.dataformat', module: 'jackson-dataformat-yaml'
+        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-core'
+        exclude group: 'org.yaml', module: 'snakeyaml'
+        exclude group: 'aopalliance', module: 'aopalliance'
+        exclude group: 'ch.qos.logback', module: 'logback-classic'
+        exclude group: 'org.slf4j', module: 'slf4j-api'
+        exclude group: 'com.gatehill.corebot', module: 'core-api'
+        exclude group: 'com.gatehill.corebot', module: 'core-engine'
+    }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.web
+
+            repositories {
+                maven {
+                    url mavenSnapshotRepository
+                    credentials(AwsCredentials) {
+                        accessKey awsAccessKey
+                        secretKey awsSecretKey
+                    }
+                }
+            }
+        }
+    }
+}

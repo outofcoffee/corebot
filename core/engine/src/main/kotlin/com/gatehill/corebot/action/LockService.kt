@@ -1,6 +1,6 @@
 package com.gatehill.corebot.action
 
-import com.gatehill.corebot.action.model.PerformActionResult
+import com.gatehill.corebot.operation.model.PerformActionResult
 import com.gatehill.corebot.chat.ChatGenerator
 import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.store.DataStore

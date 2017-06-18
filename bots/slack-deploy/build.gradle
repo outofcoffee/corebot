@@ -17,7 +17,7 @@ dependencies {
     compile project(':frontends:frontends-slack')
 }
 
-mainClassName = 'com.gatehill.corebot.MainKt'
+mainClassName = 'com.gatehill.corebot.bot.MainKt'
 
 task createStartScripts(type: CreateStartScripts) {
     applicationName = 'corebot'

@@ -1,7 +1,12 @@
 rootProject.name = 'corebot'
 
+// backends
+
 include ':backends:deployment:jenkins'
 project(':backends:deployment:jenkins').name = 'backends-deployment-jenkins'
+
+include ':backends:deployment:jenkins:plugin'
+project(':backends:deployment:jenkins:plugin').name = 'backends-deployment-jenkins-plugin'
 
 include ':backends:deployment:jobs'
 project(':backends:deployment:jobs').name = 'backends-deployment-jobs'
@@ -9,11 +14,22 @@ project(':backends:deployment:jobs').name = 'backends-deployment-jobs'
 include ':backends:deployment:rundeck'
 project(':backends:deployment:rundeck').name = 'backends-deployment-rundeck'
 
+include ':backends:deployment:rundeck:plugin'
+project(':backends:deployment:rundeck:plugin').name = 'backends-deployment-rundeck-plugin'
+
 include ':backends:items'
 project(':backends:items').name = 'backends-items'
 
+include ':backends:items:plugin'
+project(':backends:items:plugin').name = 'backends-items-plugin'
+
+// bots
+
 include ':bots:common'
 project(':bots:common').name = 'bots-common'
+
+include ':bots:generic'
+project(':bots:generic').name = 'bots-generic'
 
 include ':bots:slack-deploy'
 project(':bots:slack-deploy').name = 'bots-slack-deploy'
@@ -24,14 +40,21 @@ project(':bots:slack-items').name = 'bots-slack-items'
 include ':bots:websocket-items'
 project(':bots:websocket-items').name = 'bots-websocket-items'
 
+// core
+
 include ':core:api'
 project(':core:api').name = 'core-api'
 
 include ':core:engine'
 project(':core:engine').name = 'core-engine'
 
+include ':core:plugin'
+project(':core:plugin').name = 'core-plugin'
+
 include ':core:rest'
 project(':core:rest').name = 'core-rest'
+
+// frontends
 
 include ':frontends:common'
 project(':frontends:common').name = 'frontends-common'
@@ -39,11 +62,25 @@ project(':frontends:common').name = 'frontends-common'
 include ':frontends:slack'
 project(':frontends:slack').name = 'frontends-slack'
 
+include ':frontends:slack:plugin'
+project(':frontends:slack:plugin').name = 'frontends-slack-plugin'
+
 include ':frontends:websocket'
 project(':frontends:websocket').name = 'frontends-websocket'
+
+include ':frontends:websocket:plugin'
+project(':frontends:websocket:plugin').name = 'frontends-websocket-plugin'
+
+// stores
 
 include ':stores:redis'
 project(':stores:redis').name = 'stores-redis'
 
+include ':stores:redis:plugin'
+project(':stores:redis:plugin').name = 'stores-redis-plugin'
+
 include ':stores:mysql'
 project(':stores:mysql').name = 'stores-mysql'
+
+include ':stores:mysql:plugin'
+project(':stores:mysql:plugin').name = 'stores-mysql-plugin'

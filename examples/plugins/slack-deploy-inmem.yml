@@ -1,0 +1,18 @@
+---
+frontends:
+- dependency: com.gatehill.corebot:frontends-slack-plugin:war:1.1.0-SNAPSHOT
+  classes:
+  - com.gatehill.corebot.frontend.slack.SlackModule
+
+backends:
+- dependency: com.gatehill.corebot:backends-deployment-jenkins-plugin:war:1.1.0-SNAPSHOT
+  classes:
+  - com.gatehill.corebot.backend.jobs.JobsDriverModule
+  - com.gatehill.corebot.backend.jenkins.JenkinsDriverModule
+
+- dependency: com.gatehill.corebot:backends-deployment-rundeck-plugin:war:1.1.0-SNAPSHOT
+  classes:
+  - com.gatehill.corebot.backend.jobs.JobsDriverModule
+  - com.gatehill.corebot.backend.rundeck.RundeckDriverModule
+
+storage: []
