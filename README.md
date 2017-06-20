@@ -462,7 +462,9 @@ For recent changes see the [Changelog](CHANGELOG.md), or view the [Roadmap](docs
 
 ## Contributing
 
-Pull requests are welcome.
+* Pull requests are welcome.
+* PRs should target the `develop` branch.
+* Please run `ktlint` against the code first ;-)
 
 ## Author
 
