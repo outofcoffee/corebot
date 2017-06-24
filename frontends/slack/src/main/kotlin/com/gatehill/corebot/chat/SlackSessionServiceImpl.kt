@@ -50,9 +50,9 @@ open class SlackSessionServiceImpl @Inject constructor(configService: ConfigServ
     override val botUsername: String
         get() = session.sessionPersona().userName
 
-    override fun sendMessage(triggerContext: TriggerContext, message: String) {
-        sendMessage(session.findChannelById(triggerContext.channelId), triggerContext.messageTimestamp,
-                triggerContext.messageThreadTimestamp, message)
+    override fun sendMessage(trigger: TriggerContext, message: String) {
+        sendMessage(session.findChannelById(trigger.channelId), trigger.messageTimestamp,
+                trigger.messageThreadTimestamp, message)
     }
 
     override fun sendMessage(event: SlackMessagePosted, message: String) {
@@ -83,13 +83,13 @@ open class SlackSessionServiceImpl @Inject constructor(configService: ConfigServ
         session.sendMessage(channel, messageBuilder.build())
     }
 
-    override fun addReaction(triggerContext: TriggerContext, emojiCode: String) {
-        session.addReactionToMessage(session.findChannelById(triggerContext.channelId), triggerContext.messageTimestamp, emojiCode)
+    override fun addReaction(trigger: TriggerContext, emojiCode: String) {
+        session.addReactionToMessage(session.findChannelById(trigger.channelId), trigger.messageTimestamp, emojiCode)
     }
 
-    override fun lookupUsername(userId: String): String =
+    override fun lookupUsername(trigger: TriggerContext, userId: String): String =
             session.findUserById(userId).userName
 
-    override fun lookupUserRealName(userId: String): String =
+    override fun lookupUserRealName(trigger: TriggerContext, userId: String): String =
             session.findUserById(userId).realName
 }

@@ -1,5 +1,6 @@
 package com.gatehill.corebot.chat.model.template
 
+import com.gatehill.corebot.action.model.TriggerContext
 import com.gatehill.corebot.chat.model.action.Action
 import com.gatehill.corebot.chat.model.action.ActionType
 import com.gatehill.corebot.config.model.ActionConfig
@@ -36,12 +37,13 @@ interface ActionTemplate {
     /**
      * List the actions from this template.
      */
-    fun buildActions(): List<Action>
+    fun buildActions(trigger: TriggerContext): List<Action>
 
     /**
      * Build the message for when this action starts.
      */
-    fun buildStartMessage(options: Map<String, String> = emptyMap(),
+    fun buildStartMessage(trigger: TriggerContext,
+                          options: Map<String, String> = emptyMap(),
                           actionConfig: ActionConfig? = null): String
 
     /**

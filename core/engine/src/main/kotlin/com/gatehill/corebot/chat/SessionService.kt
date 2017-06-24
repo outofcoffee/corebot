@@ -7,8 +7,8 @@ import com.gatehill.corebot.action.model.TriggerContext
  */
 interface SessionService {
     val botUsername: String
-    fun sendMessage(triggerContext: TriggerContext, message: String)
-    fun addReaction(triggerContext: TriggerContext, emojiCode: String)
-    fun lookupUsername(userId: String): String
-    fun lookupUserRealName(userId: String): String
+    fun sendMessage(trigger: TriggerContext, message: String)
+    fun addReaction(trigger: TriggerContext, emojiCode: String)
+    fun lookupUsername(trigger: TriggerContext, userId: String): String
+    fun lookupUserRealName(trigger: TriggerContext, userId: String): String
 }

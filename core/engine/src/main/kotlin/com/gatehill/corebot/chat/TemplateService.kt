@@ -18,6 +18,11 @@ class TemplateService @Inject constructor(private val injector: Injector,
     private val logger = LogManager.getLogger(TemplateService::class.java)
 
     /**
+     * The regular expression to tokenise messages.
+     */
+    private val messagePartRegex = "\"?( |$)(?=(([^\"]*\"){2})*[^\"]*$)\"?".toRegex()
+
+    /**
      * Unique set of templates.
      */
     private val actionTemplates = mutableSetOf<Class<out ActionTemplate>>()
@@ -31,7 +36,7 @@ class TemplateService @Inject constructor(private val injector: Injector,
      *
      * @param commandOnly - the command, excluding any initial bot reference
      */
-    fun findSatisfiedTemplates(commandOnly: List<String>): Collection<ActionTemplate> {
+    fun findSatisfiedTemplates(commandOnly: String): Collection<ActionTemplate> {
         val candidates = fetchCandidates()
 
         // include those satisfying templates
@@ -52,9 +57,9 @@ class TemplateService @Inject constructor(private val injector: Injector,
     /**
      * Filter candidates based on their template (or `tokens` property).
      */
-    private fun filterSimpleTemplates(commandOnly: List<String>, candidates: Collection<ActionTemplate>) =
+    private fun filterSimpleTemplates(commandOnly: String, candidates: Collection<ActionTemplate>) =
             candidates.filter { candidate ->
-                commandOnly.forEach { token ->
+                splitMessageParts(commandOnly).forEach { token ->
                     // push command elements into the candidate templates
                     if (!candidate.accept(token)) {
                         return@filter false
@@ -67,11 +72,14 @@ class TemplateService @Inject constructor(private val injector: Injector,
                 candidate.tokens.isEmpty()
             }
 
+    private fun splitMessageParts(message: String) =
+            message.trim().split(messagePartRegex).filterNot(String::isBlank)
+
     /**
      * Filter candidates based on their `templateRegex` property.
      */
-    private fun filterRegexTemplates(commandOnly: List<String>, candidates: Collection<ActionTemplate>) =
-            candidates.map { it to it.templateRegex!!.matcher(commandOnly.joinToString(" ")) }
+    private fun filterRegexTemplates(commandOnly: String, candidates: Collection<ActionTemplate>) =
+            candidates.map { it to it.templateRegex!!.matcher(commandOnly) }
                     .filter { (_, matcher) -> matcher.matches() }
                     .map { (template, matcher) -> injectPlaceholderValues(template, matcher) }
                     .filter { it.onTemplateSatisfied() }

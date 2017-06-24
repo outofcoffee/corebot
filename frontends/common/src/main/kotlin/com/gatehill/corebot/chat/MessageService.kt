@@ -29,34 +29,41 @@ class MessageService @Inject constructor(private val sessionService: SessionServ
     private val logger: Logger = LogManager.getLogger(MessageService::class.java)
 
     /**
-     * Allow subclasses to hook into Slack events.
+     * Handle a message.
      */
-    fun handleMessage(commandOnly: List<String>, trigger: TriggerContext) {
+    fun handleMessage(trigger: TriggerContext, commandOnly: String) {
         // indicate busy...
         sessionService.addReaction(trigger, "hourglass_flowing_sand")
 
-        parseMessage(commandOnly)?.let { parsed ->
+        parseMessage(trigger, commandOnly)?.let { parsed ->
             logger.info("Handling command '$commandOnly' from ${trigger.username}")
             parsed.groupStartMessage?.let { sessionService.sendMessage(trigger, it) }
             parsed.actions.forEach { action -> handleAction(trigger, action, parsed) }
 
         } ?: run {
             logger.warn("Ignored command '$commandOnly' from ${trigger.username}")
-            sessionService.addReaction(trigger, "question")
-            printUsage(trigger)
+            handleUnknownCommand(trigger)
         }
+    }
+
+    /**
+     * Respond indicating the command was unknown.
+     */
+    fun handleUnknownCommand(trigger: TriggerContext) {
+        sessionService.addReaction(trigger, "question")
+        printUsage(trigger)
     }
 
     /**
      * Determine the Action to perform based on the provided command.
      */
-    private fun parseMessage(commandOnly: List<String>): ActionWrapper? {
+    private fun parseMessage(trigger: TriggerContext, commandOnly: String): ActionWrapper? {
         try {
             templateService.findSatisfiedTemplates(commandOnly).let { satisfied ->
                 if (satisfied.size == 1) {
                     return with(satisfied.first()) {
-                        ActionWrapper(buildActions(),
-                                if (actionMessageMode == ActionMessageMode.GROUP) buildStartMessage() else null,
+                        ActionWrapper(buildActions(trigger),
+                                if (actionMessageMode == ActionMessageMode.GROUP) buildStartMessage(trigger) else null,
                                 if (actionMessageMode == ActionMessageMode.GROUP) buildCompleteMessage() else null)
                     }
                 } else {

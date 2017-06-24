@@ -1,5 +1,6 @@
 package com.gatehill.corebot.chat.model.template
 
+import com.gatehill.corebot.action.model.TriggerContext
 import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.config.model.readActionConfigAttribute
 import java.util.regex.Pattern
@@ -44,7 +45,7 @@ abstract class BaseActionTemplate : ActionTemplate {
     /**
      * The response message sent when this actionType is fired.
      */
-    override fun buildStartMessage(options: Map<String, String>, actionConfig: ActionConfig?) =
+    override fun buildStartMessage(trigger: TriggerContext, options: Map<String, String>, actionConfig: ActionConfig?) =
             actionConfig?.let { "I'm working on *${actionConfig.name}*..." } ?: run { "I'm working on it..." }
 
     override fun equals(other: Any?): Boolean {

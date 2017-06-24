@@ -1,5 +1,6 @@
 package com.gatehill.corebot.chat.model.template
 
+import com.gatehill.corebot.action.model.TriggerContext
 import com.gatehill.corebot.chat.model.action.Action
 import com.gatehill.corebot.chat.model.action.CustomAction
 import com.gatehill.corebot.config.model.ActionConfig
@@ -13,12 +14,12 @@ abstract class CustomActionTemplate : BaseActionTemplate() {
     /**
      * List the actions from this template.
      */
-    override fun buildActions(): List<Action> {
+    override fun buildActions(trigger: TriggerContext): List<Action> {
         return actionConfigs.map { actionConfig ->
             val options = transform(actionConfig, placeholderValues)
             CustomAction(actionType,
                     buildShortDescription(actionConfig),
-                    if (actionMessageMode == ActionMessageMode.INDIVIDUAL && actionConfig.showJobOutcome) buildStartMessage(options, actionConfig) else null,
+                    if (actionMessageMode == ActionMessageMode.INDIVIDUAL && actionConfig.showJobOutcome) buildStartMessage(trigger, options, actionConfig) else null,
                     actionConfig.tags,
                     actionConfig.driver,
                     actionConfig,

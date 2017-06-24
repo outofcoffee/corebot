@@ -1,5 +1,6 @@
 package com.gatehill.corebot.driver.items.chat.model.template
 
+import com.gatehill.corebot.action.model.TriggerContext
 import com.gatehill.corebot.chat.model.action.ActionType
 import com.gatehill.corebot.config.ConfigService
 import com.gatehill.corebot.config.model.ActionConfig
@@ -17,7 +18,7 @@ open class BorrowItemTemplate @Inject constructor(configService: ConfigService) 
     override val templateRegex: Pattern?
         get() = "borrow\\s+(?<itemName>[a-zA-Z0-9]+)\\s*(?<optionalSubItemName>.*)\\s+for\\s+(?<reason>.+)".toPattern()
 
-    override fun buildStartMessage(options: Map<String, String>, actionConfig: ActionConfig?) = ""
+    override fun buildStartMessage(trigger: TriggerContext, options: Map<String, String>, actionConfig: ActionConfig?) = ""
 
     companion object {
         val subItemPlaceholder = "optionalSubItemName"

@@ -1,5 +1,6 @@
 package com.gatehill.corebot.driver.items.chat.model.template
 
+import com.gatehill.corebot.action.model.TriggerContext
 import com.gatehill.corebot.chat.model.action.ActionType
 import com.gatehill.corebot.config.ConfigService
 import com.gatehill.corebot.config.model.ActionConfig
@@ -13,5 +14,5 @@ import javax.inject.Inject
 class StatusItemTemplate @Inject constructor(configService: ConfigService) : BaseItemTemplate(configService) {
     override val actionType: ActionType = ItemsActionType.ITEM_STATUS
     override val tokens = LinkedList(listOf("status", "{$itemPlaceholder}"))
-    override fun buildStartMessage(options: Map<String, String>, actionConfig: ActionConfig?) = ""
+    override fun buildStartMessage(trigger: TriggerContext, options: Map<String, String>, actionConfig: ActionConfig?) = ""
 }

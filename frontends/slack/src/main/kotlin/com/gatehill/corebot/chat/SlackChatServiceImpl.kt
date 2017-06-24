@@ -2,10 +2,10 @@ package com.gatehill.corebot.chat
 
 import com.gatehill.corebot.action.model.TriggerContext
 import com.gatehill.corebot.config.ChatSettings
-import com.ullink.slack.simpleslackapi.SlackPersona
 import com.ullink.slack.simpleslackapi.listeners.SlackMessagePostedListener
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
+import java.util.regex.Pattern
 import javax.inject.Inject
 
 /**
@@ -17,6 +17,7 @@ open class SlackChatServiceImpl @Inject constructor(private val sessionService: 
                                                     private val messageService: MessageService) : ChatService {
 
     private val logger: Logger = LogManager.getLogger(SlackChatServiceImpl::class.java)
+    private val messageMatcher = Pattern.compile("<@(?<botUser>[a-zA-Z0-9]+)>:?(\\s(?<command>.+))?")
 
     override fun listenForEvents() {
         messagePostedListeners.forEach { sessionService.session.addMessagePostedListener(it) }
@@ -43,13 +44,25 @@ open class SlackChatServiceImpl @Inject constructor(private val sessionService: 
         try {
             // some message events have null content
             event.messageContent?.trim()?.let { messageContent ->
-                val splitCmd = messageContent.split("\"?( |$)(?=(([^\"]*\"){2})*[^\"]*$)\"?".toRegex()).filterNot(String::isBlank)
+                // determine whether message is addressed to the bot
+                val matcher = messageMatcher.matcher(messageContent)
+                matcher.takeIf { it.matches() }?.takeIf { it.group("botUser") == session.sessionPersona().id }?.run {
 
-                if (splitCmd.isNotEmpty() && isAddressedToBot(session.sessionPersona(), splitCmd[0])) {
-                    // skip element 0, which contains the bot's username
-                    val commandOnly = splitCmd.subList(1, splitCmd.size)
-                    messageService.handleMessage(commandOnly, trigger)
+                    // look for a command token
+                    val command = try {
+                        matcher.group("command")
+                    } catch (e: IllegalStateException) {
+                        null
+                    }
+
+                    command?.let {
+                        messageService.handleMessage(trigger, it)
+                    } ?: run {
+                        logger.warn("Ignoring malformed command '$messageContent' from ${trigger.username}")
+                        messageService.handleUnknownCommand(trigger)
+                    }
                 }
+
             } ?: logger.trace("Ignoring event with null message: $event")
 
         } catch (e: Exception) {
@@ -60,9 +73,3 @@ open class SlackChatServiceImpl @Inject constructor(private val sessionService: 
         }
     })
 }
-
-/**
- * Determine if the message is addressed to the bot.
- */
-fun isAddressedToBot(botPersona: SlackPersona, firstToken: String) =
-        firstToken == "<@${botPersona.id}>" || firstToken == "<@${botPersona.id}>:"

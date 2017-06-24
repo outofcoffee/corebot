@@ -1,6 +1,7 @@
 package com.gatehill.corebot.chat.model.template
 
 import com.gatehill.corebot.chat.ChatGenerator
+import com.gatehill.corebot.action.model.TriggerContext
 import com.gatehill.corebot.chat.model.action.ActionType
 import com.gatehill.corebot.config.model.ActionConfig
 import java.util.LinkedList
@@ -24,7 +25,7 @@ class TriggerJobTemplate(action: ActionConfig,
         tokens = LinkedList(action.template.split("\\s".toRegex()).filterNot(String::isBlank))
     }
 
-    override fun buildStartMessage(options: Map<String, String>, actionConfig: ActionConfig?): String {
+    override fun buildStartMessage(trigger: TriggerContext, options: Map<String, String>, actionConfig: ActionConfig?): String {
         actionConfig ?: throw IllegalArgumentException("Empty actionConfig")
 
         val msg = StringBuilder()

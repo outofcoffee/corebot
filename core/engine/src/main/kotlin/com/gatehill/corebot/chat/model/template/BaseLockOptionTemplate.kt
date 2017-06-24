@@ -1,6 +1,7 @@
 package com.gatehill.corebot.chat.model.template
 
 import com.gatehill.corebot.chat.ChatGenerator
+import com.gatehill.corebot.action.model.TriggerContext
 import com.gatehill.corebot.chat.model.action.CoreActionType
 import com.gatehill.corebot.config.ConfigService
 import com.gatehill.corebot.config.model.ActionConfig
@@ -36,7 +37,7 @@ abstract class BaseLockOptionTemplate @Inject constructor(private val configServ
         return actionConfigs.isNotEmpty()
     }
 
-    override fun buildStartMessage(options: Map<String, String>, actionConfig: ActionConfig?): String {
+    override fun buildStartMessage(trigger: TriggerContext, options: Map<String, String>, actionConfig: ActionConfig?): String {
         return "${chatGenerator.pleaseWait()}, I'm ${if (actionType == CoreActionType.LOCK_OPTION) "locking" else "unlocking"} *$optionName $optionValue*..."
     }
 
