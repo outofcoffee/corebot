@@ -20,17 +20,13 @@ interface ActionTemplate {
     val placeholderValues: MutableMap<String, String>
 
     /**
-     * Convert the action templates to a human-readable String.
+     * Describe the action templates as a human-readable `String`.
      */
     val actionTemplates: String
 
     /**
-     * Process the token and return true if it was accepted.
-     */
-    fun accept(input: String): Boolean
-
-    /**
-     * Hook for subclasses.
+     * Hook for subclasses to do things like manipulate placeholders once
+     * the template has been fully satisfied.
      */
     fun onTemplateSatisfied() = true
 

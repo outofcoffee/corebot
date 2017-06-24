@@ -41,8 +41,8 @@ class TemplateService @Inject constructor(private val injector: Injector,
 
         // include those satisfying templates
         return mutableSetOf<ActionTemplate>().apply {
-            addAll(filterSimpleTemplates(commandOnly, candidates.filter { null == it.templateRegex }))
-            addAll(filterRegexTemplates(commandOnly, candidates.filterNot { null == it.templateRegex }))
+            addAll(filterSimpleTemplates(candidates.filter { null == it.templateRegex }, commandOnly))
+            addAll(filterRegexTemplates(candidates.filterNot { null == it.templateRegex }, commandOnly))
         }
     }
 
@@ -57,28 +57,51 @@ class TemplateService @Inject constructor(private val injector: Injector,
     /**
      * Filter candidates based on their template (or `tokens` property).
      */
-    private fun filterSimpleTemplates(commandOnly: String, candidates: Collection<ActionTemplate>) =
-            candidates.filter { candidate ->
-                splitMessageParts(commandOnly).forEach { token ->
-                    // push command elements into the candidate templates
-                    if (!candidate.accept(token)) {
-                        return@filter false
-                    }
-                }
-                return@filter true
+    private fun filterSimpleTemplates(candidates: Collection<ActionTemplate>, commandOnly: String) =
+            candidates.filter { candidate -> parseCommand(candidate, commandOnly) }
 
-            }.filter { candidate ->
-                // include only satisfied candidates
-                candidate.tokens.isEmpty()
+    /**
+     * Split the command into elements and return `true` if all were processed successfully.
+     */
+    private fun parseCommand(template: ActionTemplate, command: String): Boolean {
+        command.trim().split(messagePartRegex).filterNot(String::isBlank).forEach { element ->
+            // fail as soon as an element is rejected
+            if (!parseElement(template, element)) {
+                return false
             }
+        }
 
-    private fun splitMessageParts(message: String) =
-            message.trim().split(messagePartRegex).filterNot(String::isBlank)
+        // consider only fully satisfied templates
+        return template.tokens.isEmpty()
+    }
+
+    /**
+     * Parse a command element and return `true` if it was accepted.
+     */
+    private fun parseElement(template: ActionTemplate, element: String): Boolean {
+        if (template.tokens.size == 0) return false
+        val token = template.tokens.poll()
+
+        val accepted: Boolean
+
+        val match = "\\{(.*)}".toRegex().matchEntire(token)
+        if (null == match) {
+            // syntactic sugar
+            accepted = token.equals(element, ignoreCase = true)
+
+        } else {
+            // option placeholder
+            template.placeholderValues[match.groupValues[1]] = element
+            accepted = true
+        }
+
+        return if (accepted && template.tokens.isEmpty()) template.onTemplateSatisfied() else accepted
+    }
 
     /**
      * Filter candidates based on their `templateRegex` property.
      */
-    private fun filterRegexTemplates(commandOnly: String, candidates: Collection<ActionTemplate>) =
+    private fun filterRegexTemplates(candidates: Collection<ActionTemplate>, commandOnly: String) =
             candidates.map { it to it.templateRegex!!.matcher(commandOnly) }
                     .filter { (_, matcher) -> matcher.matches() }
                     .map { (template, matcher) -> injectPlaceholderValues(template, matcher) }

@@ -16,26 +16,6 @@ abstract class BaseActionTemplate : ActionTemplate {
     override val actionTemplates: String
         get() = readActionConfigAttribute(actionConfigs, ActionConfig::template)
 
-    override fun accept(input: String): Boolean {
-        if (tokens.size == 0) return false
-        val token = tokens.poll()
-
-        val accepted: Boolean
-
-        val match = "\\{(.*)}".toRegex().matchEntire(token)
-        if (null == match) {
-            // syntactic sugar
-            accepted = token.equals(input, ignoreCase = true)
-
-        } else {
-            // option placeholder
-            placeholderValues[match.groupValues[1]] = input
-            accepted = true
-        }
-
-        return if (accepted && tokens.isEmpty()) onTemplateSatisfied() else accepted
-    }
-
     /**
      * A short, human readable description.
      */
@@ -51,10 +31,7 @@ abstract class BaseActionTemplate : ActionTemplate {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is BaseActionTemplate) return false
-
-        if (javaClass != other.javaClass) return false
-
-        return true
+        return (javaClass != other.javaClass)
     }
 
     override fun hashCode(): Int = javaClass.hashCode()
