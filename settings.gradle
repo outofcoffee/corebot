@@ -38,3 +38,6 @@ project(':frontends:slack').name = 'frontends-slack'
 
 include ':stores:redis'
 project(':stores:redis').name = 'stores-redis'
+
+include ':stores:mysql'
+project(':stores:mysql').name = 'stores-mysql'

@@ -25,9 +25,3 @@ deployment:
     commands:
       - ./gradlew publish --stacktrace
       - /bin/bash ./scripts/docker-build.sh beta
-
-  edge:
-    branch: feature/ownable-items
-    commands:
-      - ./gradlew publish --stacktrace
-      - /bin/bash ./scripts/docker-build.sh edge
