@@ -3,7 +3,6 @@ package com.gatehill.corebot.chat.model.template
 import com.gatehill.corebot.chat.model.action.ActionType
 import com.gatehill.corebot.chat.model.action.CoreActionType
 import com.gatehill.corebot.config.ConfigService
-import java.util.LinkedList
 import javax.inject.Inject
 
 /**
@@ -12,5 +11,4 @@ import javax.inject.Inject
 class LockActionTemplate @Inject constructor(configService: ConfigService) : NamedActionTemplate(configService) {
     override val actionType: ActionType = CoreActionType.LOCK_ACTION
     override val actionMessageMode = ActionMessageMode.INDIVIDUAL
-    override val tokens = LinkedList(listOf("lock", "{${actionPlaceholder}}"))
 }

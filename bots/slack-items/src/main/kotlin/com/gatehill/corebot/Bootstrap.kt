@@ -3,6 +3,7 @@ package com.gatehill.corebot
 import com.gatehill.corebot.action.driver.ActionDriverFactory
 import com.gatehill.corebot.chat.TemplateService
 import com.gatehill.corebot.chat.model.template.ShowHelpTemplate
+import com.gatehill.corebot.chat.parser.TemplateConfigService
 import com.gatehill.corebot.driver.items.action.ItemsActionDriverImpl
 import com.gatehill.corebot.driver.items.chat.model.template.BorrowItemAsUserTemplate
 import com.gatehill.corebot.driver.items.chat.model.template.BorrowItemTemplate
@@ -23,6 +24,7 @@ class Bootstrap @Inject constructor(actionDriverFactory: ActionDriverFactory,
         actionDriverFactory.registerDriver("items", ItemsActionDriverImpl::class.java)
 
         // templates
+        TemplateConfigService.registerClasspathTemplateFile("/items-templates.yml")
         templateService.registerTemplate(ShowHelpTemplate::class.java)
         templateService.registerTemplate(BorrowItemTemplate::class.java)
         templateService.registerTemplate(BorrowItemAsUserTemplate::class.java)

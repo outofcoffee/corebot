@@ -1,11 +1,10 @@
 package com.gatehill.corebot.chat.model.template
 
-import com.gatehill.corebot.chat.ChatGenerator
 import com.gatehill.corebot.action.model.TriggerContext
+import com.gatehill.corebot.chat.ChatGenerator
 import com.gatehill.corebot.chat.model.action.ActionType
+import com.gatehill.corebot.chat.parser.StringParser
 import com.gatehill.corebot.config.model.ActionConfig
-import java.util.LinkedList
-import java.util.Queue
 
 /**
  * Triggers job execution.
@@ -18,11 +17,10 @@ class TriggerJobTemplate(action: ActionConfig,
     override val actionType: ActionType = JobActionType.TRIGGER
     override val actionMessageMode = ActionMessageMode.INDIVIDUAL
     override val actionConfigs: List<ActionConfig>
-    override val tokens: Queue<String>
 
     init {
         this.actionConfigs = mutableListOf(action)
-        tokens = LinkedList(action.template.split("\\s".toRegex()).filterNot(String::isBlank))
+        parsers += StringParser.StringParserConfig(action.template, action.template)
     }
 
     override fun buildStartMessage(trigger: TriggerContext, options: Map<String, String>, actionConfig: ActionConfig?): String {

@@ -3,19 +3,17 @@ package com.gatehill.corebot.chat.model.template
 import com.gatehill.corebot.action.model.TriggerContext
 import com.gatehill.corebot.chat.model.action.Action
 import com.gatehill.corebot.chat.model.action.ActionType
+import com.gatehill.corebot.chat.parser.ParserConfig
 import com.gatehill.corebot.config.model.ActionConfig
-import java.util.Queue
-import java.util.regex.Pattern
 
 /**
  * An abstract representation of a templated action.
  */
 interface ActionTemplate {
+    val parsers: MutableList<ParserConfig>
     val builtIn: Boolean
     val showInUsage: Boolean
     val actionType: ActionType
-    val tokens: Queue<String>
-    val templateRegex: Pattern?
     val actionMessageMode: ActionMessageMode
     val placeholderValues: MutableMap<String, String>
 
@@ -47,6 +45,15 @@ interface ActionTemplate {
      */
     fun buildCompleteMessage(): String = ""
 }
+
+/**
+ * Must be implemented by templates that can have regex parser config.
+ */
+interface PlaceholderKeysTemplate {
+    val placeholderKeys: List<String>
+}
+
+interface RegexActionTemplate : ActionTemplate, PlaceholderKeysTemplate
 
 enum class ActionMessageMode {
     INDIVIDUAL,

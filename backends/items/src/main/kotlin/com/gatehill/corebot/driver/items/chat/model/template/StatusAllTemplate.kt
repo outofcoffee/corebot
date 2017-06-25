@@ -7,7 +7,6 @@ import com.gatehill.corebot.chat.model.template.SystemActionTemplate
 import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.driver.items.action.model.ItemsActionType
 import com.gatehill.corebot.driver.items.service.ClaimService
-import java.util.LinkedList
 import javax.inject.Inject
 
 /**
@@ -18,7 +17,6 @@ class StatusAllTemplate @Inject constructor(val claimService: ClaimService) : Sy
     override val showInUsage = true
     override val actionMessageMode = ActionMessageMode.INDIVIDUAL
     override val actionType: ActionType = ItemsActionType.ALL_STATUS
-    override val tokens = LinkedList(listOf("status"))
 
     override fun buildStartMessage(trigger: TriggerContext, options: Map<String, String>, actionConfig: ActionConfig?) =
             claimService.describeAllItemStatus(trigger)

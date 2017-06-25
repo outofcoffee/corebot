@@ -9,6 +9,7 @@ import com.gatehill.corebot.config.ConfigService
 import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.driver.items.chat.model.template.BorrowItemAsUserTemplate
 import com.gatehill.corebot.driver.items.chat.model.template.BorrowItemTemplate
+import com.gatehill.corebot.driver.items.chat.model.template.EvictUserFromItemTemplate
 import com.gatehill.corebot.driver.items.config.ItemSettings
 import com.gatehill.corebot.driver.items.config.OwnerDisplayMode
 import com.gatehill.corebot.store.DataStore
@@ -121,7 +122,7 @@ class ClaimService @Inject constructor(private val configService: ConfigService,
 
         synchronized(itemName) {
             checkItemClaims(action) { claims ->
-                val borrower = args[BorrowItemAsUserTemplate.borrowerPlaceholder]!!
+                val borrower = args[EvictUserFromItemTemplate.borrowerPlaceholder]!!
 
                 when (claims.size) {
                     1 -> itemClaims.remove(itemName)

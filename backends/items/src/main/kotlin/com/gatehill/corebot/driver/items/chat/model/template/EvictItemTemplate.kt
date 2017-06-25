@@ -5,7 +5,6 @@ import com.gatehill.corebot.chat.model.action.ActionType
 import com.gatehill.corebot.config.ConfigService
 import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.driver.items.action.model.ItemsActionType
-import java.util.LinkedList
 import javax.inject.Inject
 
 /**
@@ -13,6 +12,5 @@ import javax.inject.Inject
  */
 class EvictItemTemplate @Inject constructor(configService: ConfigService) : BaseItemTemplate(configService) {
     override val actionType: ActionType = ItemsActionType.ITEM_EVICT
-    override val tokens = LinkedList(listOf("evict", "{$itemPlaceholder}"))
     override fun buildStartMessage(trigger: TriggerContext, options: Map<String, String>, actionConfig: ActionConfig?) = ""
 }

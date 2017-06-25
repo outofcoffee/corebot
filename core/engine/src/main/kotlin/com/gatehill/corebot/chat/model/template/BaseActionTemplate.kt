@@ -1,17 +1,17 @@
 package com.gatehill.corebot.chat.model.template
 
 import com.gatehill.corebot.action.model.TriggerContext
+import com.gatehill.corebot.chat.parser.ParserConfig
 import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.config.model.readActionConfigAttribute
-import java.util.regex.Pattern
 
 /**
  * Parses tokens into placeholder values.
  */
 abstract class BaseActionTemplate : ActionTemplate {
+    override val parsers = mutableListOf<ParserConfig>()
     protected abstract val actionConfigs: List<ActionConfig>
     override val placeholderValues = mutableMapOf<String, String>()
-    override val templateRegex: Pattern? = null
 
     override val actionTemplates: String
         get() = readActionConfigAttribute(actionConfigs, ActionConfig::template)

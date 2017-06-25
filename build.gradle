@@ -12,7 +12,7 @@ allprojects {
         ext.version_spek = '1.1.2'
         ext.version_kluent = '1.22'
         ext.version_log4j = '2.5'
-        ext.version_jackson = '2.8.8'
+        ext.version_jackson = '2.9.0.pr4' // supports jacksonTypeRef
         ext.version_retrofit = '2.1.0'
         ext.version_slackapi = '0c58385'
         ext.version_guava = '18.0'
