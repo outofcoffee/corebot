@@ -1,6 +1,6 @@
 package com.gatehill.corebot.deploy
 
-import com.gatehill.corebot.chat.ActionTemplateConverter
+import com.gatehill.corebot.chat.template.ActionTemplateConverter
 import com.gatehill.corebot.chat.ChatGenerator
 import com.gatehill.corebot.chat.model.template.ActionTemplate
 import com.gatehill.corebot.chat.model.template.TriggerJobTemplate

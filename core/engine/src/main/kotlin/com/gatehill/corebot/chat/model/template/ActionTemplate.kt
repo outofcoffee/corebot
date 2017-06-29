@@ -53,6 +53,7 @@ interface PlaceholderKeysTemplate {
     val placeholderKeys: List<String>
 }
 
+// TODO replace this with an annotation, which includes the `placeholderKeys`
 interface RegexActionTemplate : ActionTemplate, PlaceholderKeysTemplate
 
 enum class ActionMessageMode {

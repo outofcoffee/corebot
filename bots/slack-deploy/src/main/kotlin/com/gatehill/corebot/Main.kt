@@ -1,7 +1,7 @@
 package com.gatehill.corebot
 
 import com.gatehill.corebot.action.LockService
-import com.gatehill.corebot.chat.ActionTemplateConverter
+import com.gatehill.corebot.chat.template.ActionTemplateConverter
 import com.gatehill.corebot.deploy.TriggerActionTemplateConverter
 import com.gatehill.corebot.driver.jenkins.JenkinsDriverModule
 import com.gatehill.corebot.driver.rundeck.RundeckDriverModule

@@ -2,7 +2,7 @@ package com.gatehill.corebot.chat.model.template
 
 import com.gatehill.corebot.action.model.TriggerContext
 import com.gatehill.corebot.chat.ChatGenerator
-import com.gatehill.corebot.chat.TemplateService
+import com.gatehill.corebot.chat.template.TemplateService
 import com.gatehill.corebot.chat.model.action.CoreActionType
 import com.gatehill.corebot.config.model.ActionConfig
 import javax.inject.Inject

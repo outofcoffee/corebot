@@ -1,11 +1,11 @@
-package com.gatehill.corebot.chat
+package com.gatehill.corebot.chat.template
 
+import com.gatehill.corebot.chat.SessionService
 import com.gatehill.corebot.chat.model.template.ActionTemplate
 import com.gatehill.corebot.chat.parser.CommandParser
 import com.gatehill.corebot.chat.parser.ParserConfig
 import com.gatehill.corebot.chat.parser.RegexParser
 import com.gatehill.corebot.chat.parser.StringParser
-import com.gatehill.corebot.chat.parser.TemplateConfigService
 import com.gatehill.corebot.config.ConfigService
 import com.google.inject.Injector
 import org.apache.logging.log4j.LogManager
@@ -17,7 +17,8 @@ import javax.inject.Inject
 class TemplateService @Inject constructor(private val injector: Injector,
                                           private val configService: ConfigService,
                                           private val sessionService: SessionService,
-                                          private val actionTemplateConverter: ActionTemplateConverter) {
+                                          private val actionTemplateConverter: ActionTemplateConverter,
+                                          private val templateConfigService: TemplateConfigService) {
 
     private val logger = LogManager.getLogger(TemplateService::class.java)
 
@@ -35,19 +36,21 @@ class TemplateService @Inject constructor(private val injector: Injector,
      *
      * @param commandOnly - the command, excluding any initial bot reference
      */
-    fun findSatisfiedTemplates(commandOnly: String): Collection<ActionTemplate> = fetchCandidates().filter { template ->
-        template.parsers.any { loadParser(it).parse(it, template, commandOnly) }
-    }.toSet()
+    fun findSatisfiedTemplates(commandOnly: String): Collection<ActionTemplate> = fetchCandidates()
+            .filter { template -> template.parsers.any { loadParser(it).parse(it, template, commandOnly) } }
+            .toSet()
 
-    // TODO cache instances or load as singletons as they're stateless
+    /**
+     * Load the `CommandParser` strategy for the given configuration.
+     */
     private fun loadParser(parserConfig: ParserConfig): CommandParser = when (parserConfig) {
         is StringParser.StringParserConfig -> injector.getInstance(StringParser::class.java)
         is RegexParser.RegexParserConfig -> injector.getInstance(RegexParser::class.java)
-        else -> throw IllegalStateException("Unsupported parser config: ${parserConfig::javaClass}")
+        else -> throw UnsupportedOperationException("Unsupported parser config: ${parserConfig::class.java.canonicalName}")
     }
 
     /**
-     * Returns a new `Set` of candidates.
+     * Return a new `Set` of candidates.
      */
     private fun fetchCandidates(): Set<ActionTemplate> = mutableSetOf<ActionTemplate>().apply {
         addAll(actionTemplateConverter.convertConfigToTemplate(configService.actions().values))
@@ -55,7 +58,7 @@ class TemplateService @Inject constructor(private val injector: Injector,
 
         // populate the parser configurations
         forEach { template ->
-            template.parsers += TemplateConfigService.loadParserConfig(template::class.java)
+            template.parsers += templateConfigService.loadParserConfig(template::class.java)
 
             // no parsers have been set
             if (template.parsers.isEmpty()) {
@@ -64,6 +67,9 @@ class TemplateService @Inject constructor(private val injector: Injector,
         }
     }
 
+    /**
+     * Provide a human-readable usage message.
+     */
     fun usage() = StringBuilder().apply {
         val sortedCandidates = fetchCandidates().toMutableList().apply {
             sortBy { candidate ->

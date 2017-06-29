@@ -1,9 +1,9 @@
 package com.gatehill.corebot
 
 import com.gatehill.corebot.action.driver.ActionDriverFactory
-import com.gatehill.corebot.chat.TemplateService
 import com.gatehill.corebot.chat.model.template.ShowHelpTemplate
-import com.gatehill.corebot.chat.parser.TemplateConfigService
+import com.gatehill.corebot.chat.template.TemplateConfigService
+import com.gatehill.corebot.chat.template.TemplateService
 import com.gatehill.corebot.driver.items.action.ItemsActionDriverImpl
 import com.gatehill.corebot.driver.items.chat.model.template.BorrowItemAsUserTemplate
 import com.gatehill.corebot.driver.items.chat.model.template.BorrowItemTemplate
@@ -18,13 +18,14 @@ import javax.inject.Inject
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
 class Bootstrap @Inject constructor(actionDriverFactory: ActionDriverFactory,
-                                    templateService: TemplateService) {
+                                    templateService: TemplateService,
+                                    templateConfigService: TemplateConfigService) {
     init {
         // drivers
         actionDriverFactory.registerDriver("items", ItemsActionDriverImpl::class.java)
 
         // templates
-        TemplateConfigService.registerClasspathTemplateFile("/items-templates.yml")
+        templateConfigService.registerClasspathTemplateFile("/items-templates.yml")
         templateService.registerTemplate(ShowHelpTemplate::class.java)
         templateService.registerTemplate(BorrowItemTemplate::class.java)
         templateService.registerTemplate(BorrowItemAsUserTemplate::class.java)

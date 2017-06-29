@@ -1,18 +1,24 @@
-package com.gatehill.corebot.chat.parser
+package com.gatehill.corebot.chat.template
 
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import com.gatehill.corebot.chat.model.template.ActionTemplate
+import com.gatehill.corebot.chat.parser.ParserConfig
+import com.gatehill.corebot.chat.parser.RegexParser
+import com.gatehill.corebot.chat.parser.StringParser
 import com.gatehill.corebot.util.yamlMapper
 import java.io.InputStream
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.regex.Pattern
 
-object TemplateConfigService {
+/**
+ * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
+ */
+class TemplateConfigService {
     private data class RawTemplateConfig(val template: String,
                                          val usage: String?)
 
-    private const val classpathPrefix = "classpath:"
+    private val classpathPrefix = "classpath:"
     private val templateFiles = mutableListOf<String>()
 
     init {
@@ -25,7 +31,7 @@ object TemplateConfigService {
     private val allConfigs: Map<String, Collection<RawTemplateConfig>> by lazy {
         val configMap = mutableMapOf<String, Collection<RawTemplateConfig>>()
 
-        templateFiles.map {
+        templateFiles.forEach {
             if (it.startsWith(classpathPrefix)) {
                 TemplateConfigService::class.java.getResourceAsStream(it.substring(classpathPrefix.length))
             } else {

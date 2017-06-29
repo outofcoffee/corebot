@@ -1,7 +1,7 @@
 package com.gatehill.corebot
 
-import com.gatehill.corebot.chat.ActionTemplateConverter
-import com.gatehill.corebot.chat.NoOpActionTemplateConverter
+import com.gatehill.corebot.chat.template.ActionTemplateConverter
+import com.gatehill.corebot.chat.template.NoOpActionTemplateConverter
 import com.gatehill.corebot.driver.items.ItemsDriverModule
 import com.gatehill.corebot.store.DataStoreModule
 import com.google.inject.AbstractModule

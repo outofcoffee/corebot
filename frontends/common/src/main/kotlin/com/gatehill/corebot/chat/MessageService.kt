@@ -7,6 +7,7 @@ import com.gatehill.corebot.chat.model.action.Action
 import com.gatehill.corebot.chat.model.action.ActionWrapper
 import com.gatehill.corebot.chat.model.action.CustomAction
 import com.gatehill.corebot.chat.model.template.ActionMessageMode
+import com.gatehill.corebot.chat.template.TemplateService
 import com.gatehill.corebot.config.ConfigService
 import com.gatehill.corebot.config.Settings
 import com.gatehill.corebot.security.AuthorisationService
