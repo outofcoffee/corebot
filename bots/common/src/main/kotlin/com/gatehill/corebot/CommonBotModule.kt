@@ -4,11 +4,11 @@ import com.gatehill.corebot.action.ActionOutcomeService
 import com.gatehill.corebot.action.ActionOutcomeServiceImpl
 import com.gatehill.corebot.action.ActionPerformService
 import com.gatehill.corebot.action.DirectActionPerformServiceImpl
-import com.gatehill.corebot.action.driver.ActionDriverFactory
 import com.gatehill.corebot.chat.ChatGenerator
 import com.gatehill.corebot.chat.template.TemplateService
 import com.gatehill.corebot.config.ConfigService
 import com.gatehill.corebot.config.ConfigServiceImpl
+import com.gatehill.corebot.driver.ActionDriverFactory
 import com.gatehill.corebot.security.AuthorisationService
 import com.google.inject.AbstractModule
 

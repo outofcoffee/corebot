@@ -1,7 +1,7 @@
-# Jobs backend templates.
+# Templates for jobs backend.
 ---
-DisableJobTemplate:
+disableJob:
   - template: disable {action or tag name}
 
-EnableJobTemplate:
+enableJob:
   - template: enable {action or tag name}

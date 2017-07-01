@@ -1,11 +1,11 @@
 package com.gatehill.corebot.action
 
-import com.gatehill.corebot.action.model.ActionStatus
 import com.gatehill.corebot.action.model.TriggerContext
 import com.gatehill.corebot.chat.ChatGenerator
 import com.gatehill.corebot.chat.SessionService
 import com.gatehill.corebot.config.Settings
 import com.gatehill.corebot.config.model.ActionConfig
+import com.gatehill.corebot.driver.model.ActionStatus
 import org.apache.logging.log4j.LogManager
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject

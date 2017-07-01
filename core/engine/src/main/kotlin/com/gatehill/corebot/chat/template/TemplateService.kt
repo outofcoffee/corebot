@@ -1,11 +1,12 @@
 package com.gatehill.corebot.chat.template
 
+import com.gatehill.corebot.action.ActionFactoryConverter
+import com.gatehill.corebot.action.factory.ActionFactory
 import com.gatehill.corebot.chat.SessionService
-import com.gatehill.corebot.chat.model.template.ActionTemplate
-import com.gatehill.corebot.chat.parser.CommandParser
-import com.gatehill.corebot.chat.parser.ParserConfig
-import com.gatehill.corebot.chat.parser.RegexParser
-import com.gatehill.corebot.chat.parser.StringParser
+import com.gatehill.corebot.chat.filter.CommandFilter
+import com.gatehill.corebot.chat.filter.FilterConfig
+import com.gatehill.corebot.chat.filter.RegexFilter
+import com.gatehill.corebot.chat.filter.StringFilter
 import com.gatehill.corebot.config.ConfigService
 import com.google.inject.Injector
 import org.apache.logging.log4j.LogManager
@@ -17,18 +18,18 @@ import javax.inject.Inject
 class TemplateService @Inject constructor(private val injector: Injector,
                                           private val configService: ConfigService,
                                           private val sessionService: SessionService,
-                                          private val actionTemplateConverter: ActionTemplateConverter,
+                                          private val actionFactoryConverter: ActionFactoryConverter,
                                           private val templateConfigService: TemplateConfigService) {
 
     private val logger = LogManager.getLogger(TemplateService::class.java)
 
     /**
-     * Unique set of templates.
+     * Unique set of factories.
      */
-    private val actionTemplates = mutableSetOf<Class<out ActionTemplate>>()
+    private val actionFactories = mutableSetOf<Class<out ActionFactory>>()
 
-    fun registerTemplate(template: Class<out ActionTemplate>) {
-        actionTemplates += template
+    fun registerTemplate(factory: Class<out ActionFactory>) {
+        actionFactories += factory
     }
 
     /**
@@ -36,33 +37,38 @@ class TemplateService @Inject constructor(private val injector: Injector,
      *
      * @param commandOnly - the command, excluding any initial bot reference
      */
-    fun findSatisfiedTemplates(commandOnly: String): Collection<ActionTemplate> = fetchCandidates()
-            .filter { template -> template.parsers.any { loadParser(it).parse(it, template, commandOnly) } }
-            .toSet()
+    fun findSatisfiedTemplates(commandOnly: String): Collection<ActionFactory> =
+            fetchCandidates().filter { factory -> factory.parsers.any { filterMatch(it, factory, commandOnly) } }.toSet()
 
     /**
-     * Load the `CommandParser` strategy for the given configuration.
+     * Invoke the filter's match function for the given factory.
      */
-    private fun loadParser(parserConfig: ParserConfig): CommandParser = when (parserConfig) {
-        is StringParser.StringParserConfig -> injector.getInstance(StringParser::class.java)
-        is RegexParser.RegexParserConfig -> injector.getInstance(RegexParser::class.java)
-        else -> throw UnsupportedOperationException("Unsupported parser config: ${parserConfig::class.java.canonicalName}")
+    private fun filterMatch(config: FilterConfig, factory: ActionFactory, commandOnly: String) =
+            loadFilter(config).matches(config, factory, templateConfigService.readMetadata(factory::class.java), commandOnly)
+
+    /**
+     * Load the filter for the given configuration.
+     */
+    private fun loadFilter(config: FilterConfig): CommandFilter = when (config) {
+        is StringFilter.StringFilterConfig -> injector.getInstance(StringFilter::class.java)
+        is RegexFilter.RegexFilterConfig -> injector.getInstance(RegexFilter::class.java)
+        else -> throw UnsupportedOperationException("Unsupported filter config: ${config::class.java.canonicalName}")
     }
 
     /**
      * Return a new `Set` of candidates.
      */
-    private fun fetchCandidates(): Set<ActionTemplate> = mutableSetOf<ActionTemplate>().apply {
-        addAll(actionTemplateConverter.convertConfigToTemplate(configService.actions().values))
-        addAll(actionTemplates.map({ actionTemplate -> injector.getInstance(actionTemplate) }))
+    private fun fetchCandidates(): Set<ActionFactory> = mutableSetOf<ActionFactory>().apply {
+        addAll(actionFactoryConverter.convertConfigToFactory(configService.actions().values))
+        addAll(actionFactories.map({ actionTemplate -> injector.getInstance(actionTemplate) }))
 
-        // populate the parser configurations
+        // populate the filter configurations
         forEach { template ->
-            template.parsers += templateConfigService.loadParserConfig(template::class.java)
+            template.parsers += templateConfigService.loadFilterConfig(template::class.java)
 
             // no parsers have been set
             if (template.parsers.isEmpty()) {
-                logger.warn("No parser configuration found for template: ${template::class.java.simpleName} - action ${template.actionType.name} cannot be invoked")
+                logger.warn("No filter configuration found for template: ${template::class.java.simpleName} - action ${template.actionType.name} cannot be invoked")
             }
         }
     }
@@ -80,7 +86,7 @@ class TemplateService @Inject constructor(private val injector: Injector,
             }
         }
 
-        val printTemplate: (ActionTemplate) -> Unit = { candidate ->
+        val printTemplate: (ActionFactory) -> Unit = { candidate ->
             appendln()
             append(candidate.parsers
                     .filter { it.usage != null }
@@ -88,7 +94,7 @@ class TemplateService @Inject constructor(private val injector: Injector,
                     .joinToString("\n"))
         }
 
-        val customActions = sortedCandidates.filter(ActionTemplate::showInUsage).filterNot(ActionTemplate::builtIn)
+        val customActions = sortedCandidates.filter(ActionFactory::showInUsage).filterNot(ActionFactory::builtIn)
         if (customActions.isNotEmpty()) {
             append("*Custom actions*")
             customActions.forEach(printTemplate)
@@ -96,7 +102,7 @@ class TemplateService @Inject constructor(private val injector: Injector,
 
         if (isNotEmpty()) repeat(2) { appendln() }
 
-        val builtInActions = sortedCandidates.filter(ActionTemplate::showInUsage).filter(ActionTemplate::builtIn)
+        val builtInActions = sortedCandidates.filter(ActionFactory::showInUsage).filter(ActionFactory::builtIn)
         if (builtInActions.isNotEmpty()) {
             append("*Built-in actions*")
             builtInActions.forEach(printTemplate)

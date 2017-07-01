@@ -1,6 +1,6 @@
 package com.gatehill.corebot.security
 
-import com.gatehill.corebot.chat.model.action.Action
+import com.gatehill.corebot.action.model.Action
 import com.gatehill.corebot.config.ConfigService
 import com.gatehill.corebot.config.model.SecurityConfig
 import com.gatehill.corebot.config.model.SecurityUserConfig

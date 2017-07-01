@@ -1,8 +1,8 @@
 package com.gatehill.corebot.action
 
+import com.gatehill.corebot.action.factory.BaseLockOptionFactory
 import com.gatehill.corebot.action.model.PerformActionResult
 import com.gatehill.corebot.chat.ChatGenerator
-import com.gatehill.corebot.chat.model.template.BaseLockOptionTemplate
 import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.store.DataStore
 import com.gatehill.corebot.store.partition
@@ -78,8 +78,8 @@ class LockService @Inject constructor(@Named("lockStore") private val lockStore:
     fun lockOption(future: CompletableFuture<PerformActionResult>, action: ActionConfig, args: Map<String, String>,
                    triggerMessageSenderId: String) {
 
-        val optionName = args[BaseLockOptionTemplate.optionNamePlaceholder]!!
-        val optionValue = args[BaseLockOptionTemplate.optionValuePlaceholder]!!
+        val optionName = args[BaseLockOptionFactory.optionNamePlaceholder]!!
+        val optionValue = args[BaseLockOptionFactory.optionValuePlaceholder]!!
 
         val lock = optionLocks[action.name]
         if (isOptionLocked(lock, optionName, optionValue)) {
@@ -105,8 +105,8 @@ class LockService @Inject constructor(@Named("lockStore") private val lockStore:
     }
 
     fun unlockOption(future: CompletableFuture<PerformActionResult>, action: ActionConfig, args: Map<String, String>) {
-        val optionName = args[BaseLockOptionTemplate.optionNamePlaceholder]!!
-        val optionValue = args[BaseLockOptionTemplate.optionValuePlaceholder]!!
+        val optionName = args[BaseLockOptionFactory.optionNamePlaceholder]!!
+        val optionValue = args[BaseLockOptionFactory.optionValuePlaceholder]!!
 
         val lock = optionLocks[action.name]
         if (isOptionLocked(lock, optionName, optionValue)) {

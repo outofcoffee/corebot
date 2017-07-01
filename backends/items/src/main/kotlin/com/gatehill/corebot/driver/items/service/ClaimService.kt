@@ -7,9 +7,9 @@ import com.gatehill.corebot.chat.ChatGenerator
 import com.gatehill.corebot.chat.SessionService
 import com.gatehill.corebot.config.ConfigService
 import com.gatehill.corebot.config.model.ActionConfig
-import com.gatehill.corebot.driver.items.chat.model.template.BorrowItemAsUserTemplate
-import com.gatehill.corebot.driver.items.chat.model.template.BorrowItemTemplate
-import com.gatehill.corebot.driver.items.chat.model.template.EvictUserFromItemTemplate
+import com.gatehill.corebot.driver.items.action.factory.BorrowItemAsUserFactory
+import com.gatehill.corebot.driver.items.action.factory.BorrowItemFactory
+import com.gatehill.corebot.driver.items.action.factory.EvictUserFromItemFactory
 import com.gatehill.corebot.driver.items.config.ItemSettings
 import com.gatehill.corebot.driver.items.config.OwnerDisplayMode
 import com.gatehill.corebot.store.DataStore
@@ -46,11 +46,11 @@ class ClaimService @Inject constructor(private val configService: ConfigService,
 
         synchronized(itemName) {
             checkItemClaims(action) { claims ->
-                val reason: String = args[BorrowItemTemplate.reasonPlaceholder]!!
-                val subItem: String? = args[BorrowItemTemplate.subItemPlaceholder]
+                val reason: String = args[BorrowItemFactory.reasonPlaceholder]!!
+                val subItem: String? = args[BorrowItemFactory.subItemPlaceholder]
 
                 // check if on behalf of another user
-                val borrower = args[BorrowItemAsUserTemplate.borrowerPlaceholder] ?: triggerMessageSenderId
+                val borrower = args[BorrowItemAsUserFactory.borrowerPlaceholder] ?: triggerMessageSenderId
 
                 itemClaims[itemName] = ItemClaims(claims.toMutableList().apply {
 
@@ -122,7 +122,7 @@ class ClaimService @Inject constructor(private val configService: ConfigService,
 
         synchronized(itemName) {
             checkItemClaims(action) { claims ->
-                val borrower = args[EvictUserFromItemTemplate.borrowerPlaceholder]!!
+                val borrower = args[EvictUserFromItemFactory.borrowerPlaceholder]!!
 
                 when (claims.size) {
                     1 -> itemClaims.remove(itemName)

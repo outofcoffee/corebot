@@ -1,8 +1,8 @@
 package com.gatehill.corebot.action
 
-import com.gatehill.corebot.action.model.ActionStatus
 import com.gatehill.corebot.action.model.TriggerContext
 import com.gatehill.corebot.config.model.ActionConfig
+import com.gatehill.corebot.driver.model.ActionStatus
 
 /**
  * Handles the outcome of performing an action and notifies the user appropriately.

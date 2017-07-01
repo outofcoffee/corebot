@@ -1,12 +1,12 @@
 package com.gatehill.corebot.chat
 
 import com.gatehill.corebot.action.ActionPerformService
+import com.gatehill.corebot.action.factory.ActionMessageMode
+import com.gatehill.corebot.action.model.Action
+import com.gatehill.corebot.action.model.ActionWrapper
+import com.gatehill.corebot.action.model.CustomAction
 import com.gatehill.corebot.action.model.PerformActionRequest
 import com.gatehill.corebot.action.model.TriggerContext
-import com.gatehill.corebot.chat.model.action.Action
-import com.gatehill.corebot.chat.model.action.ActionWrapper
-import com.gatehill.corebot.chat.model.action.CustomAction
-import com.gatehill.corebot.chat.model.template.ActionMessageMode
 import com.gatehill.corebot.chat.template.TemplateService
 import com.gatehill.corebot.config.ConfigService
 import com.gatehill.corebot.config.Settings

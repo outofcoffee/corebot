@@ -1,10 +1,11 @@
 package com.gatehill.corebot.chat.template
 
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
-import com.gatehill.corebot.chat.model.template.ActionTemplate
-import com.gatehill.corebot.chat.parser.ParserConfig
-import com.gatehill.corebot.chat.parser.RegexParser
-import com.gatehill.corebot.chat.parser.StringParser
+import com.gatehill.corebot.action.factory.ActionFactory
+import com.gatehill.corebot.action.factory.Template
+import com.gatehill.corebot.chat.filter.FilterConfig
+import com.gatehill.corebot.chat.filter.RegexFilter
+import com.gatehill.corebot.chat.filter.StringFilter
 import com.gatehill.corebot.util.yamlMapper
 import java.io.InputStream
 import java.nio.file.Path
@@ -56,17 +57,17 @@ class TemplateConfigService {
             yamlMapper.readValue<Map<String, List<RawTemplateConfig>>>(fileStream,
                     jacksonTypeRef<Map<String, List<RawTemplateConfig>>>())
 
-    fun loadParserConfig(templateName: String): List<ParserConfig> =
+    fun loadFilterConfig(templateName: String): List<FilterConfig> =
             allConfigs.filterKeys { it == templateName }.values.flatMap { config ->
                 config.map {
                     // TODO use regex instead
                     if (it.template.startsWith("/") && it.template.endsWith("/")) {
-                        RegexParser.RegexParserConfig(
+                        RegexFilter.RegexFilterConfig(
                                 template = Pattern.compile(it.template.substring(1, it.template.length - 1)),
                                 usage = it.usage
                         )
                     } else {
-                        StringParser.StringParserConfig(
+                        StringFilter.StringFilterConfig(
                                 template = it.template,
                                 usage = it.usage ?: it.template
                         )
@@ -74,8 +75,12 @@ class TemplateConfigService {
                 }
             }
 
-    fun loadParserConfig(templateClass: Class<out ActionTemplate>) =
-            loadParserConfig(templateClass.simpleName)
+    fun loadFilterConfig(factoryClass: Class<out ActionFactory>) =
+            loadFilterConfig(readMetadata(factoryClass).templateName)
+
+    fun readMetadata(factoryClass: Class<out ActionFactory>): Template =
+            factoryClass.getAnnotationsByType(Template::class.java).firstOrNull()
+                    ?: throw IllegalStateException("Missing @Template annotation for: ${factoryClass.canonicalName}")
 
     fun registerClasspathTemplateFile(classpathFile: String) {
         templateFiles += "$classpathPrefix$classpathFile"

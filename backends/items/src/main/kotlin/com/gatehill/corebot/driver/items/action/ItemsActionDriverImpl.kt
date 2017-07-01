@@ -1,10 +1,10 @@
 package com.gatehill.corebot.driver.items.action
 
-import com.gatehill.corebot.action.driver.ActionDriver
+import com.gatehill.corebot.action.model.ActionType
 import com.gatehill.corebot.action.model.PerformActionResult
 import com.gatehill.corebot.action.model.TriggerContext
-import com.gatehill.corebot.chat.model.action.ActionType
 import com.gatehill.corebot.config.model.ActionConfig
+import com.gatehill.corebot.driver.ActionDriver
 import com.gatehill.corebot.driver.items.action.model.ItemsActionType
 import com.gatehill.corebot.driver.items.service.ClaimService
 import java.util.concurrent.CompletableFuture

@@ -1,6 +1,6 @@
 package com.gatehill.corebot.driver.items.action.model
 
-import com.gatehill.corebot.chat.model.action.CoreActionType
+import com.gatehill.corebot.action.model.CoreActionType
 
 class ItemsActionType(name: String, description: String) : CoreActionType(name, description) {
     companion object {

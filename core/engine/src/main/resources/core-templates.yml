@@ -1,21 +1,21 @@
 # Core templates.
 ---
-ShowHelpTemplate:
+help:
   - template: help
   - template: usage
 
-LockActionTemplate:
+lockAction:
   - template: lock {action or tag name}
 
-UnlockActionTemplate:
+unlockAction:
   - template: unlock {action or tag name}
 
-StatusActionTemplate:
+statusAction:
   - template: status {action or tag name}
   - template: status of {action or tag name}
 
-LockOptionTemplate:
+lockOption:
   - template: lock {option name} {option value}
 
-UnlockOptionTemplate:
+unlockOption:
   - template: unlock {option name} {option value}
