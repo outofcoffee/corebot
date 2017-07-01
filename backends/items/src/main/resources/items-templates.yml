@@ -1,0 +1,25 @@
+# Templates for items backend.
+---
+borrowItemAsUser:
+  - template: /as\s\<@(?<borrower>[a-zA-Z0-9]+)\>\sborrow\s+(?<itemName>[a-zA-Z0-9]+)\s*(?<optionalSubItemName>.*)\s+for\s+(?<reason>.+)/
+    usage: as {borrower} borrow {itemName} {optionalSubItemName} for {reason}
+
+borrowItem:
+  - template: /borrow\s+(?<itemName>[a-zA-Z0-9]+)\s*(?<optionalSubItemName>.*)\s+for\s+(?<reason>.+)/
+    usage: borrow {itemName} {optionalSubItemName} for {reason}
+
+evictItem:
+  - template: evict {itemName}
+
+evictUserFromItem:
+  - template: /evict\s\<@(?<borrower>[a-zA-Z0-9]+)\>\sfrom\s+(?<itemName>[a-zA-Z0-9]+)/
+    usage: evict {borrower} from {itemName}
+
+returnItem:
+  - template: return {itemName}
+
+statusAllItems:
+  - template: status
+
+statusItem:
+  - template: status {itemName}

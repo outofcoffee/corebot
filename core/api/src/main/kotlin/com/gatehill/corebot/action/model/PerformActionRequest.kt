@@ -1,6 +1,5 @@
 package com.gatehill.corebot.action.model
 
-import com.gatehill.corebot.chat.model.action.ActionType
 import com.gatehill.corebot.config.model.ActionConfig
 
 /**

@@ -1,0 +1,21 @@
+# Core templates.
+---
+help:
+  - template: help
+  - template: usage
+
+lockAction:
+  - template: lock {action or tag name}
+
+unlockAction:
+  - template: unlock {action or tag name}
+
+statusAction:
+  - template: status {action or tag name}
+  - template: status of {action or tag name}
+
+lockOption:
+  - template: lock {option name} {option value}
+
+unlockOption:
+  - template: unlock {option name} {option value}
