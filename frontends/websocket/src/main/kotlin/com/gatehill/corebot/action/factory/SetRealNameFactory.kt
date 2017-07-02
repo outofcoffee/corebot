@@ -1,21 +1,21 @@
-package com.gatehill.corebot.chat.model.template
+package com.gatehill.corebot.action.factory
 
 import com.gatehill.corebot.action.model.TriggerContext
 import com.gatehill.corebot.chat.WebSocketSessionService
-import com.gatehill.corebot.chat.model.action.WebSocketActionType
+import com.gatehill.corebot.action.model.WebSocketActionType
 import com.gatehill.corebot.config.model.ActionConfig
-import java.util.LinkedList
 import javax.inject.Inject
 
 /**
+ * Sets the real name for the current session.
  *
- * @author pete
+ * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
-class SetRealNameTemplate @Inject constructor(private val sessionService: WebSocketSessionService) : SystemActionTemplate() {
-    override val showInUsage = true
+@Template("setRealName", showInUsage = true, builtIn = true, actionMessageMode = ActionMessageMode.INDIVIDUAL,
+        placeholderKeys = arrayOf(SetRealNameFactory.realNamePlaceholder)
+)
+class SetRealNameFactory @Inject constructor(private val sessionService: WebSocketSessionService) : SystemActionFactory() {
     override val actionType = WebSocketActionType.SET_REAL_NAME
-    override val tokens = LinkedList(listOf("real", "name", "{$realNamePlaceholder}"))
-    override val actionMessageMode: ActionMessageMode = ActionMessageMode.INDIVIDUAL
 
     private val realName: String
         get() = placeholderValues[realNamePlaceholder]!!
@@ -26,6 +26,6 @@ class SetRealNameTemplate @Inject constructor(private val sessionService: WebSoc
     }
 
     companion object {
-        val realNamePlaceholder = "real name"
+        const val realNamePlaceholder = "realName"
     }
 }

@@ -8,8 +8,7 @@ import com.gatehill.corebot.chat.WebSocketSessionServiceImpl
 import com.google.inject.AbstractModule
 
 /**
- *
- * @author pete
+ * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
 class WebSocketModule : AbstractModule() {
     override fun configure() {

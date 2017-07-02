@@ -1,0 +1,7 @@
+# Templates for websocket frontend.
+---
+setUsername:
+  - template: username {username}
+
+setRealName:
+  - template: real name {realName}
