@@ -9,7 +9,7 @@ import javax.inject.Inject
 /**
  * Unlocks an option value.
  */
-@Template("unlockOption")
+@Template("unlockOption", builtIn = true, showInUsage = true, actionMessageMode = ActionMessageMode.GROUP)
 class UnlockOptionFactory @Inject constructor(configService: ConfigService,
                                               chatGenerator: ChatGenerator) : BaseLockOptionFactory(configService, chatGenerator) {
 

@@ -1,5 +1,6 @@
 package com.gatehill.corebot.driver.items.action.factory
 
+import com.gatehill.corebot.action.factory.ActionMessageMode
 import com.gatehill.corebot.action.factory.Template
 import com.gatehill.corebot.action.model.ActionType
 import com.gatehill.corebot.action.model.TriggerContext
@@ -11,11 +12,12 @@ import javax.inject.Inject
 /**
  * Borrow an item.
  */
-@Template("borrowItem", placeholderKeys = arrayOf(
-        BaseItemFactory.itemPlaceholder,
-        BorrowItemFactory.subItemPlaceholder,
-        BorrowItemFactory.reasonPlaceholder
-))
+@Template("borrowItem", builtIn = true, showInUsage = true, actionMessageMode = ActionMessageMode.INDIVIDUAL,
+        placeholderKeys = arrayOf(
+                BaseItemFactory.itemPlaceholder,
+                BorrowItemFactory.subItemPlaceholder,
+                BorrowItemFactory.reasonPlaceholder
+        ))
 open class BorrowItemFactory @Inject constructor(configService: ConfigService) : BaseItemFactory(configService) {
     override val actionType: ActionType = ItemsActionType.ITEM_BORROW
 

@@ -8,8 +8,7 @@ import javax.inject.Inject
 /**
  * Unlocks an action.
  */
-@Template("unlockAction")
+@Template("unlockAction", builtIn = true, showInUsage = true, actionMessageMode = ActionMessageMode.INDIVIDUAL)
 class UnlockActionFactory @Inject constructor(configService: ConfigService) : NamedActionFactory(configService) {
     override val actionType: ActionType = CoreActionType.UNLOCK_ACTION
-    override val actionMessageMode = ActionMessageMode.INDIVIDUAL
 }

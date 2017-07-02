@@ -12,14 +12,11 @@ import com.gatehill.corebot.config.model.ActionConfig
 /**
  * Triggers job execution.
  */
-@Template("triggerJob")
+@Template("triggerJob", builtIn = false, showInUsage = true, actionMessageMode = ActionMessageMode.INDIVIDUAL)
 class TriggerJobFactory(action: ActionConfig,
                         private val chatGenerator: ChatGenerator) : CustomActionFactory() {
 
-    override val builtIn = false
-    override val showInUsage = true
     override val actionType: ActionType = JobActionType.TRIGGER
-    override val actionMessageMode = ActionMessageMode.INDIVIDUAL
     override val actionConfigs: List<ActionConfig>
 
     init {

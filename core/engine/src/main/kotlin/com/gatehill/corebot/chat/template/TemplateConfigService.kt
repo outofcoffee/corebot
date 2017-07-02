@@ -2,7 +2,7 @@ package com.gatehill.corebot.chat.template
 
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import com.gatehill.corebot.action.factory.ActionFactory
-import com.gatehill.corebot.action.factory.Template
+import com.gatehill.corebot.action.factory.readActionFactoryMetadata
 import com.gatehill.corebot.chat.filter.FilterConfig
 import com.gatehill.corebot.chat.filter.RegexFilter
 import com.gatehill.corebot.chat.filter.StringFilter
@@ -76,11 +76,7 @@ class TemplateConfigService {
             }
 
     fun loadFilterConfig(factoryClass: Class<out ActionFactory>) =
-            loadFilterConfig(readMetadata(factoryClass).templateName)
-
-    fun readMetadata(factoryClass: Class<out ActionFactory>): Template =
-            factoryClass.getAnnotationsByType(Template::class.java).firstOrNull()
-                    ?: throw IllegalStateException("Missing @Template annotation for: ${factoryClass.canonicalName}")
+            loadFilterConfig(readActionFactoryMetadata(factoryClass).templateName)
 
     fun registerClasspathTemplateFile(classpathFile: String) {
         templateFiles += "$classpathPrefix$classpathFile"

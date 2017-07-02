@@ -9,7 +9,6 @@ import com.gatehill.corebot.config.model.ActionConfig
  * Represents a system action.
  */
 abstract class SystemActionFactory : BaseActionFactory() {
-    override val builtIn = true
     override val actionConfigs = emptyList<ActionConfig>()
 
     override fun buildActions(trigger: TriggerContext): List<Action> {

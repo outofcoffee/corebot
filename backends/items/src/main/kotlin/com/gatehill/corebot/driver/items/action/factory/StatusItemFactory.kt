@@ -1,5 +1,6 @@
 package com.gatehill.corebot.driver.items.action.factory
 
+import com.gatehill.corebot.action.factory.ActionMessageMode
 import com.gatehill.corebot.action.factory.Template
 import com.gatehill.corebot.action.model.ActionType
 import com.gatehill.corebot.action.model.TriggerContext
@@ -11,7 +12,7 @@ import javax.inject.Inject
 /**
  * Show status and claims for an item.
  */
-@Template("statusItem")
+@Template("statusItem",  builtIn = true, showInUsage = true, actionMessageMode = ActionMessageMode.INDIVIDUAL)
 class StatusItemFactory @Inject constructor(configService: ConfigService) : BaseItemFactory(configService) {
     override val actionType: ActionType = ItemsActionType.ITEM_STATUS
     override fun buildStartMessage(trigger: TriggerContext, options: Map<String, String>, actionConfig: ActionConfig?) = ""

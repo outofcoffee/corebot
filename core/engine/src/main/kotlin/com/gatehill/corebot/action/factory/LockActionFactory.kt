@@ -8,8 +8,7 @@ import javax.inject.Inject
 /**
  * Locks an action.
  */
-@Template("lockAction")
+@Template("lockAction", builtIn = true, showInUsage = true, actionMessageMode = ActionMessageMode.INDIVIDUAL)
 class LockActionFactory @Inject constructor(configService: ConfigService) : NamedActionFactory(configService) {
     override val actionType: ActionType = CoreActionType.LOCK_ACTION
-    override val actionMessageMode = ActionMessageMode.INDIVIDUAL
 }

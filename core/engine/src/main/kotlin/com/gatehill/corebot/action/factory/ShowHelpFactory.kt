@@ -10,13 +10,11 @@ import javax.inject.Inject
 /**
  * Shows a help/usage message.
  */
-@Template("help")
+@Template("help", builtIn = true, showInUsage = false, actionMessageMode = ActionMessageMode.INDIVIDUAL)
 class ShowHelpFactory @Inject constructor(private val templateService: TemplateService,
                                           private val chatGenerator: ChatGenerator) : SystemActionFactory() {
 
-    override val showInUsage = false
     override val actionType = CoreActionType.HELP
-    override val actionMessageMode = ActionMessageMode.INDIVIDUAL
 
     override fun buildStartMessage(trigger: TriggerContext, options: Map<String, String>, actionConfig: ActionConfig?): String {
         return "${chatGenerator.greeting()} :simple_smile: Try one of these:\r\n${templateService.usage()}"

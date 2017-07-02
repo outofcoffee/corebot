@@ -1,7 +1,6 @@
 package com.gatehill.corebot.chat.filter
 
 import com.gatehill.corebot.action.factory.ActionFactory
-import com.gatehill.corebot.action.factory.Template
 import java.util.LinkedList
 import java.util.Queue
 
@@ -14,7 +13,7 @@ class StringFilter : CommandFilter {
     class StringFilterConfig(val template: String,
                              usage: String?) : FilterConfig(usage)
 
-    override fun matches(config: FilterConfig, factory: ActionFactory, template: Template, command: String) =
+    override fun matches(config: FilterConfig, factory: ActionFactory, command: String) =
             parseCommand(config as StringFilterConfig, factory, command)
 
     /**

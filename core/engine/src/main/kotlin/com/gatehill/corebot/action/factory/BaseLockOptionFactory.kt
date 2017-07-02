@@ -13,9 +13,6 @@ import javax.inject.Inject
 abstract class BaseLockOptionFactory @Inject constructor(private val configService: ConfigService,
                                                          private val chatGenerator: ChatGenerator) : CustomActionFactory() {
 
-    override val builtIn = true
-    override val showInUsage = true
-    override val actionMessageMode = ActionMessageMode.GROUP
     override val actionConfigs = mutableListOf<ActionConfig>()
 
     private val optionName: String

@@ -13,11 +13,8 @@ import javax.inject.Inject
 /**
  * Show status and claims for all items.
  */
-@Template("statusAllItems")
+@Template("statusAllItems", builtIn = true, showInUsage = true, actionMessageMode = ActionMessageMode.INDIVIDUAL)
 class StatusAllFactory @Inject constructor(val claimService: ClaimService) : SystemActionFactory() {
-    override val builtIn = false
-    override val showInUsage = true
-    override val actionMessageMode = ActionMessageMode.INDIVIDUAL
     override val actionType: ActionType = ItemsActionType.ALL_STATUS
 
     override fun buildStartMessage(trigger: TriggerContext, options: Map<String, String>, actionConfig: ActionConfig?) =

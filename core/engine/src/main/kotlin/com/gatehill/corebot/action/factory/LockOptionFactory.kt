@@ -9,7 +9,7 @@ import javax.inject.Inject
 /**
  * Locks an option value.
  */
-@Template("lockOption")
+@Template("lockOption", builtIn = true, showInUsage = true, actionMessageMode = ActionMessageMode.GROUP)
 class LockOptionFactory @Inject constructor(configService: ConfigService,
                                             chatGenerator: ChatGenerator) : BaseLockOptionFactory(configService, chatGenerator) {
 

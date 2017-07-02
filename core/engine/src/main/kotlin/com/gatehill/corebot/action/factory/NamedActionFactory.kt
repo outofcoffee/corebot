@@ -8,9 +8,6 @@ import javax.inject.Inject
  * Represents a simple operation for a named action.
  */
 abstract class NamedActionFactory @Inject constructor(private val configService: ConfigService) : CustomActionFactory() {
-    protected val actionPlaceholder = "action or tag name"
-    override val builtIn: Boolean = true
-    override val showInUsage: Boolean = true
     override val actionConfigs = mutableListOf<ActionConfig>()
 
     override fun onSatisfied(): Boolean {
@@ -30,5 +27,9 @@ abstract class NamedActionFactory @Inject constructor(private val configService:
         }
 
         return actionConfigs.isNotEmpty()
+    }
+
+    companion object {
+        protected const val actionPlaceholder = "action or tag name"
     }
 }

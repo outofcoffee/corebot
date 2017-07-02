@@ -10,8 +10,7 @@ import javax.inject.Inject
 /**
  * Enables a job.
  */
-@Template("enableJob")
+@Template("enableJob", builtIn = true, showInUsage = true, actionMessageMode = ActionMessageMode.INDIVIDUAL)
 class EnableJobFactory @Inject constructor(configService: ConfigService) : NamedActionFactory(configService) {
     override val actionType: ActionType = JobActionType.ENABLE
-    override val actionMessageMode = ActionMessageMode.INDIVIDUAL
 }

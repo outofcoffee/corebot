@@ -2,6 +2,7 @@ package com.gatehill.corebot.chat.template
 
 import com.gatehill.corebot.action.ActionFactoryConverter
 import com.gatehill.corebot.action.factory.ActionFactory
+import com.gatehill.corebot.action.factory.Template
 import com.gatehill.corebot.chat.SessionService
 import com.gatehill.corebot.chat.filter.CommandFilter
 import com.gatehill.corebot.chat.filter.FilterConfig
@@ -44,7 +45,7 @@ class TemplateService @Inject constructor(private val injector: Injector,
      * Invoke the filter's match function for the given factory.
      */
     private fun filterMatch(config: FilterConfig, factory: ActionFactory, commandOnly: String) =
-            loadFilter(config).matches(config, factory, templateConfigService.readMetadata(factory::class.java), commandOnly)
+            loadFilter(config).matches(config, factory, commandOnly)
 
     /**
      * Load the filter for the given configuration.
@@ -77,14 +78,20 @@ class TemplateService @Inject constructor(private val injector: Injector,
      * Provide a human-readable usage message.
      */
     fun usage() = StringBuilder().apply {
-        val sortedCandidates = fetchCandidates().toMutableList().apply {
-            sortBy { candidate ->
-                candidate.parsers
-                        .filter { it.usage != null }
-                        .map { it.usage }
-                        .joinToString("\n")
-            }
-        }
+        val metadata = fetchCandidates()
+                .toMutableList()
+                .apply {
+                    sortBy { candidate ->
+                        candidate.parsers
+                                .filter { it.usage != null }
+                                .map { it.usage }
+                                .joinToString("\n")
+                    }
+                }
+                .map { it to it.readMetadata() }.toMap()
+
+        // uses the local metadata map for each lookup
+        fun ActionFactory.cachedMetadata(): Template = metadata[this]!!
 
         val printTemplate: (ActionFactory) -> Unit = { candidate ->
             appendln()
@@ -94,7 +101,7 @@ class TemplateService @Inject constructor(private val injector: Injector,
                     .joinToString("\n"))
         }
 
-        val customActions = sortedCandidates.filter(ActionFactory::showInUsage).filterNot(ActionFactory::builtIn)
+        val customActions = metadata.keys.filter { it.cachedMetadata().showInUsage }.filterNot { it.cachedMetadata().builtIn }
         if (customActions.isNotEmpty()) {
             append("*Custom actions*")
             customActions.forEach(printTemplate)
@@ -102,7 +109,7 @@ class TemplateService @Inject constructor(private val injector: Injector,
 
         if (isNotEmpty()) repeat(2) { appendln() }
 
-        val builtInActions = sortedCandidates.filter(ActionFactory::showInUsage).filter(ActionFactory::builtIn)
+        val builtInActions = metadata.keys.filter { it.cachedMetadata().showInUsage }.filter { it.cachedMetadata().builtIn }
         if (builtInActions.isNotEmpty()) {
             append("*Built-in actions*")
             builtInActions.forEach(printTemplate)

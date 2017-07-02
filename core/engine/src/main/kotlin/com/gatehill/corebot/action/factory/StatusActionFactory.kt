@@ -8,8 +8,7 @@ import javax.inject.Inject
 /**
  * Prints status information about an action.
  */
-@Template("statusAction")
+@Template("statusAction", builtIn = true, showInUsage = true, actionMessageMode = ActionMessageMode.INDIVIDUAL)
 class StatusActionFactory @Inject constructor(configService: ConfigService) : NamedActionFactory(configService) {
     override val actionType: ActionType = CoreActionType.STATUS
-    override val actionMessageMode = ActionMessageMode.INDIVIDUAL
 }

@@ -8,9 +8,12 @@ import com.gatehill.corebot.config.model.ActionConfig
  * Parses tokens into placeholder values.
  */
 abstract class BaseActionFactory : ActionFactory {
+    final override val actionMessageMode: ActionMessageMode
+        get() = readMetadata().actionMessageMode
+
     override val parsers = mutableListOf<FilterConfig>()
-    protected abstract val actionConfigs: List<ActionConfig>
     override val placeholderValues = mutableMapOf<String, String>()
+    protected abstract val actionConfigs: List<ActionConfig>
 
     /**
      * A short, human readable description.
