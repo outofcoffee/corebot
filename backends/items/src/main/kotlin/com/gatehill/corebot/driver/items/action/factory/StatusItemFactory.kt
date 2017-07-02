@@ -12,7 +12,7 @@ import javax.inject.Inject
 /**
  * Show status and claims for an item.
  */
-@Template("statusItem",  builtIn = true, showInUsage = true, actionMessageMode = ActionMessageMode.INDIVIDUAL)
+@Template("statusItem", builtIn = true, showInUsage = true, actionMessageMode = ActionMessageMode.INDIVIDUAL)
 class StatusItemFactory @Inject constructor(configService: ConfigService) : BaseItemFactory(configService) {
     override val actionType: ActionType = ItemsActionType.ITEM_STATUS
     override fun buildStartMessage(trigger: TriggerContext, options: Map<String, String>, actionConfig: ActionConfig?) = ""

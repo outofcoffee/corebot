@@ -18,7 +18,7 @@ import com.google.inject.AbstractModule
  *
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
-class CommonBotModule() : AbstractModule() {
+class CommonBotModule : AbstractModule() {
     override fun configure() {
         // utility
         bind(ConfigService::class.java).to(ConfigServiceImpl::class.java).asSingleton()
