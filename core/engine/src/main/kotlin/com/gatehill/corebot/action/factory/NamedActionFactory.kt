@@ -30,6 +30,6 @@ abstract class NamedActionFactory @Inject constructor(private val configService:
     }
 
     companion object {
-        protected const val actionPlaceholder = "action or tag name"
+        const val actionPlaceholder = "action or tag name"
     }
 }

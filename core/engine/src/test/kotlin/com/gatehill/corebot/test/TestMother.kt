@@ -1,0 +1,5 @@
+const val placeholderKey = "placeholderKey"
+const val placeholderKeySingleWord = "placeholderKey"
+const val placeholderKeyMultiword = "multiword placeholder key"
+const val placeholderValue = "placeholderValue"
+const val templateRegex = "test\\s(?<$placeholderKey>[a-zA-Z0-9]+)"

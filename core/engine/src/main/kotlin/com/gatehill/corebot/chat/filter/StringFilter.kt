@@ -8,6 +8,8 @@ import java.util.Queue
  * The regular expression to tokenise messages.
  */
 private val messagePartRegex = "\"?( |$)(?=(([^\"]*\"){2})*[^\"]*$)\"?".toRegex()
+private val tokenPartRegex = "\\s+(?![^{]*})".toRegex()
+private val placeholderRegex = "\\{(.*)}".toRegex()
 
 class StringFilter : CommandFilter {
     class StringFilterConfig(val template: String,
@@ -20,7 +22,7 @@ class StringFilter : CommandFilter {
      * Split the command into elements and return `true` if all were processed successfully.
      */
     private fun parseCommand(config: StringFilterConfig, factory: ActionFactory, command: String): Boolean {
-        val tokens = LinkedList(config.template.split("\\s".toRegex()))
+        val tokens = LinkedList(config.template.split(tokenPartRegex))
 
         command.trim().split(messagePartRegex).filterNot(String::isBlank).forEach { element ->
             // fail as soon as an element is rejected
@@ -40,7 +42,7 @@ class StringFilter : CommandFilter {
         if (tokens.size == 0) return false
         val token = tokens.poll()
 
-        val accepted = "\\{(.*)}".toRegex().matchEntire(token)?.let { match ->
+        val accepted = placeholderRegex.matchEntire(token)?.let { match ->
             // option placeholder
             factory.placeholderValues[match.groupValues[1]] = element
             true
