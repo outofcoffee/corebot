@@ -38,6 +38,8 @@ dependencies {
     testCompile "org.amshove.kluent:kluent:$version_kluent"
     testCompile "org.jetbrains.spek:spek-api:$version_spek"
     testRuntime "org.jetbrains.spek:spek-junit-platform-engine:$version_spek"
+    testRuntime "org.junit.platform:junit-platform-launcher:$version_junit_platform_gradle"
+    testCompile "com.nhaarman:mockito-kotlin-kt1.1:$version_mockito_kotlin"
 }
 
 publishing {

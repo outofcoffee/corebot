@@ -1,4 +1,4 @@
-import com.gatehill.corebot.chat.ChatGenerator
+import com.gatehill.corebot.chat.ChatGeneratorImpl
 import org.amshove.kluent.`should end with`
 import org.amshove.kluent.`should equal`
 import org.amshove.kluent.`should start with`
@@ -12,7 +12,7 @@ import org.jetbrains.spek.api.dsl.on
  */
 object ChatGeneratorSpec : Spek({
     given("a chat generator") {
-        val chatGenerator = ChatGenerator(mapOf(
+        val chatGenerator = ChatGeneratorImpl(mapOf(
                 "goodNewsEmoji" to listOf("emoji"),
                 "goodNews" to listOf("good news \${goodNewsEmoji}")
         ))
