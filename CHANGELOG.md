@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.9.0]
+## [0.9.0] - 2017-07-08
 ### Added
 - Adds a bot to allow simple borrow/return of items.
 - Adds a new 'items' backend.
