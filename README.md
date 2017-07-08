@@ -1,4 +1,4 @@
-# Corebot: A Slack bot for Rundeck and Jenkins <img alt="Build status" src="https://circleci.com/gh/outofcoffee/corebot.svg?style=shield" >
+# Corebot: A Slack bot for Rundeck and Jenkins [![CircleCI](https://circleci.com/gh/outofcoffee/corebot.svg?style=svg)](https://circleci.com/gh/outofcoffee/corebot)
 
 Trigger your [Rundeck](http://rundeck.org) or [Jenkins](https://jenkins.io) jobs from [Slack](https://slack.com).
 

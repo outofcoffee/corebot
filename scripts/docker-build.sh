@@ -4,11 +4,21 @@ set -e
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 DOCKERFILE_PATH="${SCRIPT_DIR}/../bots/slack-"
 IMAGE_BASE_NAME="outofcoffee/corebot"
-IMAGE_TAG="${1-dev}"
 IMAGES=(
     "deploy"
     "items"
 )
+DOCKER_LOGIN_ARGS=""
+
+while getopts "e:" OPT; do
+    case ${OPT} in
+        e) DOCKER_LOGIN_ARGS="--email dummy@example.com"
+        ;;
+    esac
+done
+shift $((OPTIND-1))
+
+IMAGE_TAG="${1-dev}"
 
 function buildImage()
 {
@@ -26,7 +36,7 @@ function pushImage()
     IMAGE_NAME="${IMAGE_BASE_NAME}${IMAGE_SUFFIX}:${IMAGE_TAG}"
 
     echo -e "\nLogging in to Docker registry..."
-    docker login --username "${DOCKER_USERNAME}" --password "${DOCKER_PASSWORD}"
+    docker login --username "${DOCKER_USERNAME}" --password "${DOCKER_PASSWORD}" ${DOCKER_LOGIN_ARGS}
 
     echo -e "\nPushing Docker image: ${IMAGE_NAME}"
     docker push ${IMAGE_NAME}
