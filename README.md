@@ -42,9 +42,13 @@ _Example:_
 * Set environment variables
 * Run!
 
-## Quick start
+## Getting started
 
-The quickest way to get up and running is to use the Docker image:
+The quickest way to get up and running is to use our free cloud-hosted version at [https://www.remotebot.io/bot](https://www.remotebot.io/bot)
+
+## Docker
+
+If you'd like to run Corebot yourself as a Docker container, you can do the following:
 
     docker run -d \
             --env SLACK_AUTH_TOKEN="CHANGEME" \
