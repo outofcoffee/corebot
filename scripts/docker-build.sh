@@ -26,7 +26,7 @@ function pushImage()
     IMAGE_NAME="${IMAGE_BASE_NAME}${IMAGE_SUFFIX}:${IMAGE_TAG}"
 
     echo -e "\nLogging in to Docker registry..."
-    docker login --username "${DOCKER_USERNAME}" --password "${DOCKER_PASSWORD}" --email deprecated@example.com
+    docker login --username "${DOCKER_USERNAME}" --password "${DOCKER_PASSWORD}"
 
     echo -e "\nPushing Docker image: ${IMAGE_NAME}"
     docker push ${IMAGE_NAME}
