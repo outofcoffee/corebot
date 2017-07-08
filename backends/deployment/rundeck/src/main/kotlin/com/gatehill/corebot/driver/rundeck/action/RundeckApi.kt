@@ -5,8 +5,12 @@ import com.gatehill.corebot.driver.rundeck.model.ExecutionInfo
 import com.gatehill.corebot.driver.rundeck.model.ExecutionOptions
 import com.gatehill.corebot.driver.rundeck.model.ExecutionOutput
 import retrofit2.Call
-import retrofit2.http.*
-import java.util.*
+import retrofit2.http.Body
+import retrofit2.http.GET
+import retrofit2.http.Header
+import retrofit2.http.POST
+import retrofit2.http.Path
+import java.util.HashMap
 
 /**
  * Models the Rundeck REST API.
@@ -31,5 +35,5 @@ interface RundeckApi {
 
     @GET("/api/14/execution/{executionId}/output")
     fun fetchExecutionOutput(@Header("Accept") accept: String = "application/json",
-                                @Path("executionId") executionId: String): Call<ExecutionOutput>
+                             @Path("executionId") executionId: String): Call<ExecutionOutput>
 }

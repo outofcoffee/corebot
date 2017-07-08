@@ -1,6 +1,10 @@
 package com.gatehill.corebot
 
-import com.gatehill.corebot.chat.*
+import com.gatehill.corebot.chat.ChatService
+import com.gatehill.corebot.chat.SessionService
+import com.gatehill.corebot.chat.SlackChatServiceImpl
+import com.gatehill.corebot.chat.SlackSessionService
+import com.gatehill.corebot.chat.SlackSessionServiceImpl
 import com.google.inject.AbstractModule
 
 /**

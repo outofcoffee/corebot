@@ -16,9 +16,9 @@ class RedisDataStoreImpl : DataStore {
     private val partitions = mutableMapOf<String, DataStorePartition<*, *>>()
 
     @Suppress("UNCHECKED_CAST")
-    override fun <K, V> partition(partitionId: String, clazz: Class<V>): DataStorePartition<K, V> =
+    override fun <K, V> partitionForClass(partitionId: String, valueClass: Class<V>): DataStorePartition<K, V> =
             partitions[partitionId] as DataStorePartition<K, V>? ?:
-                    RedisDataStorePartitionImpl<K, V>(jsonMapper, clazz, partitionId).apply { partitions[partitionId] = this }
+                    RedisDataStorePartitionImpl<K, V>(jsonMapper, valueClass, partitionId).apply { partitions[partitionId] = this }
 }
 
 /**

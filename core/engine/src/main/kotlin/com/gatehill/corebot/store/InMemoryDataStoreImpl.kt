@@ -9,7 +9,7 @@ class InMemoryDataStoreImpl : DataStore {
     private val partitions = mutableMapOf<String, DataStorePartition<*, *>>()
 
     @Suppress("UNCHECKED_CAST")
-    override fun <K, V> partition(partitionId: String, clazz: Class<V>): DataStorePartition<K, V> =
+    override fun <K, V> partitionForClass(partitionId: String, valueClass: Class<V>): DataStorePartition<K, V> =
             partitions[partitionId] as DataStorePartition<K, V>? ?:
                     InMemoryDataStorePartitionImpl<K, V>().apply { partitions[partitionId] = this }
 }

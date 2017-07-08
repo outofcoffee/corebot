@@ -1,9 +1,11 @@
 package com.gatehill.corebot.action
 
+import com.gatehill.corebot.action.factory.BaseLockOptionFactory
 import com.gatehill.corebot.action.model.PerformActionResult
-import com.gatehill.corebot.chat.model.template.BaseLockOptionTemplate
+import com.gatehill.corebot.chat.ChatGenerator
 import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.store.DataStore
+import com.gatehill.corebot.store.partition
 import java.util.concurrent.CompletableFuture
 import javax.inject.Inject
 import javax.inject.Named
@@ -13,7 +15,9 @@ import javax.inject.Named
  *
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
-class LockService @Inject constructor(@Named("lockStore") private val lockStore: DataStore) {
+class LockService @Inject constructor(@Named("lockStore") private val lockStore: DataStore,
+                                      private val chatGenerator: ChatGenerator) {
+
     /**
      * A lock held on an action.
      */
@@ -27,10 +31,10 @@ class LockService @Inject constructor(@Named("lockStore") private val lockStore:
                           val optionValue: String)
 
     private val actionLocks
-        get() = lockStore.partition<String, ActionLock>("actionLocks", ActionLock::class.java)
+        get() = lockStore.partition<String, ActionLock>("actionLocks")
 
     private val optionLocks
-        get() = lockStore.partition<String, OptionLock>("optionLocks", OptionLock::class.java)
+        get() = lockStore.partition<String, OptionLock>("optionLocks")
 
     fun lockAction(future: CompletableFuture<PerformActionResult>, action: ActionConfig,
                    triggerMessageSenderId: String) {
@@ -50,7 +54,7 @@ class LockService @Inject constructor(@Named("lockStore") private val lockStore:
             } ?: run {
                 // acquire
                 actionLocks[action.name] = ActionLock(triggerMessageSenderId)
-                future.complete(PerformActionResult("OK, I've locked :lock: *${action.name}* for you."))
+                future.complete(PerformActionResult("${chatGenerator.confirmation()}, I've locked :lock: *${action.name}* for you."))
             }
         }
     }
@@ -60,7 +64,7 @@ class LockService @Inject constructor(@Named("lockStore") private val lockStore:
             lock?.let {
                 // unlock
                 actionLocks.remove(action.name)
-                future.complete(PerformActionResult("OK, I've unlocked :unlock: *${action.name}* for you."))
+                future.complete(PerformActionResult("${chatGenerator.confirmation()}, I've unlocked :unlock: *${action.name}* for you."))
 
             } ?: run {
                 // already unlocked
@@ -74,8 +78,8 @@ class LockService @Inject constructor(@Named("lockStore") private val lockStore:
     fun lockOption(future: CompletableFuture<PerformActionResult>, action: ActionConfig, args: Map<String, String>,
                    triggerMessageSenderId: String) {
 
-        val optionName = args[BaseLockOptionTemplate.optionNamePlaceholder]!!
-        val optionValue = args[BaseLockOptionTemplate.optionValuePlaceholder]!!
+        val optionName = args[BaseLockOptionFactory.optionNamePlaceholder]!!
+        val optionValue = args[BaseLockOptionFactory.optionValuePlaceholder]!!
 
         val lock = optionLocks[action.name]
         if (isOptionLocked(lock, optionName, optionValue)) {
@@ -101,8 +105,8 @@ class LockService @Inject constructor(@Named("lockStore") private val lockStore:
     }
 
     fun unlockOption(future: CompletableFuture<PerformActionResult>, action: ActionConfig, args: Map<String, String>) {
-        val optionName = args[BaseLockOptionTemplate.optionNamePlaceholder]!!
-        val optionValue = args[BaseLockOptionTemplate.optionValuePlaceholder]!!
+        val optionName = args[BaseLockOptionFactory.optionNamePlaceholder]!!
+        val optionValue = args[BaseLockOptionFactory.optionValuePlaceholder]!!
 
         val lock = optionLocks[action.name]
         if (isOptionLocked(lock, optionName, optionValue)) {

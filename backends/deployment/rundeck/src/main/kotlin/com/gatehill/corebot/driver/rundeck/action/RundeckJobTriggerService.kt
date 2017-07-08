@@ -1,13 +1,13 @@
 package com.gatehill.corebot.driver.rundeck.action
 
 import com.gatehill.corebot.action.ActionOutcomeService
-import com.gatehill.corebot.action.BaseJobTriggerService
 import com.gatehill.corebot.action.LockService
-import com.gatehill.corebot.action.model.ActionStatus
 import com.gatehill.corebot.action.model.PerformActionResult
 import com.gatehill.corebot.action.model.TriggerContext
-import com.gatehill.corebot.action.model.TriggeredAction
 import com.gatehill.corebot.config.model.ActionConfig
+import com.gatehill.corebot.driver.jobs.service.BaseJobTriggerService
+import com.gatehill.corebot.driver.model.ActionStatus
+import com.gatehill.corebot.driver.model.TriggeredAction
 import com.gatehill.corebot.driver.rundeck.model.ExecutionDetails
 import com.gatehill.corebot.driver.rundeck.model.ExecutionInfo
 import com.gatehill.corebot.driver.rundeck.model.ExecutionOptions
@@ -38,10 +38,11 @@ class RundeckJobTriggerService @Inject constructor(private val actionDriver: Run
         try {
             call = actionDriver.buildApiClient().runJob(
                     jobId = action.jobId,
-                    executionOptions = ExecutionOptions(argString = buildArgString(args),
-                    asUser = if (action.runAsTriggerUser) trigger.username else "")
+                    executionOptions = ExecutionOptions(
+                            argString = buildArgString(args),
+                            asUser = if (action.runAsTriggerUser) trigger.username else "")
             )
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             future.completeExceptionally(e)
             return
         }
@@ -84,7 +85,7 @@ class RundeckJobTriggerService @Inject constructor(private val actionDriver: Run
             argString.append(" ")
             if (it.value.contains(" ")) {
                 argString.append("\"").append(it.value).append("\"")
-            }else{
+            } else {
                 argString.append(it.value)
             }
         }

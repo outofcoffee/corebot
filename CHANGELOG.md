@@ -3,9 +3,18 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## [0.9.0]
 ### Added
-- ...
+- Adds a bot to allow simple borrow/return of items.
+- Adds a new 'items' backend.
+- Makes join message conditional.
+- Adds MySQL store.
+- Now supports multiple templates.
+
+### Changed
+- Internal structural improvements to support multiple back-end or front-end implementations.
+- Improved specification coverage.
+- Externalised templates to allow messages to be changed.
 
 ## [0.8.1] - 2017-06-11
 ### Added

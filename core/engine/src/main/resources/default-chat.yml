@@ -36,3 +36,8 @@ greeting:
  - "Hi"
  - "Hello"
  - "Hey"
+
+confirmation:
+ - "OK"
+ - "Alright"
+ - "Okay"

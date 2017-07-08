@@ -1,8 +1,8 @@
 package com.gatehill.corebot.action
 
-import com.gatehill.corebot.action.driver.ActionDriverFactory
 import com.gatehill.corebot.action.model.PerformActionRequest
 import com.gatehill.corebot.action.model.PerformActionResult
+import com.gatehill.corebot.driver.ActionDriverFactory
 import java.util.concurrent.CompletableFuture
 import javax.inject.Inject
 

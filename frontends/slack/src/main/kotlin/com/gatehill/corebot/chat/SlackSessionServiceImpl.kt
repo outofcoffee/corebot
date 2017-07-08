@@ -36,21 +36,23 @@ open class SlackSessionServiceImpl @Inject constructor(configService: ConfigServ
      * Allow subclasses to hook into Slack events.
      */
     protected open val connectedListeners = listOf(SlackConnectedListener { _, theSession ->
-        ChatSettings.chat.channelNames.forEach {
-            val joinMessage = configService.joinMessage ?:
-                    "${chatGenerator.greeting()} :simple_smile: ${chatGenerator.ready()}."
+        if (ChatSettings.chat.postJoinMessage) {
+            ChatSettings.chat.channelNames.forEach {
+                val joinMessage = configService.joinMessage ?:
+                        "${chatGenerator.greeting()} :simple_smile: ${chatGenerator.ready()}."
 
-            theSession.findChannelByName(it)?.let { channel -> theSession.sendMessage(channel, joinMessage) }
-                    ?: logger.warn("Unable to find channel: $it")
+                theSession.findChannelByName(it)?.let { channel -> theSession.sendMessage(channel, joinMessage) }
+                        ?: logger.warn("Unable to find channel: $it")
+            }
         }
     })
 
     override val botUsername: String
         get() = session.sessionPersona().userName
 
-    override fun sendMessage(triggerContext: TriggerContext, message: String) {
-        sendMessage(session.findChannelById(triggerContext.channelId), triggerContext.messageTimestamp,
-                triggerContext.messageThreadTimestamp, message)
+    override fun sendMessage(trigger: TriggerContext, message: String) {
+        sendMessage(session.findChannelById(trigger.channelId), trigger.messageTimestamp,
+                trigger.messageThreadTimestamp, message)
     }
 
     override fun sendMessage(event: SlackMessagePosted, message: String) {
@@ -81,7 +83,13 @@ open class SlackSessionServiceImpl @Inject constructor(configService: ConfigServ
         session.sendMessage(channel, messageBuilder.build())
     }
 
-    override fun addReaction(triggerContext: TriggerContext, emojiCode: String) {
-        session.addReactionToMessage(session.findChannelById(triggerContext.channelId), triggerContext.messageTimestamp, emojiCode)
+    override fun addReaction(trigger: TriggerContext, emojiCode: String) {
+        session.addReactionToMessage(session.findChannelById(trigger.channelId), trigger.messageTimestamp, emojiCode)
     }
+
+    override fun lookupUsername(trigger: TriggerContext, userId: String): String =
+            session.findUserById(userId).userName
+
+    override fun lookupUserRealName(trigger: TriggerContext, userId: String): String =
+            session.findUserById(userId).realName
 }

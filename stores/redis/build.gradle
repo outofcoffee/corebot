@@ -7,7 +7,24 @@ buildscript {
 apply plugin: 'kotlin'
 
 dependencies {
-    compile project(':core:engine')
+    compile project(':core:core-engine')
 
     compile('redis.clients:jedis:2.9.0')
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+            repositories {
+                maven {
+                    url mavenSnapshotRepository
+                    credentials(AwsCredentials) {
+                        accessKey awsAccessKey
+                        secretKey awsSecretKey
+                    }
+                }
+            }
+        }
+    }
 }

@@ -1,15 +1,15 @@
 package com.gatehill.corebot.driver.jenkins.action
 
 import com.gatehill.corebot.action.ActionOutcomeService
-import com.gatehill.corebot.action.BaseJobTriggerService
 import com.gatehill.corebot.action.LockService
-import com.gatehill.corebot.action.model.ActionStatus
 import com.gatehill.corebot.action.model.PerformActionResult
 import com.gatehill.corebot.action.model.TriggerContext
-import com.gatehill.corebot.action.model.TriggeredAction
 import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.driver.jenkins.config.DriverSettings
 import com.gatehill.corebot.driver.jenkins.model.BuildDetails
+import com.gatehill.corebot.driver.jobs.service.BaseJobTriggerService
+import com.gatehill.corebot.driver.model.ActionStatus
+import com.gatehill.corebot.driver.model.TriggeredAction
 import com.gatehill.corebot.util.onException
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
@@ -46,7 +46,7 @@ class JenkinsJobTriggerService @Inject constructor(private val actionDriver: Jen
                     parameters = args
             )
 
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             future.completeExceptionally(RuntimeException("Error building API client or obtaining CSRF token", e))
             return
         }
