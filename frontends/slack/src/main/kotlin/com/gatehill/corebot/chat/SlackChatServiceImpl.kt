@@ -2,6 +2,7 @@ package com.gatehill.corebot.chat
 
 import com.gatehill.corebot.action.model.TriggerContext
 import com.gatehill.corebot.config.ChatSettings
+import com.ullink.slack.simpleslackapi.SlackSession
 import com.ullink.slack.simpleslackapi.listeners.SlackMessagePostedListener
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
@@ -44,17 +45,7 @@ open class SlackChatServiceImpl @Inject constructor(private val sessionService: 
         try {
             // some message events have null content
             event.messageContent?.trim()?.let { messageContent ->
-                // determine whether message is addressed to the bot
-                val matcher = messageMatcher.matcher(messageContent)
-                matcher.takeIf { it.matches() }?.takeIf { it.group("botUser") == session.sessionPersona().id }?.run {
-
-                    // look for a command token
-                    val command = try {
-                        matcher.group("command")
-                    } catch (e: IllegalStateException) {
-                        null
-                    }
-
+                executeBotAction(session, messageContent) { command ->
                     command?.let {
                         messageService.handleMessage(trigger, it)
                     } ?: run {
@@ -72,4 +63,19 @@ open class SlackChatServiceImpl @Inject constructor(private val sessionService: 
             return@SlackMessagePostedListener
         }
     })
+
+    /***
+     * Execute the `block` if the message is addressed to the bot and return its result.
+     */
+    protected fun <T> executeBotAction(session: SlackSession, messageContent: String, block: (command: String?) -> T) {
+        val matcher = messageMatcher.matcher(messageContent)
+
+        matcher.takeIf { it.matches() && it.group("botUser") == session.sessionPersona().id }?.run {
+            block(try {
+                matcher.group("command")
+            } catch (e: IllegalStateException) {
+                null
+            })
+        }
+    }
 }

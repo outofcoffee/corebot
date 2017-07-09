@@ -58,24 +58,22 @@ class MessageService @Inject constructor(private val sessionService: SessionServ
     /**
      * Determine the Action to perform based on the provided command.
      */
-    private fun parseMessage(trigger: TriggerContext, commandOnly: String): ActionWrapper? {
-        try {
-            templateService.findSatisfiedTemplates(commandOnly).let { satisfied ->
-                if (satisfied.size == 1) {
-                    return with(satisfied.first()) {
-                        ActionWrapper(buildActions(trigger),
-                                if (actionMessageMode == ActionMessageMode.GROUP) buildStartMessage(trigger) else null,
-                                if (actionMessageMode == ActionMessageMode.GROUP) buildCompleteMessage() else null)
-                    }
-                } else {
-                    throw IllegalStateException("Could not find a unique matching action for command: $commandOnly")
+    private fun parseMessage(trigger: TriggerContext, commandOnly: String): ActionWrapper? = try {
+        templateService.findSatisfiedTemplates(commandOnly).let { satisfied ->
+            if (satisfied.size == 1) {
+                return with(satisfied.first()) {
+                    ActionWrapper(buildActions(trigger),
+                            if (actionMessageMode == ActionMessageMode.GROUP) buildStartMessage(trigger) else null,
+                            if (actionMessageMode == ActionMessageMode.GROUP) buildCompleteMessage() else null)
                 }
+            } else {
+                throw IllegalStateException("Could not find a unique matching action for command: $commandOnly")
             }
-
-        } catch (e: IllegalStateException) {
-            logger.warn("Unable to parse message: $commandOnly - ${e.message}")
-            return null
         }
+
+    } catch (e: IllegalStateException) {
+        logger.warn("Unable to parse message: $commandOnly - ${e.message}")
+        null
     }
 
     /**
