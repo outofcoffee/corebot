@@ -12,6 +12,11 @@ object ChatSettings {
             (System.getenv("SLACK_CHANNELS") ?: "corebot").split(",").map(String::trim)
         }
         val postJoinMessage by lazy { System.getenv("SLACK_ENABLE_JOIN_MESSAGE")?.toBoolean() ?: true }
+
+        /**
+         * The time in seconds to cache message IDs for de-duplication purposes.
+         */
+        val messageIdCache by lazy { System.getenv("SLACK_MESSAGE_ID_CACHE")?.toLong() ?: 120 }
     }
 
     class Threads {
