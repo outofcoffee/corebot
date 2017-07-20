@@ -10,7 +10,7 @@ IMAGES=(
 )
 DOCKER_LOGIN_ARGS=""
 
-while getopts "e:" OPT; do
+while getopts "e" OPT; do
     case ${OPT} in
         e) DOCKER_LOGIN_ARGS="--email dummy@example.com"
         ;;
