@@ -21,6 +21,8 @@ open class SlackSessionServiceImpl @Inject constructor(configService: ConfigServ
 
     private val logger: Logger = LogManager.getLogger(SlackSessionServiceImpl::class.java)
 
+    private var postedJoinMessage = false
+
     override val session: SlackSession by lazy {
         logger.info("Connecting to Slack...")
 
@@ -36,7 +38,7 @@ open class SlackSessionServiceImpl @Inject constructor(configService: ConfigServ
      * Allow subclasses to hook into Slack events.
      */
     protected open val connectedListeners = listOf(SlackConnectedListener { _, theSession ->
-        if (ChatSettings.chat.postJoinMessage) {
+        if (ChatSettings.chat.postJoinMessage && !postedJoinMessage) {
             ChatSettings.chat.channelNames.forEach {
                 val joinMessage = configService.joinMessage ?:
                         "${chatGenerator.greeting()} :simple_smile: ${chatGenerator.ready()}."
@@ -44,6 +46,7 @@ open class SlackSessionServiceImpl @Inject constructor(configService: ConfigServ
                 theSession.findChannelByName(it)?.let { channel -> theSession.sendMessage(channel, joinMessage) }
                         ?: logger.warn("Unable to find channel: $it")
             }
+            postedJoinMessage = true
         }
     })
 
