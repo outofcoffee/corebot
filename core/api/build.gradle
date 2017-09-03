@@ -10,10 +10,21 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$version_kotlin"
 }
 
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives sourcesJar
+}
+
 publishing {
     publications {
         maven(MavenPublication) {
             from components.java
+            artifact sourcesJar
+
             repositories {
                 maven {
                     url mavenSnapshotRepository

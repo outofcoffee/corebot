@@ -22,10 +22,21 @@ task createStartScripts(type: CreateStartScripts) {
     applicationName = 'corebot'
 }
 
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives sourcesJar
+}
+
 publishing {
     publications {
         maven(MavenPublication) {
             from components.java
+            artifact sourcesJar
+
             repositories {
                 maven {
                     url mavenSnapshotRepository
