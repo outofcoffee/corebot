@@ -20,9 +20,14 @@ interface JenkinsApi {
     @GET("/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,\":\",//crumb)")
     fun fetchCrumb(): Call<ResponseBody>
 
-    @POST("/job/{jobName}/buildWithParameters")
+    @POST("/job/{jobName}/build")
     @FormUrlEncoded
     fun enqueueBuild(@Path("jobName") jobName: String,
+                     @Field("token") token: String?): Call<Void>
+
+    @POST("/job/{jobName}/buildWithParameters")
+    @FormUrlEncoded
+    fun enqueueBuildWithParameters(@Path("jobName") jobName: String,
                      @Field("token") token: String?,
                      @FieldMap parameters: Map<String, String>): Call<Void>
 
