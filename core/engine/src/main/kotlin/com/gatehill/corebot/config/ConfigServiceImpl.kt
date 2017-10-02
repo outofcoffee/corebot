@@ -1,8 +1,10 @@
 package com.gatehill.corebot.config
 
 import com.gatehill.corebot.config.model.ActionConfig
+import com.gatehill.corebot.config.model.DeserialisedActionConfig
 import com.gatehill.corebot.config.model.SecurityConfig
 import com.gatehill.corebot.config.model.SecurityUserConfig
+import com.gatehill.corebot.config.model.SystemConfig
 import com.gatehill.corebot.util.yamlMapper
 import com.google.common.cache.Cache
 import com.google.common.cache.CacheBuilder
@@ -20,24 +22,35 @@ import java.util.concurrent.TimeUnit
 open class ConfigServiceImpl : ConfigService {
     private interface VersionedConfig {
         val version: String
-        val security: SecurityConfig?
     }
+
+    protected abstract class VersionedSecurityConfig(override val version: String,
+                                                     open val security: SecurityConfig?) : VersionedConfig
+
+    /**
+     * The system configuration file wrapper.
+     */
+    private data class SystemConfigWrapper(override val version: String,
+                                           val system: SystemConfig) : VersionedConfig
 
     /**
      * The security configuration file wrapper.
      */
     private data class SecurityConfigWrapper(override val version: String,
-                                             override val security: SecurityConfig) : VersionedConfig
+                                             override val security: SecurityConfig) : VersionedSecurityConfig(version, security)
 
     /**
      * Top level action settings file wrapper.
      */
     protected class ActionConfigWrapper(override val version: String,
                                         val joinMessage: String?,
-                                        override val security: SecurityConfig?,
-                                        val actions: Map<String, ActionConfig>) : VersionedConfig
+                                        security: SecurityConfig?,
+                                        val actions: Map<String, DeserialisedActionConfig>) : VersionedSecurityConfig(version, security)
 
-    private val configFileVersion = "1"
+    private companion object {
+        const val configFileVersion = "1"
+    }
+
     private val logger: Logger = LogManager.getLogger(ConfigServiceImpl::class.java)
 
     /**
@@ -71,6 +84,13 @@ open class ConfigServiceImpl : ConfigService {
             configCache.get("security") { loadSecurityConfig() } as SecurityConfig
 
     /**
+     * The system configuration.
+     */
+    @Suppress("UNCHECKED_CAST")
+    override fun system(): SystemConfig =
+            configCache.get("system") { loadSystemConfig() } as SystemConfig
+
+    /**
      * Loads the action configuration from file.
      */
     private fun loadActionConfig(): Map<String, ActionConfig> {
@@ -78,21 +98,25 @@ open class ConfigServiceImpl : ConfigService {
         logger.debug("Loaded ${config.actions.size} actions")
 
         val actions = mutableMapOf<String, ActionConfig>()
+        val systemDefaults = system().defaults
+
         config.actions.map { action ->
             with(action.value) {
                 // all custom actions have the 'all' tag
                 val combinedTags = mutableListOf("all")
                 combinedTags.addAll(tags)
 
-                actions[action.key] = ActionConfig(template,
-                        jobId,
-                        action.key,
-                        options,
-                        combinedTags,
-                        action.value.driver,
-                        action.value.showJobOutput,
-                        action.value.showJobOutcome,
-                        action.value.runAsTriggerUser)
+                actions[action.key] = ActionConfig(
+                        template = template,
+                        jobId = jobId,
+                        name = action.key,
+                        options = options,
+                        tags = combinedTags,
+                        driver = action.value.driver ?: systemDefaults.driver,
+                        showJobOutput = action.value.showJobOutput ?: systemDefaults.showJobOutput,
+                        showJobOutcome = action.value.showJobOutcome ?: systemDefaults.showJobOutcome,
+                        runAsTriggerUser = action.value.runAsTriggerUser ?: systemDefaults.runAsTriggerUser
+                )
             }
         }
         return actions
@@ -136,6 +160,24 @@ open class ConfigServiceImpl : ConfigService {
     }
 
     /**
+     * Loads the system configuration from file.
+     */
+    private fun loadSystemConfig(): SystemConfig {
+        val systemConfigFile = Settings.systemConfigFile
+
+        return if (systemConfigFile.exists()) {
+            val wrapper = loadFile(systemConfigFile.inputStream(), SystemConfigWrapper::class.java)
+            logger.debug("Loaded system configuration from: $systemConfigFile")
+            wrapper.system
+
+        } else {
+            SystemConfig().apply {
+                logger.debug("No system configuration found at: $systemConfigFile - using defaults")
+            }
+        }
+    }
+
+    /**
      * Load the custom configuration.
      *
      * Allow subclasses to override this behaviour.
@@ -149,10 +191,10 @@ open class ConfigServiceImpl : ConfigService {
     protected fun <T : VersionedConfig> loadFile(configFile: InputStream, clazz: Class<T>): T {
         configFile.use {
             val config = yamlMapper.readValue(configFile, clazz) ?:
-                    throw IllegalStateException("Configuration in ${configFile} was null")
+                    throw IllegalStateException("Configuration in $configFile was null")
 
             assert(configFileVersion == config.version) {
-                "Unsupported configuration version: ${config.version} (expected '${configFileVersion}')"
+                "Unsupported configuration version: ${config.version} (expected '$configFileVersion')"
             }
 
             return config

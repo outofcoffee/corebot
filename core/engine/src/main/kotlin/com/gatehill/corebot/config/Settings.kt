@@ -52,5 +52,13 @@ object Settings {
 
         File(configFile ?: "/opt/corebot/actions.yml")
     }
+
+    /**
+     * The file containing the system configuration.
+     */
+    val systemConfigFile by lazy {
+        File(System.getenv("SYSTEM_CONFIG_FILE") ?: "/opt/corebot/system.yml")
+    }
+
     val configCacheSecs by lazy { System.getenv("CACHE_EXPIRY")?.toLong() ?: 60L }
 }

@@ -2,6 +2,7 @@ package com.gatehill.corebot.config
 
 import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.config.model.SecurityConfig
+import com.gatehill.corebot.config.model.SystemConfig
 
 /**
  * Provides access to system configuration.
@@ -23,4 +24,9 @@ interface ConfigService {
      * The security configuration.
      */
     fun security(): SecurityConfig
+
+    /**
+     * The system configuration.
+     */
+    fun system(): SystemConfig
 }

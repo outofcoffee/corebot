@@ -39,7 +39,7 @@ abstract class CustomActionFactory : BaseActionFactory() {
                     optionValue = when (transformType) {
                         TransformType.LOWERCASE -> optionValue!!.toLowerCase()
                         TransformType.UPPERCASE -> optionValue!!.toUpperCase()
-                        else -> throw UnsupportedOperationException("Transform type ${transformType} is not supported")
+                        else -> throw UnsupportedOperationException("Transform type $transformType is not supported")
                     }
                 }
                 transformed[optionKey] = optionValue!!

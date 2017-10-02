@@ -4,13 +4,13 @@ import com.gatehill.corebot.action.LockService
 import com.gatehill.corebot.action.model.ActionType
 import com.gatehill.corebot.action.model.PerformActionResult
 import com.gatehill.corebot.action.model.TriggerContext
+import com.gatehill.corebot.config.ConfigService
 import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.driver.ActionDriver
 import com.gatehill.corebot.driver.base.action.ApiClientBuilder
 import com.gatehill.corebot.driver.jobs.action.JobBaseActionDriver
 import com.gatehill.corebot.driver.jobs.action.factory.JobActionType
 import com.gatehill.corebot.driver.rundeck.config.DriverSettings
-import java.util.HashMap
 import java.util.concurrent.CompletableFuture
 import javax.inject.Inject
 
@@ -21,13 +21,16 @@ interface RundeckActionDriver : ActionDriver, ApiClientBuilder<RundeckApi>
 
 class RundeckActionDriverImpl @Inject constructor(triggerJobService: RundeckJobTriggerService,
                                                   lockService: LockService,
-                                                  private val executionStatusService: ExecutionStatusService) : JobBaseActionDriver(triggerJobService, lockService), RundeckActionDriver {
+                                                  private val executionStatusService: ExecutionStatusService,
+                                                  private val configService: ConfigService) : JobBaseActionDriver(triggerJobService, lockService), RundeckActionDriver {
     override val baseUrl: String
         get() = DriverSettings.deployment.baseUrl
 
     override fun buildApiClient(headers: Map<String, String>): RundeckApi {
-        val allHeaders: MutableMap<String, String> = HashMap(headers)
-        allHeaders.put("X-Rundeck-Auth-Token", DriverSettings.deployment.apiToken)
+        val allHeaders: Map<String, String> = headers.toMutableMap().apply {
+            putAll(configService.system().requestHeaders)
+            put("X-Rundeck-Auth-Token", DriverSettings.deployment.apiToken)
+        }
         return buildApiClient(RundeckApi::class.java, allHeaders)
     }
 
