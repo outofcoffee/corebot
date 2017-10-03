@@ -66,11 +66,9 @@ class RundeckJobTriggerService @Inject constructor(private val actionDriver: Run
                     checkStatus(trigger, action, triggeredAction, future)
 
                 } else {
-                    val errorBody = response.errorBody().string()
-                    logger.error("Unsuccessfully triggered job with ID: {} and args: {} - response: {}",
-                            action.jobId, args, errorBody)
-
-                    future.completeExceptionally(RuntimeException(errorBody))
+                    val errMsg = "Unsuccessfully triggered job [ID: ${action.jobId}, args: $args, request URL: ${call.request().url()}, response code: ${response.code()}] response body: ${response.errorBody().string()}"
+                    logger.error(errMsg)
+                    future.completeExceptionally(RuntimeException(errMsg))
                 }
             }
         })

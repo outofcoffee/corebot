@@ -15,6 +15,10 @@ interface ApiClientBuilder<T> {
      * Builds an API client for the specified class using the baseUrl.
      */
     fun buildApiClient(clazz: Class<T>, headers: Map<String, String>): T {
+        if (!baseUrl.endsWith("/")) {
+            throw RuntimeException("Base URL must end with a slash")
+        }
+
         val clientBuilder = OkHttpClient.Builder()
 
         if (headers.isNotEmpty()) {

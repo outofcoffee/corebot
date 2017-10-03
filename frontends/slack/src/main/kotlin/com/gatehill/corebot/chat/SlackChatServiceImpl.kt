@@ -45,7 +45,8 @@ open class SlackChatServiceImpl @Inject constructor(private val sessionService: 
     protected open val messagePostedListeners = listOf(SlackMessagePostedListener { event, session ->
         // filter out messages from other channels
         if (!ChatSettings.chat.channelNames
-                .map { channelName -> session.findChannelByName(channelName).id }
+                .map { channelName -> session.findChannelByName(channelName)?.id }
+                .filterNotNull()
                 .contains(event.channel.id)) return@SlackMessagePostedListener
 
         // ignore own messages
