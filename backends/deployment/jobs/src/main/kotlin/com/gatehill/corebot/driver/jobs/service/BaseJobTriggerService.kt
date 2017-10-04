@@ -68,7 +68,7 @@ abstract class BaseJobTriggerService(private val lockService: LockService,
 
         future.complete(PerformActionResult(
                 if (action.showJobOutcome) {
-                    "Job #${executionDetails.id} status: _${executionDetails.status.toSentenceCase()}_${triggerEmoji} (${executionDetails.url})"
+                    "Job #${executionDetails.id} status: _${executionDetails.status.toSentenceCase()}_$triggerEmoji (${executionDetails.url})"
                 } else {
                     ""
                 }, false))
@@ -89,7 +89,7 @@ abstract class BaseJobTriggerService(private val lockService: LockService,
     private fun pollExecutionInfo(trigger: TriggerContext, action: ActionConfig,
                                   executionId: Int, startTime: Long = System.currentTimeMillis()) {
 
-        val blockDescription = "polling for *${action.name}* #${executionId} execution status"
+        val blockDescription = "polling for *${action.name}* #$executionId execution status"
         doUnlessTimedOut(trigger, action, startTime, blockDescription) {
             fetchExecutionInfo(trigger, action, executionId, startTime)
         }

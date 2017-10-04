@@ -1,5 +1,5 @@
 allprojects {
-    version = '0.9.2-SNAPSHOT'
+    version = '0.9.3-SNAPSHOT'
     group = 'com.gatehill.corebot'
 
     ext.mavenSnapshotRepository = 's3://gatehillsoftware-maven/snapshots'
@@ -7,12 +7,12 @@ allprojects {
     ext.awsSecretKey = System.getenv('AWS_SECRET_ACCESS_KEY') ?: project.findProperty('AWS_SECRET_ACCESS_KEY')
 
     buildscript {
-        ext.version_kotlin = '1.1.2-5'
+        ext.version_kotlin = '1.1.4-3'
         ext.version_junit_platform_gradle = '1.0.0-M4'
         ext.version_spek = '1.1.2'
         ext.version_kluent = '1.22'
         ext.version_log4j = '2.5'
-        ext.version_jackson = '2.9.0.pr4' // supports jacksonTypeRef
+        ext.version_jackson = '2.9.0' // supports jacksonTypeRef
         ext.version_retrofit = '2.1.0'
         ext.version_slackapi = '0c58385'
         ext.version_guava = '18.0'
@@ -36,5 +36,5 @@ allprojects {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = "2.14.1"
+    gradleVersion = "4.1"
 }

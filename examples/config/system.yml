@@ -1,0 +1,13 @@
+# System configuration
+---
+version: '1'
+
+system:
+  defaults:
+    driver: jenkins
+    showJobOutput: false
+    showJobOutcome: true
+    runAsTriggerUser: false
+
+  requestHeaders:
+    Cookie: "foo=bar"

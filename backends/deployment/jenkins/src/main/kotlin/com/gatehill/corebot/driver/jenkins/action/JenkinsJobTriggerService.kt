@@ -67,14 +67,12 @@ class JenkinsJobTriggerService @Inject constructor(private val actionDriver: Jen
 
             override fun onResponse(call: Call<Void>, response: Response<Void>) {
                 if (response.isSuccessful) {
-                    handleTriggerResponse(trigger, action, apiClient, args, future, response)
+                    handleTriggerResponse(call, trigger, action, apiClient, args, future, response)
 
                 } else {
-                    val errorBody = response.errorBody().string()
-                    logger.error("Unsuccessfully triggered job with ID: {} and args: {} - response: {}",
-                            action.jobId, args, errorBody)
-
-                    future.completeExceptionally(RuntimeException(errorBody))
+                    val errMsg = "Unsuccessfully triggered job [ID: ${action.jobId}, args: $args, request URL: ${call.request().url()}, response code: ${response.code()}] response body: ${response.errorBody().string()}"
+                    logger.error(errMsg)
+                    future.completeExceptionally(RuntimeException(errMsg))
                 }
             }
         })
@@ -83,7 +81,7 @@ class JenkinsJobTriggerService @Inject constructor(private val actionDriver: Jen
     /**
      * Process the response to triggering a build.
      */
-    private fun handleTriggerResponse(trigger: TriggerContext, action: ActionConfig, apiClient: JenkinsApi,
+    private fun handleTriggerResponse(call: Call<Void>, trigger: TriggerContext, action: ActionConfig, apiClient: JenkinsApi,
                                       args: Map<String, String>, future: CompletableFuture<PerformActionResult>,
                                       response: Response<Void>) {
 
@@ -102,7 +100,7 @@ class JenkinsJobTriggerService @Inject constructor(private val actionDriver: Jen
                 }
             }
             else -> {
-                val errMsg = "Unsuccessfully triggered job with ID: ${action.jobId} and args: $args - response code: {response.code()}"
+                val errMsg = "Unsuccessfully triggered job [ID: ${action.jobId}, args: $args, request URL: ${call.request().url()}, response code: ${response.code()}] response body: ${response.errorBody().string()}"
                 logger.error(errMsg)
                 future.completeExceptionally(RuntimeException(errMsg))
             }

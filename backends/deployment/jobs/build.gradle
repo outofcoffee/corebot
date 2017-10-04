@@ -31,10 +31,21 @@ dependencies {
     testCompile "com.nhaarman:mockito-kotlin-kt1.1:$version_mockito_kotlin"
 }
 
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives sourcesJar
+}
+
 publishing {
     publications {
         maven(MavenPublication) {
             from components.java
+            artifact sourcesJar
+
             repositories {
                 maven {
                     url mavenSnapshotRepository

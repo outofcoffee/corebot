@@ -32,16 +32,13 @@ class Bot @Inject constructor(private val chatService: ChatService) {
         /**
          * Construct a new `Bot` and wire up its dependencies.
          */
-        fun build(vararg extensionModules: Module): Bot {
-            val injector = createInjector(CoreModule(), CommonBotModule(), object : AbstractModule() {
-                override fun configure() {
-                    extensionModules.forEach {
-                        logger.debug("Installing injection module: ${it.javaClass.canonicalName}")
-                        install(it)
-                    }
+        fun build(vararg extensionModules: Module): Bot = createInjector(CoreModule(), CommonBotModule(), object : AbstractModule() {
+            override fun configure() {
+                extensionModules.forEach {
+                    logger.debug("Installing injection module: ${it.javaClass.canonicalName}")
+                    install(it)
                 }
-            })
-            return injector.getInstance(Bot::class.java)
-        }
+            }
+        }).getInstance(Bot::class.java)
     }
 }
