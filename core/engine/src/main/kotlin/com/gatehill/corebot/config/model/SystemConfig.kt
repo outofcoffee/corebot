@@ -11,7 +11,8 @@ data class SystemConfig(val defaults: DefaultsConfig = DefaultsConfig(),
     class DefaultsConfig(val driver: String = defaultDriver,
                          val showJobOutput: Boolean = false,
                          val showJobOutcome: Boolean = true,
-                         val runAsTriggerUser: Boolean = false) {
+                         val runAsTriggerUser: Boolean = false,
+                         val options: Map<String, OptionConfig> = emptyMap()) {
 
         companion object {
             const val defaultDriver = "rundeck"

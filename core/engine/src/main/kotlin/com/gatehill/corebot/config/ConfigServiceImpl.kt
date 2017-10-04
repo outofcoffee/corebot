@@ -2,6 +2,7 @@ package com.gatehill.corebot.config
 
 import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.config.model.DeserialisedActionConfig
+import com.gatehill.corebot.config.model.OptionConfig
 import com.gatehill.corebot.config.model.SecurityConfig
 import com.gatehill.corebot.config.model.SecurityUserConfig
 import com.gatehill.corebot.config.model.SystemConfig
@@ -106,11 +107,17 @@ open class ConfigServiceImpl : ConfigService {
                 val combinedTags = mutableListOf("all")
                 combinedTags.addAll(tags)
 
+                // action configuration options should override defaults
+                val allOptions = mutableMapOf<String, OptionConfig>().apply {
+                    putAll(systemDefaults.options)
+                    putAll(options)
+                }
+
                 actions[action.key] = ActionConfig(
                         template = template,
                         jobId = jobId,
                         name = action.key,
-                        options = options,
+                        options = allOptions,
                         tags = combinedTags,
                         driver = action.value.driver ?: systemDefaults.driver,
                         showJobOutput = action.value.showJobOutput ?: systemDefaults.showJobOutput,
