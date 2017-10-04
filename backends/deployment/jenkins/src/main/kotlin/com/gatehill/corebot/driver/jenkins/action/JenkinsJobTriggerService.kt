@@ -40,11 +40,19 @@ class JenkinsJobTriggerService @Inject constructor(private val actionDriver: Jen
             obtainCsrfToken()?.let { headers.plusAssign(it) }
 
             apiClient = actionDriver.buildApiClient(headers)
-            call = apiClient.enqueueBuild(
-                    token = DriverSettings.deployment.apiToken,
-                    jobName = action.jobId,
-                    parameters = args
-            )
+
+            if (args.isEmpty()) {
+                call = apiClient.enqueueBuild(
+                        token   = DriverSettings.deployment.apiToken,
+                        jobName = action.jobId
+                )
+            } else {
+                call = apiClient.enqueueBuildWithParameters(
+                        token = DriverSettings.deployment.apiToken,
+                        jobName = action.jobId,
+                        parameters = args
+                )
+            }
 
         } catch (e: Exception) {
             future.completeExceptionally(RuntimeException("Error building API client or obtaining CSRF token", e))
