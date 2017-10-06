@@ -2,7 +2,7 @@ package com.gatehill.corebot
 
 import com.gatehill.corebot.chat.filter.RegexFilter
 import com.gatehill.corebot.chat.filter.StringFilter
-import com.gatehill.corebot.chat.template.TemplateConfigService
+import com.gatehill.corebot.chat.template.TemplateService
 import com.google.inject.AbstractModule
 
 /**
@@ -12,7 +12,7 @@ import com.google.inject.AbstractModule
  */
 class CoreModule : AbstractModule() {
     override fun configure() {
-        bind(TemplateConfigService::class.java).asSingleton()
+        bind(TemplateService::class.java).asSingleton()
         bind(StringFilter::class.java).asSingleton()
         bind(RegexFilter::class.java).asSingleton()
     }

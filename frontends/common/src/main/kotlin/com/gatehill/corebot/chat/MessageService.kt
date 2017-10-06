@@ -1,13 +1,14 @@
 package com.gatehill.corebot.chat
 
 import com.gatehill.corebot.action.ActionPerformService
-import com.gatehill.corebot.action.factory.ActionMessageMode
-import com.gatehill.corebot.action.model.Action
-import com.gatehill.corebot.action.model.ActionWrapper
-import com.gatehill.corebot.action.model.CustomAction
+import com.gatehill.corebot.action.factory.OperationMessageMode
+import com.gatehill.corebot.action.model.ActionOperation
+import com.gatehill.corebot.action.model.Operation
+import com.gatehill.corebot.action.model.OperationContext
 import com.gatehill.corebot.action.model.PerformActionRequest
+import com.gatehill.corebot.action.model.PlainOperation
 import com.gatehill.corebot.action.model.TriggerContext
-import com.gatehill.corebot.chat.template.TemplateService
+import com.gatehill.corebot.chat.template.FactoryService
 import com.gatehill.corebot.config.ConfigService
 import com.gatehill.corebot.config.Settings
 import com.gatehill.corebot.security.AuthorisationService
@@ -22,10 +23,11 @@ import javax.inject.Inject
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
 class MessageService @Inject constructor(private val sessionService: SessionService,
-                                         private val templateService: TemplateService,
+                                         private val factoryService: FactoryService,
                                          private val configService: ConfigService,
                                          private val authorisationService: AuthorisationService,
-                                         private val actionPerformService: ActionPerformService) {
+                                         private val actionPerformService: ActionPerformService,
+                                         private val chatGenerator: ChatGenerator) {
 
     private val logger: Logger = LogManager.getLogger(MessageService::class.java)
 
@@ -39,7 +41,7 @@ class MessageService @Inject constructor(private val sessionService: SessionServ
         parseMessage(trigger, commandOnly)?.let { parsed ->
             logger.info("Handling command '$commandOnly' from ${trigger.username}")
             parsed.groupStartMessage?.let { sessionService.sendMessage(trigger, it) }
-            parsed.actions.forEach { action -> handleAction(trigger, action, parsed) }
+            parsed.operations.forEach { action -> performOperation(trigger, action, parsed) }
 
         } ?: run {
             logger.warn("Ignored command '$commandOnly' from ${trigger.username}")
@@ -48,32 +50,32 @@ class MessageService @Inject constructor(private val sessionService: SessionServ
     }
 
     /**
-     * Respond indicating the command was unknown.
+     * Determine the Operation to perform based on the provided command.
      */
-    fun handleUnknownCommand(trigger: TriggerContext) {
-        sessionService.addReaction(trigger, "question")
-        printUsage(trigger)
-    }
-
-    /**
-     * Determine the Action to perform based on the provided command.
-     */
-    private fun parseMessage(trigger: TriggerContext, commandOnly: String): ActionWrapper? = try {
-        templateService.findSatisfiedTemplates(commandOnly).let { satisfied ->
+    private fun parseMessage(trigger: TriggerContext, commandOnly: String): OperationContext? = try {
+        factoryService.findSatisfiedFactories(commandOnly).let { satisfied ->
             if (satisfied.size == 1) {
                 return with(satisfied.first()) {
-                    ActionWrapper(buildActions(trigger),
-                            if (actionMessageMode == ActionMessageMode.GROUP) buildStartMessage(trigger) else null,
-                            if (actionMessageMode == ActionMessageMode.GROUP) buildCompleteMessage() else null)
+                    OperationContext(buildOperations(trigger),
+                            if (operationMessageMode == OperationMessageMode.GROUP) buildStartMessage(trigger) else null,
+                            if (operationMessageMode == OperationMessageMode.GROUP) buildCompleteMessage() else null)
                 }
             } else {
-                throw IllegalStateException("Could not find a unique matching action for command: $commandOnly")
+                throw IllegalStateException("Could not find a unique matching operation for command: $commandOnly - ${satisfied.size} factories found: $satisfied")
             }
         }
 
     } catch (e: IllegalStateException) {
         logger.warn("Unable to parse message: $commandOnly - ${e.message}")
         null
+    }
+
+    /**
+     * Respond indicating the command was unknown.
+     */
+    fun handleUnknownCommand(trigger: TriggerContext) {
+        sessionService.addReaction(trigger, "question")
+        printUsage(trigger)
     }
 
     /**
@@ -92,53 +94,68 @@ class MessageService @Inject constructor(private val sessionService: SessionServ
     }
 
     /**
-     * Check if the action is permitted, and if so, carry it out.
+     * Check if the operation is permitted, and if so, carry it out.
      */
-    private fun handleAction(trigger: TriggerContext, action: Action, actionWrapper: ActionWrapper) {
-        logger.info("Handling action: $action")
+    private fun performOperation(trigger: TriggerContext, operation: Operation, operationContext: OperationContext) {
+        logger.info("Performing operation: $operation")
 
-        authorisationService.checkPermission(action, { permitted ->
+        authorisationService.checkPermission(operation, { permitted ->
             if (permitted) {
                 // respond with acknowledgement
-                action.startMessage?.let { sessionService.sendMessage(trigger, it) }
+                operation.startMessage?.let { sessionService.sendMessage(trigger, it) }
 
-                when (action) {
-                    is CustomAction -> performCustomAction(trigger, action, actionWrapper)
-                    else -> postSuccessfulReaction(trigger, true, actionWrapper)
+                try {
+                    operation.operationFactory.beforePerform(trigger)
+
+                    when (operation) {
+                        is PlainOperation -> postSuccessfulReaction(trigger, true, operationContext)
+                        is ActionOperation -> performActionOperation(trigger, operation, operationContext)
+                        else -> {
+                            sessionService.addReaction(trigger, "x")
+                            sessionService.sendMessage(trigger, "Unsupported operation type: ${operation::class.java.simpleName}")
+                        }
+                    }
+
+                } catch (e: Exception) {
+                    handleOperationException(trigger, operation, e)
                 }
 
             } else {
                 sessionService.addReaction(trigger, "no_entry")
                 sessionService.sendMessage(trigger,
-                        "Sorry, <@${trigger.userId}>, you're not allowed to perform ${action.shortDescription}.")
+                        "Sorry, <@${trigger.userId}>, you're not allowed to perform ${operation.shortDescription}.")
             }
         }, trigger.username)
     }
 
     /**
-     * Perform the custom action and add a reaction with the outcome.
+     * Perform the action operation and add a reaction with the outcome.
      */
-    private fun performCustomAction(trigger: TriggerContext, action: CustomAction, actionWrapper: ActionWrapper) {
+    private fun performActionOperation(trigger: TriggerContext, operation: ActionOperation, operationContext: OperationContext) {
         // schedule action execution
-        val request = PerformActionRequest.Builder.build(trigger, action.actionType, action.actionConfig, action.args)
+        val request = PerformActionRequest.Builder.build(trigger, operation.operationType, operation.actionConfig, operation.args)
 
         actionPerformService.perform(request).thenAccept { (message, finalResult) ->
-            postSuccessfulReaction(trigger, finalResult, actionWrapper)
+            postSuccessfulReaction(trigger, finalResult, operationContext)
             message?.let { sessionService.sendMessage(trigger, it) }
 
         }.onException { ex ->
-            logger.error("Error performing custom action $action", ex)
-
-            sessionService.addReaction(trigger, "x")
-            sessionService.sendMessage(trigger,
-                    "Hmm, something went wrong :face_with_head_bandage:\r\n```${ex.message}```")
+            handleOperationException(trigger, operation, ex)
         }
     }
 
-    private fun postSuccessfulReaction(trigger: TriggerContext, finalResult: Boolean, actionWrapper: ActionWrapper) {
+    private fun postSuccessfulReaction(trigger: TriggerContext, finalResult: Boolean, operationContext: OperationContext) {
         sessionService.addReaction(trigger, if (finalResult) "white_check_mark" else "ok")
 
-        if (++actionWrapper.successful == actionWrapper.actions.size)
-            actionWrapper.groupCompleteMessage?.let { sessionService.sendMessage(trigger, it) }
+        if (++operationContext.successful == operationContext.operations.size)
+            operationContext.groupCompleteMessage?.let { sessionService.sendMessage(trigger, it) }
+    }
+
+    private fun handleOperationException(trigger: TriggerContext, operation: Operation, ex: Throwable) {
+        logger.error("Error performing action operation $operation", ex)
+
+        sessionService.addReaction(trigger, "x")
+        sessionService.sendMessage(trigger,
+                "${chatGenerator.badNews()} something went wrong\r\n```${ex.message}```")
     }
 }

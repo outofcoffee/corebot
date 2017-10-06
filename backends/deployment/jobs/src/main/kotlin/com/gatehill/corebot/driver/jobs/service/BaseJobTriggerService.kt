@@ -43,7 +43,9 @@ abstract class BaseJobTriggerService(private val lockService: LockService,
                         "The '${action.name}' action is locked by <@${actionLock.owner}>"))
 
             } ?: run {
-                lockService.checkOptionLock(action, allArgs) { optionLock ->
+                val (optionName, optionValue) = allArgs.entries.first()
+
+                lockService.checkOptionLock(optionName, optionValue, { optionLock ->
                     optionLock?.let {
                         future.completeExceptionally(IllegalStateException(
                                 "${optionLock.optionName} ${optionLock.optionValue} is locked by <@${optionLock.owner}>"))
@@ -52,7 +54,7 @@ abstract class BaseJobTriggerService(private val lockService: LockService,
                         logger.info("Triggering action: {} with job ID: {} and args: {}", action.name, action.jobId, allArgs)
                         triggerExecution(trigger, future, action, allArgs)
                     }
-                }
+                })
             }
         }
     }

@@ -7,7 +7,7 @@ import javax.inject.Inject
 /**
  * Represents a simple operation for a named action.
  */
-abstract class NamedActionFactory @Inject constructor(private val configService: ConfigService) : CustomActionFactory() {
+abstract class NamedActionFactory @Inject constructor(private val configService: ConfigService) : ActionOperationFactory() {
     override val actionConfigs = mutableListOf<ActionConfig>()
 
     override fun onSatisfied(): Boolean {

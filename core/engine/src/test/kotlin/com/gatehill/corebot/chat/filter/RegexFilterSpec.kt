@@ -1,7 +1,7 @@
-import com.gatehill.corebot.action.factory.ActionFactory
-import com.gatehill.corebot.action.factory.ActionMessageMode
+import com.gatehill.corebot.action.factory.OperationFactory
+import com.gatehill.corebot.action.factory.OperationMessageMode
 import com.gatehill.corebot.action.factory.Template
-import com.gatehill.corebot.action.factory.readActionFactoryMetadata
+import com.gatehill.corebot.action.factory.readOperationFactoryMetadata
 import com.gatehill.corebot.chat.filter.RegexFilter
 import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.mock
@@ -24,24 +24,24 @@ object RegexFilterSpec : Spek({
     given("a regex filter") {
         val filter = RegexFilter()
 
-        val mockActionFactory = { values: MutableMap<String, String> ->
+        val mockOperationFactory = { values: MutableMap<String, String> ->
             @Template("dummy",
                     builtIn = true,
                     showInUsage = true,
-                    actionMessageMode = ActionMessageMode.INDIVIDUAL,
+                    operationMessageMode = OperationMessageMode.INDIVIDUAL,
                     placeholderKeys = arrayOf(placeholderKey))
-            abstract class DummyFactory : ActionFactory
+            abstract class DummyFactory : OperationFactory
 
-            mock<ActionFactory> {
+            mock<OperationFactory> {
                 on { placeholderValues } doReturn values
-                on { readMetadata() } doReturn readActionFactoryMetadata(DummyFactory::class.java)
+                on { readMetadata() } doReturn readOperationFactoryMetadata(DummyFactory::class.java)
                 on { onSatisfied() } doReturn true
             }
         }
 
         on("parsing a valid placeholder") {
             val placeholderValues = mutableMapOf<String, String>()
-            val factory = mockActionFactory(placeholderValues)
+            val factory = mockOperationFactory(placeholderValues)
             val config = RegexFilter.RegexFilterConfig(Pattern.compile(templateRegex), null)
             val match = filter.matches(config, factory, "test $placeholderValue")
 
@@ -57,7 +57,7 @@ object RegexFilterSpec : Spek({
 
         on("parsing an invalid placeholder") {
             val placeholderValues = mutableMapOf<String, String>()
-            val factory = mockActionFactory(placeholderValues)
+            val factory = mockOperationFactory(placeholderValues)
             val config = RegexFilter.RegexFilterConfig(Pattern.compile(templateRegex), null)
             val match = filter.matches(config, factory, "non matching")
 

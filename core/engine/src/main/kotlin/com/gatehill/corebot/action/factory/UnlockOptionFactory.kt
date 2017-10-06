@@ -1,17 +1,31 @@
 package com.gatehill.corebot.action.factory
 
-import com.gatehill.corebot.action.model.ActionType
-import com.gatehill.corebot.action.model.CoreActionType
+import com.gatehill.corebot.action.LockService
+import com.gatehill.corebot.action.model.CoreOperationType
+import com.gatehill.corebot.action.model.OperationType
+import com.gatehill.corebot.action.model.TriggerContext
 import com.gatehill.corebot.chat.ChatGenerator
 import com.gatehill.corebot.config.ConfigService
+import com.gatehill.corebot.config.model.ActionConfig
 import javax.inject.Inject
 
 /**
  * Unlocks an option value.
  */
-@Template("unlockOption", builtIn = true, showInUsage = true, actionMessageMode = ActionMessageMode.GROUP)
+@Template("unlockOption", builtIn = true, showInUsage = true, operationMessageMode = OperationMessageMode.GROUP)
 class UnlockOptionFactory @Inject constructor(configService: ConfigService,
-                                              chatGenerator: ChatGenerator) : BaseLockOptionFactory(configService, chatGenerator) {
+                                              lockService: LockService,
+                                              private val chatGenerator: ChatGenerator) : BaseLockableOptionFactory(configService, lockService) {
 
-    override val actionType: ActionType = CoreActionType.UNLOCK_OPTION
+    override val operationType: OperationType = CoreOperationType.UNLOCK_OPTION
+
+    override fun beforePerform(trigger: TriggerContext) {
+        lockService.unlockOption(optionName, optionValue)
+    }
+
+    override fun buildStartMessage(trigger: TriggerContext, options: Map<String, String>, actionConfig: ActionConfig?): String {
+        return "${chatGenerator.pleaseWait()}, I'm unlocking $optionName *$optionValue*..."
+    }
+
+    override fun buildCompleteMessage() = "I've unlocked :unlock: $optionName *$optionValue* for you."
 }

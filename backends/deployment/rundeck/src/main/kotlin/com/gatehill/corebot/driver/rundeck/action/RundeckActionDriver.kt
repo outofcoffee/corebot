@@ -1,7 +1,7 @@
 package com.gatehill.corebot.driver.rundeck.action
 
 import com.gatehill.corebot.action.LockService
-import com.gatehill.corebot.action.model.ActionType
+import com.gatehill.corebot.action.model.OperationType
 import com.gatehill.corebot.action.model.PerformActionResult
 import com.gatehill.corebot.action.model.TriggerContext
 import com.gatehill.corebot.config.ConfigService
@@ -9,7 +9,7 @@ import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.driver.ActionDriver
 import com.gatehill.corebot.driver.base.action.ApiClientBuilder
 import com.gatehill.corebot.driver.jobs.action.JobBaseActionDriver
-import com.gatehill.corebot.driver.jobs.action.factory.JobActionType
+import com.gatehill.corebot.driver.jobs.action.factory.JobOperationType
 import com.gatehill.corebot.driver.rundeck.config.DriverSettings
 import java.util.concurrent.CompletableFuture
 import javax.inject.Inject
@@ -35,13 +35,13 @@ class RundeckActionDriverImpl @Inject constructor(triggerJobService: RundeckJobT
     }
 
     override fun handleAction(trigger: TriggerContext, future: CompletableFuture<PerformActionResult>,
-                              actionType: ActionType, action: ActionConfig, args: Map<String, String>): Boolean {
+                              operationType: OperationType, action: ActionConfig, args: Map<String, String>): Boolean {
 
         try {
-            when (actionType) {
-                JobActionType.ENABLE -> executionStatusService.enableExecutions(future, action, false)
-                JobActionType.DISABLE -> executionStatusService.enableExecutions(future, action, true)
-                else -> return super.handleAction(trigger, future, actionType, action, args)
+            when (operationType) {
+                JobOperationType.ENABLE -> executionStatusService.enableExecutions(future, action, false)
+                JobOperationType.DISABLE -> executionStatusService.enableExecutions(future, action, true)
+                else -> return super.handleAction(trigger, future, operationType, action, args)
             }
             return true
 

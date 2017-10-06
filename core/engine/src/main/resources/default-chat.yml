@@ -27,10 +27,12 @@ badNews:
  - "Oh dear ${badNewsEmoji}"
  - "Oh no ${badNewsEmoji}"
  - "Bad news ${badNewsEmoji}"
-    
+ - "Uh oh ${badNewsEmoji}"
+
 badNewsEmoji:
  - "cry"
  - "scream"
+ - "face_with_head_bandage"
     
 greeting:
  - "Hi"

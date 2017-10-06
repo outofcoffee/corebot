@@ -131,9 +131,9 @@ Allows child thread messages to be trigger messages. Implies `SLACK_REPLY_IN_THR
     
 The path to an external YAML file containing custom chat lines. See the default file, `default-chat.yml`, for examples.
 
-## Actions
+## Operations and actions
 
-Corebot has both built-in actions and custom actions. Examples of built in actions are the lock/unlock actions. Custom actions are triggers for your Rundeck/Jenkins jobs, configured using a configuration file, typically called `actions.yml`.
+Corebot has both built-in operations and external actions. Examples of built in operations are the lock/unlock actions. External actions are triggers for your Rundeck/Jenkins jobs, configured using a configuration file, typically called `actions.yml`.
 
 ### Action configuration file
 

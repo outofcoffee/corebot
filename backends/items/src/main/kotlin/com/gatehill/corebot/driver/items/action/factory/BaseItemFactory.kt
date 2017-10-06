@@ -1,6 +1,6 @@
 package com.gatehill.corebot.driver.items.action.factory
 
-import com.gatehill.corebot.action.factory.CustomActionFactory
+import com.gatehill.corebot.action.factory.ActionOperationFactory
 import com.gatehill.corebot.config.ConfigService
 import com.gatehill.corebot.config.model.ActionConfig
 import javax.inject.Inject
@@ -8,7 +8,7 @@ import javax.inject.Inject
 /**
  * Common item functionality.
  */
-abstract class BaseItemFactory @Inject constructor(private val configService: ConfigService) : CustomActionFactory() {
+abstract class BaseItemFactory @Inject constructor(private val configService: ConfigService) : ActionOperationFactory() {
     override val actionConfigs = mutableListOf<ActionConfig>()
 
     protected val itemName: String

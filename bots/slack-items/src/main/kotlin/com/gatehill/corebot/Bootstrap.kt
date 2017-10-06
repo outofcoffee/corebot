@@ -1,8 +1,8 @@
 package com.gatehill.corebot
 
 import com.gatehill.corebot.action.factory.ShowHelpFactory
-import com.gatehill.corebot.chat.template.TemplateConfigService
 import com.gatehill.corebot.chat.template.TemplateService
+import com.gatehill.corebot.chat.template.FactoryService
 import com.gatehill.corebot.driver.ActionDriverFactory
 import com.gatehill.corebot.driver.items.action.ItemsActionDriverImpl
 import com.gatehill.corebot.driver.items.action.factory.BorrowItemAsUserFactory
@@ -18,21 +18,21 @@ import javax.inject.Inject
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
 class Bootstrap @Inject constructor(actionDriverFactory: ActionDriverFactory,
-                                    templateService: TemplateService,
-                                    templateConfigService: TemplateConfigService) {
+                                    factoryService: FactoryService,
+                                    templateService: TemplateService) {
     init {
         // drivers
         actionDriverFactory.registerDriver("items", ItemsActionDriverImpl::class.java)
 
         // templates
-        templateConfigService.registerClasspathTemplateFile("/items-templates.yml")
-        templateService.registerTemplate(ShowHelpFactory::class.java)
-        templateService.registerTemplate(BorrowItemFactory::class.java)
-        templateService.registerTemplate(BorrowItemAsUserFactory::class.java)
-        templateService.registerTemplate(ReturnItemFactory::class.java)
-        templateService.registerTemplate(EvictItemFactory::class.java)
-        templateService.registerTemplate(EvictUserFromItemFactory::class.java)
-        templateService.registerTemplate(StatusItemFactory::class.java)
-        templateService.registerTemplate(StatusAllFactory::class.java)
+        templateService.registerClasspathTemplateFile("/items-templates.yml")
+        factoryService.registerFactory(ShowHelpFactory::class.java)
+        factoryService.registerFactory(BorrowItemFactory::class.java)
+        factoryService.registerFactory(BorrowItemAsUserFactory::class.java)
+        factoryService.registerFactory(ReturnItemFactory::class.java)
+        factoryService.registerFactory(EvictItemFactory::class.java)
+        factoryService.registerFactory(EvictUserFromItemFactory::class.java)
+        factoryService.registerFactory(StatusItemFactory::class.java)
+        factoryService.registerFactory(StatusAllFactory::class.java)
     }
 }

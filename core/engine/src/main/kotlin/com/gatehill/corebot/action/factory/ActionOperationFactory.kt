@@ -1,25 +1,28 @@
 package com.gatehill.corebot.action.factory
 
-import com.gatehill.corebot.action.model.Action
-import com.gatehill.corebot.action.model.CustomAction
+import com.gatehill.corebot.action.model.Operation
+import com.gatehill.corebot.action.model.ActionOperation
 import com.gatehill.corebot.action.model.TriggerContext
 import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.config.model.TransformType
 import java.util.HashMap
 
 /**
- * Represents a custom action.
+ * Represents an action operation.
  */
-abstract class CustomActionFactory : BaseActionFactory() {
+abstract class ActionOperationFactory : BaseOperationFactory() {
+    abstract val actionConfigs : List<ActionConfig>
+
     /**
-     * List the actions from this template.
+     * List the operations from this template.
      */
-    override fun buildActions(trigger: TriggerContext): List<Action> {
+    override fun buildOperations(trigger: TriggerContext): List<Operation> {
         return actionConfigs.map { actionConfig ->
             val options = transform(actionConfig, placeholderValues)
-            CustomAction(actionType,
+            ActionOperation(operationType,
+                    this,
                     buildShortDescription(actionConfig),
-                    if (actionMessageMode == ActionMessageMode.INDIVIDUAL && actionConfig.showJobOutcome) buildStartMessage(trigger, options, actionConfig) else null,
+                    if (operationMessageMode == OperationMessageMode.INDIVIDUAL && actionConfig.showJobOutcome) buildStartMessage(trigger, options, actionConfig) else null,
                     actionConfig.tags,
                     actionConfig.driver,
                     actionConfig,

@@ -1,25 +1,25 @@
 package com.gatehill.corebot.action.factory
 
-import com.gatehill.corebot.action.model.Action
-import com.gatehill.corebot.action.model.ActionType
+import com.gatehill.corebot.action.model.Operation
+import com.gatehill.corebot.action.model.OperationType
 import com.gatehill.corebot.action.model.TriggerContext
 import com.gatehill.corebot.chat.filter.FilterConfig
 import com.gatehill.corebot.config.model.ActionConfig
 
 /**
- * Produces actions of a given type. Must be annotated with `com.gatehill.corebot.action.factory.Template`
+ * Produces operations of a given type. Must be annotated with `com.gatehill.corebot.action.factory.Template`
  * to provide metadata.
  */
-interface ActionFactory {
+interface OperationFactory {
     val parsers: MutableList<FilterConfig>
-    val actionType: ActionType
-    val actionMessageMode: ActionMessageMode
+    val operationType: OperationType
+    val operationMessageMode: OperationMessageMode
     val placeholderValues: MutableMap<String, String>
 
     /**
      * Reads the template metadata for this factory.
      */
-    fun readMetadata(): Template = readActionFactoryMetadata(this::class.java)
+    fun readMetadata(): Template = readOperationFactoryMetadata(this::class.java)
 
     /**
      * Hook for subclasses to do things like manipulate placeholders once
@@ -28,19 +28,26 @@ interface ActionFactory {
     fun onSatisfied() = true
 
     /**
-     * List the actions from this template.
+     * List the operations from this template.
      */
-    fun buildActions(trigger: TriggerContext): List<Action>
+    fun buildOperations(trigger: TriggerContext): List<Operation>
 
     /**
-     * Build the message for when this action starts.
+     * Lifecycle hook for subclasses, invoked after `onSatisfied` and `buildOperations`, but before performing the operation.
+     */
+    fun beforePerform(trigger: TriggerContext) {
+        /* no op */
+    }
+
+    /**
+     * Build the message for when this operation starts.
      */
     fun buildStartMessage(trigger: TriggerContext,
                           options: Map<String, String> = emptyMap(),
                           actionConfig: ActionConfig? = null): String
 
     /**
-     * Build the message for when this action completes.
+     * Build the message for when this operation completes.
      */
     fun buildCompleteMessage(): String = ""
 }
@@ -48,7 +55,7 @@ interface ActionFactory {
 /**
  * Reads the template metadata for a factory.
  */
-fun readActionFactoryMetadata(factoryClass: Class<out ActionFactory>): Template =
+fun readOperationFactoryMetadata(factoryClass: Class<out OperationFactory>): Template =
         factoryClass.getAnnotationsByType(Template::class.java).firstOrNull()
                 ?: throw IllegalStateException("Missing @Template annotation for: ${factoryClass.canonicalName}")
 
@@ -61,10 +68,17 @@ fun readActionFactoryMetadata(factoryClass: Class<out ActionFactory>): Template 
 annotation class Template(val templateName: String,
                           val builtIn: Boolean,
                           val showInUsage: Boolean,
-                          val actionMessageMode: ActionMessageMode,
+                          val operationMessageMode: OperationMessageMode,
                           val placeholderKeys: Array<String> = emptyArray())
 
-enum class ActionMessageMode {
+enum class OperationMessageMode {
+    /**
+     * Each operation emits a message.
+     */
     INDIVIDUAL,
+
+    /**
+     * Emit a message at the start and end of the group of operations.
+     */
     GROUP;
 }
