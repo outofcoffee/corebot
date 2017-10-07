@@ -5,6 +5,7 @@ import com.gatehill.corebot.config.ChatSettings
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.io.IOException
+import javax.websocket.CloseReason
 
 /**
  * Manages WebSocket sessions.
@@ -33,15 +34,17 @@ class WebSocketSessionServiceImpl : WebSocketSessionService {
     }
 
     override fun sendMessage(trigger: TriggerContext, message: String) {
-        if (ChatSettings.echoEventsToAllSessions) {
-            broadcastToAll(message)
+        if (message.isNotBlank()) {
+            if (ChatSettings.echoEventsToAllSessions) {
+                broadcastToAll(message)
 
-        } else {
-            // FIXME DRY
-            try {
-                findTriggerSession(trigger).session.basicRemote.sendText(message)
-            } catch (e: IOException) {
-                logger.error(e)
+            } else {
+                // FIXME DRY
+                try {
+                    findTriggerSession(trigger).session.basicRemote.sendText(message)
+                } catch (e: IOException) {
+                    logger.error(e)
+                }
             }
         }
     }
@@ -60,4 +63,13 @@ class WebSocketSessionServiceImpl : WebSocketSessionService {
 
     override fun lookupUserRealName(trigger: TriggerContext, userId: String): String =
             findTriggerSession(trigger).realName
+
+    override fun terminateSession(trigger: TriggerContext) {
+        logger.info("${trigger.username} terminated the session")
+
+        findTriggerSession(trigger).session.close(CloseReason(
+                CloseReason.CloseCodes.GOING_AWAY,
+                "${trigger.username} terminated the session"
+        ))
+    }
 }

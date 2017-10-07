@@ -34,9 +34,9 @@ class BotWebSocketEndPoint @Inject constructor(private val sessionService: WebSo
             sessionService.connectedSessions.add(SessionHolder(session))
         }
 
-        "User ${session.id} connected".let {
-            logger.info(it)
-            if (ChatSettings.echoEventsToAllSessions) sessionService.broadcastToAll(it)
+        with("User ${session.id} connected") {
+            logger.info(this)
+            if (ChatSettings.echoEventsToAllSessions) sessionService.broadcastToAll(this)
         }
     }
 
@@ -54,9 +54,9 @@ class BotWebSocketEndPoint @Inject constructor(private val sessionService: WebSo
     fun closeConnectionHandler(session: Session, closeReason: CloseReason) {
         sessionService.connectedSessions.removeAll { it.session == session }
 
-        "User ${session.id} disconnected".let {
-            logger.info(it)
-            if (ChatSettings.echoEventsToAllSessions) sessionService.broadcastToAll(it)
+        with("User ${session.id} disconnected") {
+            logger.info(this)
+            if (ChatSettings.echoEventsToAllSessions) sessionService.broadcastToAll(this)
         }
     }
 }

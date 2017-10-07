@@ -16,6 +16,7 @@ security:
         - all_status
         - set_real_name
         - set_username
+        - terminate_session
       tags:
         - all
 

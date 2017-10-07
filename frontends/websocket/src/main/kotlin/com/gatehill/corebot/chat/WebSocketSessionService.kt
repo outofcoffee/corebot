@@ -9,6 +9,7 @@ interface WebSocketSessionService : SessionService {
     fun broadcastToAll(message: String)
     fun findTriggerSession(trigger: TriggerContext): SessionHolder
     fun findTriggerSession(sessionId: String): SessionHolder
+    fun terminateSession(trigger: TriggerContext)
 }
 
 data class SessionHolder(val session: Session,

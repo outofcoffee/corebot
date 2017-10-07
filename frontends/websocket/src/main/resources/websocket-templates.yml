@@ -5,3 +5,7 @@ setUsername:
 
 setRealName:
   - template: real name {realName}
+
+terminateSession:
+  - template: exit
+  - template: quit
