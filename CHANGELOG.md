@@ -3,9 +3,17 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [1.0.0] - 2017-10-07
 ### Added
-- ...
+- Added ability to trigger parameterless jobs in Jenkins (thanks DrColza).
+- Adds system configuration for customisation of request and action defaults, and default action options.
+- Adds option status action.
+
+### Changed
+- Upgrades Gradle, Kotlin and Jackson versions.
+- Improves API path composition, including Jenkins and Rundeck endpoints other than at the root of a domain.
+- Improves error status logging.
+- Improves option handling.
 
 ## [0.9.2] - 2017-08-26
 ### Changed
