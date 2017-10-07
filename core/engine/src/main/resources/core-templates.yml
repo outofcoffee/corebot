@@ -19,3 +19,7 @@ lockOption:
 
 unlockOption:
   - template: unlock {option name} {option value}
+
+statusOption:
+  - template: status {option name} {option value}
+  - template: status of {option name} {option value}

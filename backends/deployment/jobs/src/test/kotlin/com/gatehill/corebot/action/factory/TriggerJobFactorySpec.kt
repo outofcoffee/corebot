@@ -31,15 +31,15 @@ object TriggerJobFactorySpec : Spek({
             }
         }
 
-        on("building actions") {
-            val actions = factory.buildActions(TestMother.trigger)
+        on("building operations") {
+            val operations = factory.buildOperations(TestMother.trigger)
 
-            it("should produce actions") {
-                actions.size `should equal` 1
+            it("should produce operations") {
+                operations.size `should equal` 1
             }
 
-            it("should produce actions of the correct type") {
-                actions.first().actionType `should equal` factory.actionType
+            it("should produce operations of the correct type") {
+                operations.first().operationType `should equal` factory.operationType
             }
 
             it("should have called the chat generator") {

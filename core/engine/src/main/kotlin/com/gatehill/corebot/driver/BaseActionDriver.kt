@@ -1,8 +1,8 @@
 package com.gatehill.corebot.driver
 
 import com.gatehill.corebot.action.LockService
-import com.gatehill.corebot.action.model.ActionType
-import com.gatehill.corebot.action.model.CoreActionType
+import com.gatehill.corebot.action.model.OperationType
+import com.gatehill.corebot.action.model.CoreOperationType
 import com.gatehill.corebot.action.model.PerformActionResult
 import com.gatehill.corebot.action.model.TriggerContext
 import com.gatehill.corebot.config.model.ActionConfig
@@ -16,21 +16,19 @@ abstract class BaseActionDriver @Inject constructor(private val lockService: Loc
     /**
      * Route the specified action to a handler.
      */
-    override fun perform(trigger: TriggerContext, actionType: ActionType, action: ActionConfig,
+    override fun perform(trigger: TriggerContext, operationType: OperationType, action: ActionConfig,
                          args: Map<String, String>): CompletableFuture<PerformActionResult> {
 
         val future = CompletableFuture<PerformActionResult>()
         try {
-            when (actionType) {
-                CoreActionType.LOCK_ACTION -> lockService.lockAction(future, action, trigger.userId)
-                CoreActionType.UNLOCK_ACTION -> lockService.unlockAction(future, action)
-                CoreActionType.STATUS -> showStatus(future, action)
-                CoreActionType.LOCK_OPTION -> lockService.lockOption(future, action, args, trigger.userId)
-                CoreActionType.UNLOCK_OPTION -> lockService.unlockOption(future, action, args)
+            when (operationType) {
+                CoreOperationType.LOCK_ACTION -> lockService.lockAction(future, action, trigger.userId)
+                CoreOperationType.UNLOCK_ACTION -> lockService.unlockAction(future, action)
+                CoreOperationType.STATUS_ACTION -> showActionStatus(future, action)
                 else -> {
                     // delegate to driver
-                    if (!handleAction(trigger, future, actionType, action, args)) throw UnsupportedOperationException(
-                            "Action type $actionType is not supported by ${javaClass.canonicalName}")
+                    if (!handleAction(trigger, future, operationType, action, args)) throw UnsupportedOperationException(
+                            "Operation type $operationType is not supported by ${javaClass.canonicalName}")
                 }
             }
         } catch (e: Exception) {
@@ -39,17 +37,9 @@ abstract class BaseActionDriver @Inject constructor(private val lockService: Loc
         return future
     }
 
-    private fun showStatus(future: CompletableFuture<PerformActionResult>, action: ActionConfig) {
-        val msg = StringBuilder("Status of *${action.name}*: ")
-
+    private fun showActionStatus(future: CompletableFuture<PerformActionResult>, action: ActionConfig) {
         lockService.checkActionLock(action) { lock ->
-            lock?.let {
-                msg.append("locked :lock: by <@${lock.owner}>")
-            } ?: run {
-                msg.append("unlocked :unlock:")
-            }
-
-            future.complete(PerformActionResult(msg.toString()))
+            future.complete(PerformActionResult(lockService.describeLockStatus("Status of *${action.name}*: ", lock)))
         }
     }
 
@@ -57,6 +47,6 @@ abstract class BaseActionDriver @Inject constructor(private val lockService: Loc
      * Attempt to handle the given action, with the specified arguments.
      */
     protected abstract fun handleAction(trigger: TriggerContext, future: CompletableFuture<PerformActionResult>,
-                                        actionType: ActionType, action: ActionConfig,
+                                        operationType: OperationType, action: ActionConfig,
                                         args: Map<String, String>): Boolean
 }

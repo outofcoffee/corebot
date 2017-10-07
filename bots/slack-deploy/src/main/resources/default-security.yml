@@ -13,9 +13,10 @@ security:
         - disable
         - lock_action
         - unlock_action
-        - status
+        - status_action
         - lock_option
         - unlock_option
+        - status_option
       tags:
         - all
 

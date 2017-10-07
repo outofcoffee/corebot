@@ -16,6 +16,6 @@ open class DirectActionPerformServiceImpl @Inject constructor(
 
     override fun perform(request: PerformActionRequest): CompletableFuture<PerformActionResult> {
         val actionDriver = actionDriverFactory.driverFor(request.actionConfig.driver)
-        return actionDriver.perform(request.trigger, request.actionType, request.actionConfig, request.args)
+        return actionDriver.perform(request.trigger, request.operationType, request.actionConfig, request.args)
     }
 }

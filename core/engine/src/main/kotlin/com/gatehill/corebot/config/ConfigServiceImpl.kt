@@ -96,14 +96,14 @@ open class ConfigServiceImpl : ConfigService {
      */
     private fun loadActionConfig(): Map<String, ActionConfig> {
         val config = loadCustomConfig()
-        logger.debug("Loaded ${config.actions.size} actions")
+        logger.debug("Loaded ${config.actions.size} operations")
 
         val actions = mutableMapOf<String, ActionConfig>()
         val systemDefaults = system().defaults
 
         config.actions.map { action ->
             with(action.value) {
-                // all custom actions have the 'all' tag
+                // all action operations have the 'all' tag
                 val combinedTags = mutableListOf("all")
                 combinedTags.addAll(tags)
 

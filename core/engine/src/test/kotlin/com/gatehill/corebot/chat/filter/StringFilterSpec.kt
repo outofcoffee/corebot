@@ -1,4 +1,4 @@
-import com.gatehill.corebot.action.factory.ActionFactory
+import com.gatehill.corebot.action.factory.OperationFactory
 import com.gatehill.corebot.chat.filter.StringFilter
 import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.mock
@@ -20,8 +20,8 @@ object StringFilterSpec : Spek({
     given("a string filter") {
         val filter = StringFilter()
 
-        val mockActionFactory = { values: MutableMap<String, String> ->
-            mock<ActionFactory> {
+        val mockOperationFactory = { values: MutableMap<String, String> ->
+            mock<OperationFactory> {
                 on { placeholderValues } doReturn values
                 on { onSatisfied() } doReturn true
             }
@@ -29,7 +29,7 @@ object StringFilterSpec : Spek({
 
         on("parsing a valid single word placeholder") {
             val placeholderValues = mutableMapOf<String, String>()
-            val factory = mockActionFactory(placeholderValues)
+            val factory = mockOperationFactory(placeholderValues)
             val config = StringFilter.StringFilterConfig("test {$placeholderKeySingleWord}", null)
             val match = filter.matches(config, factory, "test $placeholderValue")
 
@@ -45,7 +45,7 @@ object StringFilterSpec : Spek({
 
         on("parsing a valid multi-word placeholder") {
             val placeholderValues = mutableMapOf<String, String>()
-            val factory = mockActionFactory(placeholderValues)
+            val factory = mockOperationFactory(placeholderValues)
             val config = StringFilter.StringFilterConfig("test {$placeholderKeyMultiword}", null)
             val match = filter.matches(config, factory, "test $placeholderValue")
 
@@ -61,7 +61,7 @@ object StringFilterSpec : Spek({
 
         on("parsing an invalid placeholder") {
             val placeholderValues = mutableMapOf<String, String>()
-            val factory = mockActionFactory(placeholderValues)
+            val factory = mockOperationFactory(placeholderValues)
             val config = StringFilter.StringFilterConfig("test {$placeholderKeySingleWord}", null)
             val match = filter.matches(config, factory, "non matching")
 

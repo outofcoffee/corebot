@@ -6,7 +6,7 @@ import com.gatehill.corebot.action.ActionPerformService
 import com.gatehill.corebot.action.DirectActionPerformServiceImpl
 import com.gatehill.corebot.chat.ChatGenerator
 import com.gatehill.corebot.chat.ChatGeneratorImpl
-import com.gatehill.corebot.chat.template.TemplateService
+import com.gatehill.corebot.chat.template.FactoryService
 import com.gatehill.corebot.config.ConfigService
 import com.gatehill.corebot.config.ConfigServiceImpl
 import com.gatehill.corebot.driver.ActionDriverFactory
@@ -25,7 +25,7 @@ class CommonBotModule : AbstractModule() {
         bind(AuthorisationService::class.java).asSingleton()
 
         // chat
-        bind(TemplateService::class.java).asSingleton()
+        bind(FactoryService::class.java).asSingleton()
         bind(ChatGenerator::class.java).to(ChatGeneratorImpl::class.java).asSingleton()
 
         // actions

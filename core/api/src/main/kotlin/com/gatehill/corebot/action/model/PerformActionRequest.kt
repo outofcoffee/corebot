@@ -8,15 +8,15 @@ import com.gatehill.corebot.config.model.ActionConfig
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
 data class PerformActionRequest(val trigger: TriggerContext,
-                                val actionType: ActionType,
+                                val operationType: OperationType,
                                 val actionConfig: ActionConfig,
                                 val args: Map<String, String>) {
 
     companion object Builder {
-        fun build(trigger: TriggerContext, actionType: ActionType, actionConfig: ActionConfig,
+        fun build(trigger: TriggerContext, operationType: OperationType, actionConfig: ActionConfig,
                   args: Map<String, String>): PerformActionRequest {
 
-            return PerformActionRequest(trigger, actionType, actionConfig, args)
+            return PerformActionRequest(trigger, operationType, actionConfig, args)
         }
     }
 }

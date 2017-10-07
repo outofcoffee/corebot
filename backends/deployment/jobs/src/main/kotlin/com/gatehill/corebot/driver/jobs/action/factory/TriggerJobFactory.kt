@@ -1,9 +1,9 @@
 package com.gatehill.corebot.driver.jobs.action.factory
 
-import com.gatehill.corebot.action.factory.ActionMessageMode
-import com.gatehill.corebot.action.factory.CustomActionFactory
+import com.gatehill.corebot.action.factory.OperationMessageMode
+import com.gatehill.corebot.action.factory.ActionOperationFactory
 import com.gatehill.corebot.action.factory.Template
-import com.gatehill.corebot.action.model.ActionType
+import com.gatehill.corebot.action.model.OperationType
 import com.gatehill.corebot.action.model.TriggerContext
 import com.gatehill.corebot.chat.ChatGenerator
 import com.gatehill.corebot.chat.filter.StringFilter
@@ -12,11 +12,11 @@ import com.gatehill.corebot.config.model.ActionConfig
 /**
  * Triggers job execution.
  */
-@Template("triggerJob", builtIn = false, showInUsage = true, actionMessageMode = ActionMessageMode.INDIVIDUAL)
+@Template("triggerJob", builtIn = false, showInUsage = true, operationMessageMode = OperationMessageMode.INDIVIDUAL)
 class TriggerJobFactory(action: ActionConfig,
-                        private val chatGenerator: ChatGenerator) : CustomActionFactory() {
+                        private val chatGenerator: ChatGenerator) : ActionOperationFactory() {
 
-    override val actionType: ActionType = JobActionType.TRIGGER
+    override val operationType: OperationType = JobOperationType.TRIGGER
     override val actionConfigs: List<ActionConfig>
 
     init {
