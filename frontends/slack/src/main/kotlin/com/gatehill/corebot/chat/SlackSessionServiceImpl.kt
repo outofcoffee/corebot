@@ -54,8 +54,10 @@ open class SlackSessionServiceImpl @Inject constructor(configService: ConfigServ
         get() = session.sessionPersona().userName
 
     override fun sendMessage(trigger: TriggerContext, message: String) {
-        sendMessage(session.findChannelById(trigger.channelId), trigger.messageTimestamp,
-                trigger.messageThreadTimestamp, message)
+        if (message.isNotBlank()) {
+            sendMessage(session.findChannelById(trigger.channelId), trigger.messageTimestamp,
+                    trigger.messageThreadTimestamp, message)
+        }
     }
 
     override fun sendMessage(event: SlackMessagePosted, message: String) {

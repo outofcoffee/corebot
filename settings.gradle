@@ -21,6 +21,9 @@ project(':bots:slack-deploy').name = 'bots-slack-deploy'
 include ':bots:slack-items'
 project(':bots:slack-items').name = 'bots-slack-items'
 
+include ':bots:websocket-items'
+project(':bots:websocket-items').name = 'bots-websocket-items'
+
 include ':core:api'
 project(':core:api').name = 'core-api'
 
@@ -35,6 +38,9 @@ project(':frontends:common').name = 'frontends-common'
 
 include ':frontends:slack'
 project(':frontends:slack').name = 'frontends-slack'
+
+include ':frontends:websocket'
+project(':frontends:websocket').name = 'frontends-websocket'
 
 include ':stores:redis'
 project(':stores:redis').name = 'stores-redis'
