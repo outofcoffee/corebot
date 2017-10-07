@@ -9,5 +9,9 @@ system:
     showJobOutcome: true
     runAsTriggerUser: false
 
+    options:
+      myVar:
+        value: someDefaultValue
+
   requestHeaders:
     Cookie: "foo=bar"

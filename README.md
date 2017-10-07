@@ -131,6 +131,10 @@ Allows child thread messages to be trigger messages. Implies `SLACK_REPLY_IN_THR
     
 The path to an external YAML file containing custom chat lines. See the default file, `default-chat.yml`, for examples.
 
+    SYSTEM_CONFIG_FILE="/path/to/file.yml"
+
+The path to an external YAML file containing system configuration. See the sample file, `system.yml`, for examples.
+
 ## Operations and actions
 
 Corebot has both built-in operations and external actions. Examples of built in operations are the lock/unlock actions. External actions are triggers for your Rundeck/Jenkins jobs, configured using a configuration file, typically called `actions.yml`.
@@ -401,12 +405,43 @@ There are a number of built in actions, such as:
 
 * `@corebot help` - show usage information.
 * `@corebot lock {action or tag name}` - lock action(s) to prevent them being triggered accidentally.
-* `@corebot lock {option name} {option value}` - lock an option with a given value.
 * `@corebot unlock {action or tag name}` - unlock locked action(s).
-* `@corebot unlock {option name} {option value}` - lock an option with a given value.
 * `@corebot status {action or tag name}` - show status of action(s).
+* `@corebot lock {option name} {option value}` - lock an option with a given value.
+* `@corebot unlock {option name} {option value}` - unlock an option with a given value.
+* `@corebot status {option name} {option value}` - show status of an option with a given value.
 * `@corebot enable {action or tag name}` - set the Rundeck execution status for a job - *Note:* this requires the Rundeck ACL to permit the API user to set the execution status of a job.
 * `@corebot disable {action or tag name}` - set the Rundeck execution status for a job - *Note:* this requires the Rundeck ACL to permit the API user to set the execution status of a job.
+
+## System and shared/default configuration
+
+You can set some default operations for all actions using the system configuration file.
+
+The path to this file is specified using the `SYSTEM_CONFIG_FILE` environment variable.
+
+An example configuration follows:
+
+    # System configuration
+    ---
+    version: '1'
+    
+    system:
+      defaults:
+        driver: jenkins
+        showJobOutput: false
+        showJobOutcome: true
+        runAsTriggerUser: false
+        
+        options:
+          myVar:
+            value: someDefaultValue
+    
+      requestHeaders:
+        Cookie: "foo=bar"
+
+The example above sets a number of default values, which can be overridden by your individual action configurations.
+ 
+This example also specifies a map of HTTP headers to set on each API request to the external build/deployment systems. These headers will be sent to Jenkins and Rundeck when making any requests.
 
 ## More info
 

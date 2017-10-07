@@ -43,7 +43,7 @@ class JenkinsJobTriggerService @Inject constructor(private val actionDriver: Jen
 
             if (args.isEmpty()) {
                 call = apiClient.enqueueBuild(
-                        token   = DriverSettings.deployment.apiToken,
+                        token = DriverSettings.deployment.apiToken,
                         jobName = action.jobId
                 )
             } else {
