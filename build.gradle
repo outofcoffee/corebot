@@ -32,6 +32,7 @@ allprojects {
         maven { url "https://jitpack.io" }
         maven { url "http://dl.bintray.com/kotlin/exposed" }
         maven { url 'https://gatehillsoftware-maven.s3.amazonaws.com/snapshots/' }
+        maven { url 'http://dl.bintray.com/jetbrains/spek' }
     }
 
     apply plugin: "maven-publish"

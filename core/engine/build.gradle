@@ -17,10 +17,6 @@ junitPlatform {
     }
 }
 
-repositories {
-    maven { url 'http://dl.bintray.com/jetbrains/spek' }
-}
-
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$version_kotlin"
     compile "org.jetbrains.kotlin:kotlin-reflect:$version_kotlin"
