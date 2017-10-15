@@ -8,18 +8,21 @@ allprojects {
 
     buildscript {
         ext.version_kotlin = '1.1.51'
-        ext.version_junit_platform_gradle = '1.0.0'
-        ext.version_spek = '1.1.5'
-        ext.version_kluent = '1.22'
         ext.version_log4j = '2.5'
-        ext.version_jackson = '2.9.0' // supports jacksonTypeRef
+        ext.version_jackson = '2.9.0'
         ext.version_retrofit = '2.1.0'
         ext.version_slackapi = '0c58385'
         ext.version_guava = '18.0'
         ext.version_guice = '4.1.0'
         ext.version_tyrus = '1.8.3'
-        ext.version_mockito_kotlin = '1.5.0'
         ext.version_dlcl = '0.3.2-SNAPSHOT'
+
+        // test
+        ext.version_junit_platform_gradle = '1.0.0'
+        ext.version_spek = '1.1.5'
+        ext.version_kluent = '1.22'
+        ext.version_mockito_kotlin = '1.5.0'
+        ext.version_testcontainers = '1.4.3'
 
         repositories {
             mavenCentral()

@@ -23,7 +23,7 @@ dependencies {
     compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.42'
     compile 'org.jetbrains.exposed:exposed:0.8'
 
-    testCompile project(':test')
+    testCompile project(':test:test-containers')
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {

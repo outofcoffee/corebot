@@ -22,7 +22,7 @@ dependencies {
 
     compile('redis.clients:jedis:2.9.0')
 
-    testCompile project(':test')
+    testCompile project(':test:test-containers')
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
