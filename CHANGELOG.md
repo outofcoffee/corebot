@@ -4,8 +4,8 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
-### Added
-- ...
+### Fixed
+- Fixes a bug in the MySQL store where updates to existing items were discarded.
 
 ## [1.0.0] - 2017-10-07
 ### Added

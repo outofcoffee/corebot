@@ -66,6 +66,10 @@ private class MysqlDataStorePartitionImpl<in K, V>(private val mapper: ObjectMap
         transaction {
             logger.addLogger(Slf4jSqlLogger)
 
+            KeyValues.deleteWhere {
+                (KeyValues.key eq key) and (KeyValues.partition eq partitionId)
+            }
+
             KeyValue.new {
                 this.key = key.toString()
                 this.partition = partitionId

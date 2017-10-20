@@ -5,6 +5,7 @@ import com.gatehill.corebot.store.redis.config.StoreSettings
 import com.gatehill.corebot.test.KRedisContainer
 import org.amshove.kluent.`should be null`
 import org.amshove.kluent.`should equal`
+import org.amshove.kluent.`should not be null`
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
@@ -31,12 +32,21 @@ object RedisDataStoreImplSpec : Spek({
             val partition = store.partition<String, Example>("test")
 
             it("saves objects") {
-                partition["key"] = Example("value")
+                partition["key"] = Example("bar")
             }
 
             it("loads saved objects") {
-                val value = partition["key"]
-                value `should equal` value
+                val savedValue = partition["key"]
+                savedValue.`should not be null`()
+                savedValue!!.foo `should equal` "bar"
+            }
+
+            it("updates existing objects") {
+                partition["key"] = Example("baz")
+
+                val updatedValue = partition["key"]
+                updatedValue.`should not be null`()
+                updatedValue!!.foo `should equal` "baz"
             }
 
             it("removes saved objects") {
@@ -51,4 +61,4 @@ object RedisDataStoreImplSpec : Spek({
     }
 })
 
-data class Example(val name: String)
+data class Example(val foo: String)
