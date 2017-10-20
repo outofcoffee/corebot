@@ -1,10 +1,10 @@
 package com.gatehill.corebot.driver
 
 import com.gatehill.corebot.action.LockService
-import com.gatehill.corebot.action.model.OperationType
-import com.gatehill.corebot.action.model.CoreOperationType
-import com.gatehill.corebot.action.model.PerformActionResult
-import com.gatehill.corebot.action.model.TriggerContext
+import com.gatehill.corebot.operation.model.OperationType
+import com.gatehill.corebot.operation.model.CoreOperationType
+import com.gatehill.corebot.operation.model.PerformActionResult
+import com.gatehill.corebot.operation.model.TriggerContext
 import com.gatehill.corebot.config.model.ActionConfig
 import java.util.concurrent.CompletableFuture
 import javax.inject.Inject

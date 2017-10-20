@@ -5,3 +5,5 @@ build/
 classes
 .gradletasknamecache
 gradle.properties
+target
+out/

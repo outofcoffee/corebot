@@ -1,7 +1,7 @@
-import com.gatehill.corebot.action.factory.OperationFactory
-import com.gatehill.corebot.action.factory.OperationMessageMode
-import com.gatehill.corebot.action.factory.Template
-import com.gatehill.corebot.action.factory.readOperationFactoryMetadata
+import com.gatehill.corebot.operation.factory.OperationFactory
+import com.gatehill.corebot.operation.factory.OperationMessageMode
+import com.gatehill.corebot.operation.factory.Template
+import com.gatehill.corebot.operation.factory.readOperationFactoryMetadata
 import com.gatehill.corebot.chat.filter.RegexFilter
 import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.mock

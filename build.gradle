@@ -1,5 +1,5 @@
 allprojects {
-    version = '1.0.1-SNAPSHOT'
+    version = '1.1.0-SNAPSHOT'
     group = 'com.gatehill.corebot'
 
     ext.mavenSnapshotRepository = 's3://gatehillsoftware-maven/snapshots'
@@ -19,6 +19,7 @@ allprojects {
         ext.version_guice = '4.1.0'
         ext.version_tyrus = '1.8.3'
         ext.version_mockito_kotlin = '1.5.0'
+        ext.version_dlcl = '0.3.2-SNAPSHOT'
 
         repositories {
             mavenCentral()
@@ -30,6 +31,7 @@ allprojects {
         jcenter()
         maven { url "https://jitpack.io" }
         maven { url "http://dl.bintray.com/kotlin/exposed" }
+        maven { url 'https://gatehillsoftware-maven.s3.amazonaws.com/snapshots/' }
     }
 
     apply plugin: "maven-publish"

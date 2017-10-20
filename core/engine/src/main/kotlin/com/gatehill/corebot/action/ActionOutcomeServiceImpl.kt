@@ -1,6 +1,6 @@
 package com.gatehill.corebot.action
 
-import com.gatehill.corebot.action.model.TriggerContext
+import com.gatehill.corebot.operation.model.TriggerContext
 import com.gatehill.corebot.chat.ChatGenerator
 import com.gatehill.corebot.chat.SessionService
 import com.gatehill.corebot.config.Settings

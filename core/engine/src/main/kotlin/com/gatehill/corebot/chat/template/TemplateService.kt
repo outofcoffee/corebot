@@ -1,11 +1,12 @@
 package com.gatehill.corebot.chat.template
 
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
-import com.gatehill.corebot.action.factory.OperationFactory
-import com.gatehill.corebot.action.factory.readOperationFactoryMetadata
+import com.gatehill.corebot.operation.factory.OperationFactory
+import com.gatehill.corebot.operation.factory.readOperationFactoryMetadata
 import com.gatehill.corebot.chat.filter.FilterConfig
 import com.gatehill.corebot.chat.filter.RegexFilter
 import com.gatehill.corebot.chat.filter.StringFilter
+import com.gatehill.corebot.classloader.ClassLoaderUtil
 import com.gatehill.corebot.util.yamlMapper
 import java.io.InputStream
 import java.nio.file.Path
@@ -20,6 +21,7 @@ class TemplateService {
                                          val usage: String?)
 
     private val classpathPrefix = "classpath:"
+    private val regexTemplatePattern = Pattern.compile("/(?<template>.+)/")
     private val templateFiles = mutableListOf<String>()
 
     init {
@@ -34,7 +36,8 @@ class TemplateService {
 
         templateFiles.forEach {
             if (it.startsWith(classpathPrefix)) {
-                TemplateService::class.java.getResourceAsStream(it.substring(classpathPrefix.length))
+                val classpathFile = it.substring(classpathPrefix.length + if (it.startsWith("$classpathPrefix/")) 1 else 0)
+                ClassLoaderUtil.classLoader.getResourceAsStream(classpathFile)
             } else {
                 Paths.get(it).toFile().inputStream()
             }.use {
@@ -60,10 +63,10 @@ class TemplateService {
     fun loadFilterConfig(templateName: String): List<FilterConfig> =
             allConfigs.filterKeys { it == templateName }.values.flatMap { config ->
                 config.map {
-                    // TODO use regex instead
-                    if (it.template.startsWith("/") && it.template.endsWith("/")) {
+                    val templateMatcher = regexTemplatePattern.matcher(it.template)
+                    if (templateMatcher.matches()) {
                         RegexFilter.RegexFilterConfig(
-                                template = Pattern.compile(it.template.substring(1, it.template.length - 1)),
+                                template = Pattern.compile(templateMatcher.group("template")),
                                 usage = it.usage
                         )
                     } else {

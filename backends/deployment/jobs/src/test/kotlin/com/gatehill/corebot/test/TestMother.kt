@@ -1,6 +1,6 @@
 package com.gatehill.corebot.test
 
-import com.gatehill.corebot.action.model.TriggerContext
+import com.gatehill.corebot.operation.model.TriggerContext
 import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.config.model.SystemConfig
 

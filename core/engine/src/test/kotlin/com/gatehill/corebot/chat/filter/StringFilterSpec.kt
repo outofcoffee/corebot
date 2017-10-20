@@ -1,4 +1,4 @@
-import com.gatehill.corebot.action.factory.OperationFactory
+import com.gatehill.corebot.operation.factory.OperationFactory
 import com.gatehill.corebot.chat.filter.StringFilter
 import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.mock

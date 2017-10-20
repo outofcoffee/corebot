@@ -1,6 +1,6 @@
 package com.gatehill.corebot.chat.filter
 
-import com.gatehill.corebot.action.factory.OperationFactory
+import com.gatehill.corebot.operation.factory.OperationFactory
 import java.util.LinkedList
 import java.util.Queue
 

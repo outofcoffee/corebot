@@ -1,6 +1,6 @@
 package com.gatehill.corebot.chat
 
-import com.gatehill.corebot.action.model.TriggerContext
+import com.gatehill.corebot.operation.model.TriggerContext
 
 /**
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}

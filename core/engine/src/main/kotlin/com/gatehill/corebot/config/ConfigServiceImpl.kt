@@ -1,5 +1,6 @@
 package com.gatehill.corebot.config
 
+import com.gatehill.corebot.classloader.ClassLoaderUtil
 import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.config.model.DeserialisedActionConfig
 import com.gatehill.corebot.config.model.OptionConfig
@@ -58,7 +59,7 @@ open class ConfigServiceImpl : ConfigService {
      * Immutable default security configuration.
      */
     private val defaultSecurity by lazy {
-        loadFile(this.javaClass.getResourceAsStream("/default-security.yml"),
+        loadFile(ClassLoaderUtil.classLoader.getResourceAsStream("default-security.yml"),
                 SecurityConfigWrapper::class.java).security
     }
 
