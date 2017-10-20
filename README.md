@@ -443,6 +443,29 @@ The example above sets a number of default values, which can be overridden by yo
  
 This example also specifies a map of HTTP headers to set on each API request to the external build/deployment systems. These headers will be sent to Jenkins and Rundeck when making any requests.
 
+## Plugins
+
+Corebot supports plugins, loaded dynamically at startup.
+
+## Plugin categories
+
+The following plugin categories are supported:
+
+* front-ends (e.g. Slack, WebSocket)
+* back-ends (e.g. Rundeck, Jenkins, Items)
+* stores (e.g. MySQL, Redis)
+
+## Distribution
+
+Plugins are packaged and distributed as WAR files and include all required dependencies.
+
+## Loading
+
+You can load plugins by using the `generic-bot` distribution.
+
+> See `bots/generic/README.md` for information.
+> See the `examples/plugins` directory for plugin configuration examples.
+
 ## More info
 
 Slack API: https://api.slack.com/bot-users

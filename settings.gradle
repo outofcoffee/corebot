@@ -84,3 +84,11 @@ project(':stores:mysql').name = 'stores-mysql'
 
 include ':stores:mysql:plugin'
 project(':stores:mysql:plugin').name = 'stores-mysql-plugin'
+
+// test support
+
+include ':test:core'
+project(':test:core').name = 'test-core'
+
+include ':test:containers'
+project(':test:containers').name = 'test-containers'
