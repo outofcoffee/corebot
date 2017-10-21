@@ -447,7 +447,7 @@ This example also specifies a map of HTTP headers to set on each API request to 
 
 Corebot supports plugins, loaded dynamically at startup.
 
-## Plugin categories
+### Plugin categories
 
 The following plugin categories are supported:
 
@@ -455,11 +455,11 @@ The following plugin categories are supported:
 * back-ends (e.g. Rundeck, Jenkins, Items)
 * stores (e.g. MySQL, Redis)
 
-## Distribution
+### Plugin distribution
 
 Plugins are packaged and distributed as WAR files and include all required dependencies.
 
-## Loading
+### Loading plugins
 
 You can load plugins by using the `generic-bot` distribution.
 
