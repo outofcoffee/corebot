@@ -31,7 +31,7 @@ class BotWebSocketEndPoint @Inject constructor(private val sessionService: WebSo
     @OnOpen
     fun onOpen(session: Session, config: EndpointConfig) {
         if (!sessionService.connectedSessions.any { it.session == session }) {
-            sessionService.connectedSessions.add(WebSocketSessionHolder(session))
+            sessionService.connectedSessions += WebSocketSessionHolder(session)
         }
 
         with("User ${session.id} connected") {
@@ -41,7 +41,7 @@ class BotWebSocketEndPoint @Inject constructor(private val sessionService: WebSo
     }
 
     @OnMessage
-    fun getMessage(message: String, session: Session) {
+    fun onMessage(message: String, session: Session) {
         if (ChatSettings.echoEventsToAllSessions) sessionService.broadcastToAll("User ${session.id} says > $message")
 
         sessionService.findTriggerSession(session.id).let {

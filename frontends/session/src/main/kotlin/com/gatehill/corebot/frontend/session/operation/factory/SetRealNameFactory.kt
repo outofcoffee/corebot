@@ -17,7 +17,7 @@ import javax.inject.Inject
 @Template("setRealName", showInUsage = true, builtIn = true, operationMessageMode = OperationMessageMode.GROUP,
         placeholderKeys = arrayOf(SetRealNameFactory.realNamePlaceholder)
 )
-class SetRealNameFactory @Inject constructor(private val sessionService: StatefulSessionService<*, *>) : PlainOperationFactory() {
+class SetRealNameFactory @Inject constructor(private val sessionService: StatefulSessionService) : PlainOperationFactory() {
     override val operationType = SessionOperationType.SET_REAL_NAME
 
     private val realName: String
