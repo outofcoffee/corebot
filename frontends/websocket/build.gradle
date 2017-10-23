@@ -1,4 +1,7 @@
 buildscript {
+    ext {
+        version_tyrus = '1.2.1'
+    }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$version_kotlin"
     }
@@ -10,9 +13,10 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$version_kotlin"
 
     compile project(':frontends:frontends-common')
+    compile project(':frontends:frontends-session')
 
-    compile "org.glassfish.tyrus:tyrus-server:1.2.1"
-    compile "org.glassfish.tyrus:tyrus-container-grizzly:1.2.1"
+    compile "org.glassfish.tyrus:tyrus-server:$version_tyrus"
+    compile "org.glassfish.tyrus:tyrus-container-grizzly:$version_tyrus"
 
     compile project(':core:core-engine')
 }
