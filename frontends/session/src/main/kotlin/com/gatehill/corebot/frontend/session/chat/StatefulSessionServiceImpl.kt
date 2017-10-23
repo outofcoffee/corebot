@@ -9,10 +9,10 @@ import org.apache.logging.log4j.Logger
  *
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
-abstract class StatefulSessionServiceImpl<S, H : SessionHolder<S>> : StatefulSessionService<S, H> {
+abstract class StatefulSessionServiceImpl : StatefulSessionService {
     private val logger: Logger = LogManager.getLogger(StatefulSessionServiceImpl::class.java)
 
-    override val connectedSessions = mutableListOf<H>()
+    override val connectedSessions: MutableList<SessionHolder<*>> = mutableListOf()
 
     override val botUsername: String
         get() {

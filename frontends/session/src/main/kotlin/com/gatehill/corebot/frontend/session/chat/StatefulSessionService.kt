@@ -3,11 +3,11 @@ package com.gatehill.corebot.frontend.session.chat
 import com.gatehill.corebot.chat.SessionService
 import com.gatehill.corebot.operation.model.TriggerContext
 
-interface StatefulSessionService<S, H : SessionHolder<S>> : SessionService {
-    val connectedSessions: MutableList<H>
+interface StatefulSessionService : SessionService {
+    val connectedSessions: MutableList<SessionHolder<*>>
 
-    fun findTriggerSession(trigger: TriggerContext): H
-    fun findTriggerSession(sessionId: String): H
+    fun findTriggerSession(trigger: TriggerContext): SessionHolder<*>
+    fun findTriggerSession(sessionId: String): SessionHolder<*>
     fun terminateSession(trigger: TriggerContext)
 }
 

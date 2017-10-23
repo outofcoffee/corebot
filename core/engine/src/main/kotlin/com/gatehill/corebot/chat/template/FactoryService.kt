@@ -1,14 +1,14 @@
 package com.gatehill.corebot.chat.template
 
 import com.gatehill.corebot.operation.OperationFactoryConverter
-import com.gatehill.corebot.operation.factory.OperationFactory
-import com.gatehill.corebot.operation.factory.Template
 import com.gatehill.corebot.chat.SessionService
 import com.gatehill.corebot.chat.filter.CommandFilter
 import com.gatehill.corebot.chat.filter.FilterConfig
 import com.gatehill.corebot.chat.filter.RegexFilter
 import com.gatehill.corebot.chat.filter.StringFilter
 import com.gatehill.corebot.config.ConfigService
+import com.gatehill.corebot.operation.factory.OperationFactory
+import com.gatehill.corebot.operation.factory.Template
 import com.google.inject.Injector
 import org.apache.logging.log4j.LogManager
 import javax.inject.Inject
@@ -28,6 +28,9 @@ class FactoryService @Inject constructor(private val injector: Injector,
      * Unique set of factories.
      */
     private val operationFactories = mutableSetOf<Class<out OperationFactory>>()
+
+    val allFactories: Set<OperationFactory>
+        get() = fetchCandidates()
 
     fun registerFactory(factory: Class<out OperationFactory>) {
         operationFactories += factory
