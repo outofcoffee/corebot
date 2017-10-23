@@ -1,7 +1,4 @@
 buildscript {
-    ext {
-        version_slackapi = '0c58385'
-    }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$version_kotlin"
     }
@@ -13,12 +10,6 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$version_kotlin"
 
     compile project(':frontends:frontends-common')
-
-    compile("com.github.ullink:simple-slack-api:$version_slackapi") {
-        exclude module: 'logback-classic'
-    }
-    compile "org.glassfish.tyrus.bundles:tyrus-standalone-client:$version_tyrus"
-
     compile project(':core:core-engine')
 }
 

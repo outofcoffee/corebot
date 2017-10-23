@@ -2,9 +2,9 @@ package com.gatehill.corebot.bot
 
 import com.gatehill.corebot.chat.template.FactoryService
 import com.gatehill.corebot.chat.template.TemplateService
-import com.gatehill.corebot.frontend.websocket.operation.factory.SetRealNameFactory
-import com.gatehill.corebot.frontend.websocket.operation.factory.SetUsernameFactory
-import com.gatehill.corebot.frontend.websocket.operation.factory.TerminateSessionFactory
+import com.gatehill.corebot.frontend.session.operation.factory.SetRealNameFactory
+import com.gatehill.corebot.frontend.session.operation.factory.SetUsernameFactory
+import com.gatehill.corebot.frontend.session.operation.factory.TerminateSessionFactory
 import com.gatehill.corebot.operation.factory.ShowHelpFactory
 import javax.inject.Inject
 

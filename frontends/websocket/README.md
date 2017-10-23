@@ -1,6 +1,6 @@
 # websocket frontend
 
-Ensure that you register the templates in `websocket-templates.yml` as well as these factories:
+Ensure that you register the templates in `session-templates.yml` as well as these factories:
 
 * `SetRealNameFactory`
 * `SetUsernameFactory`
