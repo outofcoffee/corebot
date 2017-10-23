@@ -59,6 +59,15 @@ project(':core:rest').name = 'core-rest'
 include ':frontends:common'
 project(':frontends:common').name = 'frontends-common'
 
+include ':frontends:http'
+project(':frontends:http').name = 'frontends-http'
+
+include ':frontends:http:plugin'
+project(':frontends:http:plugin').name = 'frontends-http-plugin'
+
+include ':frontends:session'
+project(':frontends:session').name = 'frontends-session'
+
 include ':frontends:slack'
 project(':frontends:slack').name = 'frontends-slack'
 

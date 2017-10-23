@@ -1,10 +1,10 @@
 package com.gatehill.corebot.frontend.websocket.chat.endpoint
 
-import com.gatehill.corebot.operation.model.TriggerContext
 import com.gatehill.corebot.chat.MessageService
-import com.gatehill.corebot.frontend.websocket.chat.SessionHolder
+import com.gatehill.corebot.frontend.websocket.chat.WebSocketSessionHolder
 import com.gatehill.corebot.frontend.websocket.chat.WebSocketSessionService
 import com.gatehill.corebot.frontend.websocket.config.ChatSettings
+import com.gatehill.corebot.operation.model.TriggerContext
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.time.Instant
@@ -31,7 +31,7 @@ class BotWebSocketEndPoint @Inject constructor(private val sessionService: WebSo
     @OnOpen
     fun onOpen(session: Session, config: EndpointConfig) {
         if (!sessionService.connectedSessions.any { it.session == session }) {
-            sessionService.connectedSessions.add(SessionHolder(session))
+            sessionService.connectedSessions.add(WebSocketSessionHolder(session))
         }
 
         with("User ${session.id} connected") {
@@ -44,8 +44,8 @@ class BotWebSocketEndPoint @Inject constructor(private val sessionService: WebSo
     fun getMessage(message: String, session: Session) {
         if (ChatSettings.echoEventsToAllSessions) sessionService.broadcastToAll("User ${session.id} says > $message")
 
-        sessionService.findTriggerSession(session.id).let { (_, username, realName) ->
-            val trigger = TriggerContext(session.id, username, realName, Instant.now().toEpochMilli().toString(), null)
+        sessionService.findTriggerSession(session.id).let {
+            val trigger = TriggerContext(session.id, it.username, it.realName, Instant.now().toEpochMilli().toString(), null)
             messageService.handleMessage(trigger, message)
         }
     }
