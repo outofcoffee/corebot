@@ -5,8 +5,11 @@ import com.gatehill.corebot.frontend.session.chat.StatefulSessionService
 import io.vertx.ext.web.RoutingContext
 import java.util.UUID
 
-interface HttpSessionService : StatefulSessionService<RoutingContext, HttpSessionHolder>
+interface HttpSessionService : StatefulSessionService
 
 class HttpSessionHolder(session: RoutingContext,
                         username: String = UUID.randomUUID().toString(),
                         realName: String = UUID.randomUUID().toString()) : SessionHolder<RoutingContext>(session, UUID.randomUUID().toString(), username, realName)
+
+val SessionHolder<*>.httpSession
+    get() = this as HttpSessionHolder

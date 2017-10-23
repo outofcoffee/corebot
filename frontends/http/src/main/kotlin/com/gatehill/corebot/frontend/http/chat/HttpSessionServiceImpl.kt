@@ -2,7 +2,6 @@ package com.gatehill.corebot.frontend.http.chat
 
 import com.gatehill.corebot.frontend.session.chat.StatefulSessionServiceImpl
 import com.gatehill.corebot.operation.model.TriggerContext
-import io.vertx.ext.web.RoutingContext
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
@@ -11,13 +10,13 @@ import org.apache.logging.log4j.Logger
  *
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
-class HttpSessionServiceImpl : StatefulSessionServiceImpl<RoutingContext, HttpSessionHolder>(), HttpSessionService {
+class HttpSessionServiceImpl : StatefulSessionServiceImpl(), HttpSessionService {
     private val logger: Logger = LogManager.getLogger(HttpSessionServiceImpl::class.java)
 
     override fun sendMessage(trigger: TriggerContext, message: String) {
         if (message.isNotBlank()) {
             try {
-                findTriggerSession(trigger).session.response().end(message)
+                findTriggerSession(trigger).httpSession.session.response().end(message)
             } catch (e: Exception) {
                 logger.error(e)
             }
