@@ -17,7 +17,7 @@ import javax.inject.Inject
 @Template("setUsername", showInUsage = true, builtIn = true, operationMessageMode = OperationMessageMode.GROUP,
         placeholderKeys = arrayOf(SetUsernameFactory.usernamePlaceholder)
 )
-class SetUsernameFactory @Inject constructor(private val sessionService: StatefulSessionService<*, *>) : PlainOperationFactory() {
+class SetUsernameFactory @Inject constructor(private val sessionService: StatefulSessionService) : PlainOperationFactory() {
     override val operationType = SessionOperationType.SET_USERNAME
 
     private val username: String

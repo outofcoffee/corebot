@@ -1,6 +1,10 @@
 package com.gatehill.corebot.chat
 
 import com.gatehill.corebot.action.ActionPerformService
+import com.gatehill.corebot.chat.template.FactoryService
+import com.gatehill.corebot.config.ConfigService
+import com.gatehill.corebot.config.Settings
+import com.gatehill.corebot.operation.factory.OperationFactory
 import com.gatehill.corebot.operation.factory.OperationMessageMode
 import com.gatehill.corebot.operation.model.ActionOperation
 import com.gatehill.corebot.operation.model.Operation
@@ -8,9 +12,6 @@ import com.gatehill.corebot.operation.model.OperationContext
 import com.gatehill.corebot.operation.model.PerformActionRequest
 import com.gatehill.corebot.operation.model.PlainOperation
 import com.gatehill.corebot.operation.model.TriggerContext
-import com.gatehill.corebot.chat.template.FactoryService
-import com.gatehill.corebot.config.ConfigService
-import com.gatehill.corebot.config.Settings
 import com.gatehill.corebot.security.AuthorisationService
 import com.gatehill.corebot.util.onException
 import org.apache.logging.log4j.LogManager
@@ -40,9 +41,7 @@ class MessageService @Inject constructor(private val sessionService: SessionServ
 
         parseMessage(trigger, commandOnly)?.let { parsed ->
             logger.info("Handling command '$commandOnly' from ${trigger.username}")
-            parsed.groupStartMessage?.let { sessionService.sendMessage(trigger, it) }
-            parsed.operations.forEach { action -> performOperation(trigger, action, parsed) }
-
+            handleCommand(trigger, parsed)
         } ?: run {
             logger.warn("Ignored command '$commandOnly' from ${trigger.username}")
             handleUnknownCommand(trigger)
@@ -55,11 +54,7 @@ class MessageService @Inject constructor(private val sessionService: SessionServ
     private fun parseMessage(trigger: TriggerContext, commandOnly: String): OperationContext? = try {
         factoryService.findSatisfiedFactories(commandOnly).let { satisfied ->
             if (satisfied.size == 1) {
-                return with(satisfied.first()) {
-                    OperationContext(buildOperations(trigger),
-                            if (operationMessageMode == OperationMessageMode.GROUP) buildStartMessage(trigger) else null,
-                            if (operationMessageMode == OperationMessageMode.GROUP) buildCompleteMessage() else null)
-                }
+                return buildOperationContext(trigger, satisfied.first())
             } else {
                 throw IllegalStateException("Could not find a unique matching operation for command: $commandOnly - ${satisfied.size} factories found: $satisfied")
             }
@@ -68,6 +63,17 @@ class MessageService @Inject constructor(private val sessionService: SessionServ
     } catch (e: IllegalStateException) {
         logger.warn("Unable to parse message: $commandOnly - ${e.message}")
         null
+    }
+
+    fun buildOperationContext(trigger: TriggerContext, operationFactory: OperationFactory) = with(operationFactory) {
+        OperationContext(buildOperations(trigger),
+                if (operationMessageMode == OperationMessageMode.GROUP) buildStartMessage(trigger) else null,
+                if (operationMessageMode == OperationMessageMode.GROUP) buildCompleteMessage() else null)
+    }
+
+    fun handleCommand(trigger: TriggerContext, parsed: OperationContext) {
+        parsed.groupStartMessage?.let { sessionService.sendMessage(trigger, it) }
+        parsed.operations.forEach { action -> performOperation(trigger, action, parsed) }
     }
 
     /**

@@ -15,7 +15,7 @@ import javax.inject.Inject
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
 @Template("terminateSession", showInUsage = true, builtIn = true, operationMessageMode = OperationMessageMode.GROUP)
-class TerminateSessionFactory @Inject constructor(private val sessionService: StatefulSessionService<*, *>) : PlainOperationFactory() {
+class TerminateSessionFactory @Inject constructor(private val sessionService: StatefulSessionService) : PlainOperationFactory() {
     override val operationType = SessionOperationType.TERMINATE_SESSION
 
     override fun buildStartMessage(trigger: TriggerContext, options: Map<String, String>, actionConfig: ActionConfig?) = "Bye!"
