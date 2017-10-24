@@ -16,12 +16,12 @@ abstract class StatefulSessionServiceImpl : StatefulSessionService {
 
     override val botUsername: String
         get() {
-            logger.warn("botUsername is not implemented")
+            logger.debug("botUsername is not implemented")
             return ""
         }
 
     override fun addReaction(trigger: TriggerContext, emojiCode: String) {
-        logger.warn("addReaction is not implemented")
+        logger.debug("addReaction is not implemented")
     }
 
     override fun findTriggerSession(trigger: TriggerContext) = findTriggerSession(trigger.channelId)

@@ -4,7 +4,12 @@ package com.gatehill.corebot.backend.slack.config
  * Slack driver settings.
  */
 object SlackSettings {
-    val authToken by lazy { System.getenv("SLACK_AUTH_TOKEN") ?: throw IllegalStateException("Slack auth token missing") }
+    val slackUserToken by lazy { System.getenv("SLACK_USER_TOKEN") ?: throw IllegalStateException("Slack user token missing") }
 
-    val members : List<String> by lazy { listOf("pcornish") }
+    val members: List<String> by lazy {
+        System.getenv("SLACK_CHANNEL_MEMBERS")?.let { members ->
+            members.split(",").map(String::trim)
+
+        } ?: throw IllegalStateException("Slack channel members list missing")
+    }
 }
