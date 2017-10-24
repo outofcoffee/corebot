@@ -8,7 +8,7 @@ security:
     admin:
       permissions:
         - help
-        - forward_message
+        - forward
       tags:
         - all
 

@@ -12,6 +12,7 @@ dependencies {
 
     compile project(':bots:bots-common')
     compile project(':backends:backends-slack')
+    compile project(':stores:stores-redis')
     compile project(':frontends:frontends-http')
 }
 

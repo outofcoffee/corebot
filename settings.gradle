@@ -43,8 +43,8 @@ project(':bots:generic').name = 'bots-generic'
 include ':bots:http-slack'
 project(':bots:http-slack').name = 'bots-http-slack'
 
-include ':bots:http-items'
-project(':bots:http-items').name = 'bots-http-items'
+include ':bots:http-slack'
+project(':bots:http-slack').name = 'bots-http-slack'
 
 include ':bots:slack-deploy'
 project(':bots:slack-deploy').name = 'bots-slack-deploy'
