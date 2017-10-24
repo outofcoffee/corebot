@@ -23,6 +23,12 @@ project(':backends:items').name = 'backends-items'
 include ':backends:items:plugin'
 project(':backends:items:plugin').name = 'backends-items-plugin'
 
+include ':backends:slack'
+project(':backends:slack').name = 'backends-slack'
+
+include ':backends:slack:plugin'
+project(':backends:slack:plugin').name = 'backends-slack-plugin'
+
 // bots
 
 include ':bots:common'
@@ -31,8 +37,8 @@ project(':bots:common').name = 'bots-common'
 include ':bots:generic'
 project(':bots:generic').name = 'bots-generic'
 
-include ':bots:http-items'
-project(':bots:http-items').name = 'bots-http-items'
+include ':bots:http-slack'
+project(':bots:http-slack').name = 'bots-http-slack'
 
 include ':bots:slack-deploy'
 project(':bots:slack-deploy').name = 'bots-slack-deploy'
