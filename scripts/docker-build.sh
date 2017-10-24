@@ -9,6 +9,7 @@ IMAGES=(
     "generic"
     "slack-deploy"
     "slack-items"
+    "http-slack"
 )
 
 while getopts "e" OPT; do
@@ -25,6 +26,7 @@ function getImageSuffixes() { case $1 in
     generic) echo "corebot-generic" ;;
     slack-deploy) echo "corebot corebot-slack-deploy" ;;
     slack-items) echo "corebot-slack-items" ;;
+    http-slack) echo "corebot-http-slack" ;;
 esac }
 
 function buildImage()
