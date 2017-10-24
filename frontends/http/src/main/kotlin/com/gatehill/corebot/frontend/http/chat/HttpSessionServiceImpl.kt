@@ -4,6 +4,7 @@ import com.gatehill.corebot.frontend.session.chat.StatefulSessionServiceImpl
 import com.gatehill.corebot.operation.model.TriggerContext
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
+import java.lang.UnsupportedOperationException
 
 /**
  * Manages HTTP sessions.
@@ -24,10 +25,6 @@ class HttpSessionServiceImpl : StatefulSessionServiceImpl(), HttpSessionService 
     }
 
     override fun terminateSessionInternal(trigger: TriggerContext) {
-//        findTriggerSession(trigger).session.close(CloseReason(
-//                CloseReason.CloseCodes.GOING_AWAY,
-//                "${trigger.username} terminated the session"
-//        ))
-        // TODO
+        throw UnsupportedOperationException()
     }
 }
