@@ -22,13 +22,19 @@ import javax.inject.Inject
         ))
 class ForwardMessageFactory @Inject constructor(private val slackOutboundMessageService: SlackOutboundMessageService) : PlainOperationFactory() {
     override val operationType: OperationType = SlackOperationType.FORWARD_MESSAGE
-    private val message = placeholderValues[messagePlaceholder]
-    private val channel = placeholderValues[channelPlaceholder]
+
+    private val message
+        get() = placeholderValues[messagePlaceholder]
+
+    private val channel
+        get() = placeholderValues[channelPlaceholder]
 
     override fun buildStartMessage(trigger: TriggerContext, options: Map<String, String>, actionConfig: ActionConfig?) = ""
 
+    override fun onSatisfied() = !message.isNullOrBlank() && !channel.isNullOrBlank()
+
     override fun beforePerform(trigger: TriggerContext) {
-        slackOutboundMessageService.forward(channel!!, message!!)
+        slackOutboundMessageService.forward(trigger, message!!, channel!!)
     }
 
     companion object {

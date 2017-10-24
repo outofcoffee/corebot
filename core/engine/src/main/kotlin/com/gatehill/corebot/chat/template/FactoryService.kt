@@ -29,8 +29,7 @@ class FactoryService @Inject constructor(private val injector: Injector,
      */
     private val operationFactories = mutableSetOf<Class<out OperationFactory>>()
 
-    val allFactories: Set<OperationFactory>
-        get() = fetchCandidates()
+    fun createFactoryInstances(): Set<OperationFactory> = fetchCandidates()
 
     fun registerFactory(factory: Class<out OperationFactory>) {
         operationFactories += factory
