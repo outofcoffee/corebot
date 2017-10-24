@@ -1,0 +1,5 @@
+# Example for use with the Slack backend.
+---
+version: '1'
+
+actions: {}
