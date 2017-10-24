@@ -9,7 +9,7 @@ ADD build/install/bots-http-slack /opt/corebot
 RUN ln -s /opt/corebot/bin/bots-http-slack /usr/local/bin/corebot && \
     chmod +x /usr/local/bin/corebot
 
-EXPOSE 8025
+EXPOSE 8080
 
 WORKDIR /opt/corebot
 
