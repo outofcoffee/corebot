@@ -4,9 +4,9 @@ MAINTAINER Pete Cornish <outofcoffee@gmail.com>
 
 RUN mkdir -p /opt/corebot /opt/corebot/config
 
-ADD build/install/bots-websocket-items /opt/corebot
+ADD build/install/bots-http-slack /opt/corebot
 
-RUN ln -s /opt/corebot/bin/bots-websocket-items /usr/local/bin/corebot && \
+RUN ln -s /opt/corebot/bin/bots-http-slack /usr/local/bin/corebot && \
     chmod +x /usr/local/bin/corebot
 
 EXPOSE 8025

@@ -11,7 +11,7 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$version_kotlin"
 
     compile project(':bots:bots-common')
-    compile project(':backends:backends-items')
+    compile project(':backends:backends-slack')
     compile project(':stores:stores-redis')
     compile project(':frontends:frontends-http')
 }
