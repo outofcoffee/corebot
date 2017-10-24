@@ -14,7 +14,6 @@ allprojects {
             version_retrofit = '2.1.0'
             version_guava = '18.0'
             version_guice = '4.1.0'
-            version_slackapi = '0c58385'
             version_tyrus = '1.8.3'
             version_dlcl = '0.3.2-SNAPSHOT'
 
