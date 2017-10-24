@@ -1,4 +1,7 @@
 buildscript {
+    ext {
+        version_apache_httpclient = '4.4'
+    }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$version_kotlin"
     }
@@ -11,9 +14,7 @@ dependencies {
 
     compile project(':core:core-engine')
 
-    compile("com.github.ullink:simple-slack-api:$version_slackapi") {
-        exclude module: 'logback-classic'
-    }
+    compile("org.apache.httpcomponents:httpclient:$version_apache_httpclient")
     compile "org.glassfish.tyrus.bundles:tyrus-standalone-client:$version_tyrus"
 }
 
