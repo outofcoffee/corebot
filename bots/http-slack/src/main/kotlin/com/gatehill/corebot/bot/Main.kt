@@ -3,7 +3,7 @@ package com.gatehill.corebot.bot
 import com.gatehill.corebot.action.NoOpOperationFactoryConverter
 import com.gatehill.corebot.action.OperationFactoryConverter
 import com.gatehill.corebot.asSingleton
-import com.gatehill.corebot.backend.items.ItemsDriverModule
+import com.gatehill.corebot.backend.slack.SlackDriverModule
 import com.gatehill.corebot.frontend.http.HttpModule
 import com.google.inject.AbstractModule
 import java.io.BufferedReader
@@ -32,6 +32,6 @@ private class BotModule : AbstractModule() {
         bind(OperationFactoryConverter::class.java).to(NoOpOperationFactoryConverter::class.java).asSingleton()
 
         // drivers
-        install(ItemsDriverModule())
+        install(SlackDriverModule())
     }
 }

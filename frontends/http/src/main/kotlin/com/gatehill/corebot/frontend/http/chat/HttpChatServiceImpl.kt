@@ -28,13 +28,29 @@ open class HttpChatServiceImpl @Inject constructor(private val factoryService: F
     private val vertx: Vertx by lazy { Vertx.vertx() }
 
     private val router: Router by lazy {
-        Router.router(vertx).apply {
-            route().handler { routingContext ->
-                vertx.executeBlocking(
-                        Handler<Future<Unit>> { handle(routingContext) },
-                        Handler<AsyncResult<Unit>> { /**/ }
-                )
+        Router.router(vertx).apply { configureRoutes(this) }
+    }
+
+    private fun configureRoutes(router: Router) {
+        router.get("/").handler { routingContext ->
+            val listItems = factoryService.createFactoryInstances().map {
+                val metadata = it.readMetadata()
+                """<li><a href="/${metadata.templateName}">${metadata.templateName}</a></li>"""
             }
+            routingContext.response().end("""
+                <html>
+                    <ul>
+                        ${listItems.joinToString("\n")}
+                    </ul>
+                </htm>
+            """.trimIndent())
+        }
+
+        router.route().handler { routingContext ->
+            vertx.executeBlocking(
+                    Handler<Future<Unit>> { handle(routingContext) },
+                    Handler<AsyncResult<Unit>> { /**/ }
+            )
         }
     }
 
@@ -44,7 +60,7 @@ open class HttpChatServiceImpl @Inject constructor(private val factoryService: F
     }
 
     private fun handle(routingContext: RoutingContext) {
-        val operationFactory = factoryService.allFactories.firstOrNull { factory ->
+        val operationFactory = factoryService.createFactoryInstances().firstOrNull { factory ->
             factory.readMetadata().templateName == routingContext.normalisedPath().substring(1)
         }
 
@@ -55,10 +71,17 @@ open class HttpChatServiceImpl @Inject constructor(private val factoryService: F
             sessionService.connectedSessions += sessionHolder
 
             try {
-                factory.readMetadata().placeholderKeys.forEach { key ->
+                val metadata = factory.readMetadata()
+
+                metadata.placeholderKeys.forEach { key ->
                     routingContext.request().params()[key]?.let { placeholderValue ->
                         factory.placeholderValues[key] = placeholderValue
                     }
+                }
+
+                if (!factory.onSatisfied()) {
+                    throw IllegalStateException(
+                            "Could not find satisfy '${metadata.templateName}' placeholders: [${metadata.placeholderKeys.joinToString(", ")}]")
                 }
 
                 val trigger = TriggerContext(

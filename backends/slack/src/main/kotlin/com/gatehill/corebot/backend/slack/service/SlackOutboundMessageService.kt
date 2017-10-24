@@ -1,8 +1,11 @@
 package com.gatehill.corebot.backend.slack.service
 
+import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import com.gatehill.corebot.backend.slack.config.SlackSettings
 import com.gatehill.corebot.chat.SessionService
 import com.gatehill.corebot.config.ConfigService
+import com.gatehill.corebot.operation.model.TriggerContext
+import com.gatehill.corebot.util.jsonMapper
 import com.ullink.slack.simpleslackapi.SlackChannel
 import com.ullink.slack.simpleslackapi.SlackSession
 import com.ullink.slack.simpleslackapi.impl.SlackSessionFactory
@@ -20,7 +23,7 @@ class SlackOutboundMessageService @Inject constructor(private val configService:
 
     private val logger: Logger = LogManager.getLogger(SlackOutboundMessageService::class.java)
 
-    fun forward(channelName: String, message: String) {
+    fun forward(trigger: TriggerContext, message: String, channelName: String) {
         ensureChannelExists(channelName)
 
         val session = SlackSessionFactory.createWebSocketSlackSession(SlackSettings.authToken)
@@ -29,14 +32,21 @@ class SlackOutboundMessageService @Inject constructor(private val configService:
 //        })
         session.connect()
 
-        val channel = session.channels.firstOrNull { it.name == channelName } ?: run {
-            throw IllegalStateException("Channel $channelName does not exist")
+        try {
+            val channel = session.channels.firstOrNull { it.name == channelName } ?: run {
+                throw IllegalStateException("Channel $channelName does not exist")
+            }
+
+            checkParticipants(session, channel)
+
+            logger.info("Forwarding message to channel: $channelName: $message")
+            session.sendMessage(channel, message)
+
+        } finally {
+            session.disconnect()
         }
 
-        checkParticipants(session, channel)
-
-        logger.info("Forwarding message to channel: $channelName: $message")
-        session.sendMessage(channel, message)
+        sessionService.sendMessage(trigger, "OK")
     }
 
     private fun ensureChannelExists(channelName: String) {
@@ -59,10 +69,21 @@ class SlackOutboundMessageService @Inject constructor(private val configService:
                         "validate" to "true"
                 )
                 val createChannelResponse = session.postGenericSlackCommand(params, "groups.create")
-                logger.debug("Create channel response: $createChannelResponse")
+                val rawReply = createChannelResponse.reply.plainAnswer
+                logger.debug("Create channel response: $rawReply")
 
-                // if (createChannelResponse.waitForReply()
-                session.channels
+                try {
+                    val parsedReply = jsonMapper.readValue<Map<String, Any>>(rawReply, jacksonTypeRef<Map<String, Any>>())
+                    val replyOk = parsedReply["ok"]
+                    if (replyOk == true) {
+                        logger.debug("Channel $channelName created")
+                    } else {
+                        throw RuntimeException("Channel creation response 'ok' field was: $replyOk - expected: true")
+                    }
+
+                } catch (e: Exception) {
+                    throw RuntimeException("Error parsing channel creation response", e)
+                }
             }
 
         } finally {
