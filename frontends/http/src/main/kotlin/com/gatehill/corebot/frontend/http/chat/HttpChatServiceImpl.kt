@@ -4,7 +4,9 @@ import com.gatehill.corebot.chat.ChatService
 import com.gatehill.corebot.chat.MessageService
 import com.gatehill.corebot.chat.template.FactoryService
 import com.gatehill.corebot.frontend.http.config.ChatSettings
+import com.gatehill.corebot.operation.factory.OperationFactory
 import com.gatehill.corebot.operation.model.TriggerContext
+import io.vertx.core.AbstractVerticle
 import io.vertx.core.AsyncResult
 import io.vertx.core.Future
 import io.vertx.core.Handler
@@ -25,13 +27,9 @@ open class HttpChatServiceImpl @Inject constructor(private val factoryService: F
                                                    private val sessionService: HttpSessionService,
                                                    private val messageService: MessageService) : ChatService {
 
-    private val vertx: Vertx by lazy { Vertx.vertx() }
+    private var server: HttpServer? = null
 
-    private val router: Router by lazy {
-        Router.router(vertx).apply { configureRoutes(this) }
-    }
-
-    private fun configureRoutes(router: Router) {
+    private fun configureRoutes(vertx: Vertx, router: Router) {
         router.get("/").handler { routingContext ->
             val listItems = factoryService.createFactoryInstances().map {
                 val metadata = it.readMetadata()
@@ -52,11 +50,6 @@ open class HttpChatServiceImpl @Inject constructor(private val factoryService: F
                     Handler<AsyncResult<Unit>> { /**/ }
             )
         }
-    }
-
-    private val server: HttpServer by lazy {
-        vertx.createHttpServer(HttpServerOptions().setPort(ChatSettings.port).setHost(ChatSettings.hostname))
-                .requestHandler(router::accept)
     }
 
     private fun handle(routingContext: RoutingContext) {
@@ -84,16 +77,7 @@ open class HttpChatServiceImpl @Inject constructor(private val factoryService: F
                             "Could not find satisfy '${metadata.templateName}' placeholders: [${metadata.placeholderKeys.joinToString(", ")}]")
                 }
 
-                val trigger = TriggerContext(
-                        channelId = sessionHolder.sessionId,
-                        userId = sessionHolder.username,
-                        username = sessionHolder.realName,
-                        messageTimestamp = Instant.now().toEpochMilli().toString(),
-                        messageThreadTimestamp = null
-                )
-
-                val operationContext = messageService.buildOperationContext(trigger, factory)
-                messageService.handleCommand(trigger, operationContext)
+                triggerOperation(factory, sessionHolder)
 
             } catch (e: Exception) {
                 routingContext.fail(e)
@@ -107,11 +91,42 @@ open class HttpChatServiceImpl @Inject constructor(private val factoryService: F
         }
     }
 
+    private fun triggerOperation(factory: OperationFactory, sessionHolder: HttpSessionHolder) {
+        val trigger = TriggerContext(
+                channelId = sessionHolder.sessionId,
+                userId = sessionHolder.username,
+                username = sessionHolder.realName,
+                messageTimestamp = Instant.now().toEpochMilli().toString(),
+                messageThreadTimestamp = null
+        )
+
+        val operationContext = messageService.buildOperationContext(trigger, factory)
+        messageService.handleCommand(trigger, operationContext)
+    }
+
     override fun listenForEvents() {
-        server.listen()
+        Vertx.vertx().apply {
+            deployVerticle(object : AbstractVerticle() {
+                override fun start(startFuture: Future<Void>) {
+                    try {
+                        val router = Router.router(vertx).apply { configureRoutes(vertx, this) }
+
+                        server = vertx.createHttpServer(HttpServerOptions().setPort(ChatSettings.port).setHost(ChatSettings.hostname))
+                                .requestHandler(router::accept)
+                                .listen({ listenResult ->
+                                    if (listenResult.succeeded()) startFuture.complete() else startFuture.fail(listenResult.cause())
+                                })
+
+                    } catch (e: Exception) {
+                        startFuture.fail(e)
+                    }
+                }
+            })
+        }
     }
 
     override fun stopListening() {
-        server.close()
+        server?.close()
+        server = null
     }
 }

@@ -51,6 +51,8 @@ object Settings {
         File(configFile ?: "/opt/corebot/actions.yml")
     }
 
+    val noActionConfig : Boolean by lazy {  System.getenv("NO_ACTION_CONFIG")?.toBoolean() == true }
+
     /**
      * The file containing the system configuration.
      */
