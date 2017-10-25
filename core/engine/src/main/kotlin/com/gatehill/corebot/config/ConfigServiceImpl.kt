@@ -190,8 +190,12 @@ open class ConfigServiceImpl : ConfigService {
      *
      * Allow subclasses to override this behaviour.
      */
-    protected open fun loadCustomConfig() =
-            loadFile(Settings.actionConfigFile.inputStream(), ActionConfigWrapper::class.java)
+    protected open fun loadCustomConfig() = if (Settings.noActionConfig) {
+        logger.debug("No actions are configured")
+        ActionConfigWrapper(configFileVersion, null, null, emptyMap())
+    } else {
+        loadFile(Settings.actionConfigFile.inputStream(), ActionConfigWrapper::class.java)
+    }
 
     /**
      * Load a versioned configuration from file.
