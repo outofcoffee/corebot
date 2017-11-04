@@ -25,3 +25,8 @@ deployment:
     commands:
       - ./gradlew publish --stacktrace
       - /bin/bash ./scripts/docker-build.sh -e beta
+
+  hotfix:
+    branch: /hotfix\/.*/
+    commands:
+      - /bin/bash ./scripts/docker-build.sh -e $( echo ${CIRCLE_BRANCH} | sed 's/\//-/g' )

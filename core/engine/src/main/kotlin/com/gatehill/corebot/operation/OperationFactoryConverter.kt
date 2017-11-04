@@ -1,4 +1,4 @@
-package com.gatehill.corebot.action
+package com.gatehill.corebot.operation
 
 import com.gatehill.corebot.operation.factory.OperationFactory
 import com.gatehill.corebot.config.model.ActionConfig

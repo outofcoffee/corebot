@@ -1,8 +1,8 @@
 package com.gatehill.corebot.action
 
-import com.gatehill.corebot.operation.model.PerformActionResult
 import com.gatehill.corebot.chat.ChatGenerator
 import com.gatehill.corebot.config.model.ActionConfig
+import com.gatehill.corebot.operation.model.PerformActionResult
 import com.gatehill.corebot.store.DataStore
 import com.gatehill.corebot.store.partition
 import org.apache.logging.log4j.LogManager
@@ -48,7 +48,7 @@ class LockService @Inject constructor(@Named("lockStore") private val lockStore:
     fun lockAction(future: CompletableFuture<PerformActionResult>, action: ActionConfig,
                    triggerMessageSenderId: String) {
 
-        checkActionLock(action) { lock ->
+        findActionLock(action) { lock ->
             lock?.let {
                 if (lock.owner == triggerMessageSenderId) {
                     // already locked by self
@@ -69,7 +69,7 @@ class LockService @Inject constructor(@Named("lockStore") private val lockStore:
     }
 
     fun unlockAction(future: CompletableFuture<PerformActionResult>, action: ActionConfig) {
-        checkActionLock(action) { lock ->
+        findActionLock(action) { lock ->
             lock?.let {
                 // unlock
                 actionLocks.remove(action.name)
@@ -82,7 +82,7 @@ class LockService @Inject constructor(@Named("lockStore") private val lockStore:
         }
     }
 
-    fun checkActionLock(action: ActionConfig, callback: (ActionLock?) -> Unit) = callback(actionLocks[action.name])
+    fun findActionLock(action: ActionConfig, callback: (ActionLock?) -> Unit) = callback(actionLocks[action.name])
 
     fun lockOption(optionName: String, optionValue: String, triggerMessageSenderId: String) {
         val lockName = buildOptionLockName(optionName, optionValue)
@@ -126,7 +126,7 @@ class LockService @Inject constructor(@Named("lockStore") private val lockStore:
     private fun isOptionLocked(lock: OptionLock?, optionName: String, optionValue: String) =
             lock?.let { it.optionName == optionName && it.optionValue == optionValue } ?: false
 
-    fun checkOptionLock(optionName: String, optionValue: String, callback: ((OptionLock?) -> Unit)? = null): OptionLock? {
+    fun findOptionLock(optionName: String, optionValue: String, callback: ((OptionLock?) -> Unit)? = null): OptionLock? {
         val lockName = buildOptionLockName(optionName, optionValue)
         val lock = optionLocks[lockName]
 
@@ -136,6 +136,15 @@ class LockService @Inject constructor(@Named("lockStore") private val lockStore:
 
         callback?.let { callback(if (locked) lock else null) }
         return lock
+    }
+
+    /**
+     * Eagerly returns the first matching `OptionLock`, or else `null`
+     * @return an `OptionLock` or `null` if none match
+     */
+    fun findOptionLock(options: Map<String, String>): OptionLock? {
+        options.forEach { findOptionLock(it.key, it.value)?.let { return it } }
+        return null
     }
 
     fun describeLockStatus(prefix: String, lock: BaseLock?): String = StringBuilder(prefix).apply {

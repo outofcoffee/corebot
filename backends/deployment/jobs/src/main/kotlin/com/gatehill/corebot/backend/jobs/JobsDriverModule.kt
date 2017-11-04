@@ -1,9 +1,9 @@
 package com.gatehill.corebot.backend.jobs
 
 import com.gatehill.corebot.action.LockService
-import com.gatehill.corebot.action.NoOpOperationFactoryConverter
+import com.gatehill.corebot.operation.NoOpOperationFactoryConverter
 import com.gatehill.corebot.asSingleton
-import com.gatehill.corebot.backend.jobs.action.TriggerOperationFactoryConverter
+import com.gatehill.corebot.backend.jobs.operation.TriggerOperationFactoryConverter
 import com.gatehill.corebot.store.DataStoreModule
 import com.google.inject.AbstractModule
 

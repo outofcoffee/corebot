@@ -23,7 +23,7 @@ class StatusOptionFactory @Inject constructor(configService: ConfigService,
             "${chatGenerator.pleaseWait()}, I'm checking the status of $optionName *$optionValue*..."
 
     override fun buildCompleteMessage(): String {
-        val lock = lockService.checkOptionLock(optionName, optionValue)
+        val lock = lockService.findOptionLock(optionName, optionValue)
         return lockService.describeLockStatus("Status of $optionName *$optionValue*: ", lock)
     }
 }

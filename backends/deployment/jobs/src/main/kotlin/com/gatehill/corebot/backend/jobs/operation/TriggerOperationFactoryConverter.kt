@@ -1,7 +1,7 @@
-package com.gatehill.corebot.backend.jobs.action
+package com.gatehill.corebot.backend.jobs.operation
 
-import com.gatehill.corebot.action.OperationFactoryConverter
-import com.gatehill.corebot.backend.jobs.action.factory.TriggerJobFactory
+import com.gatehill.corebot.operation.OperationFactoryConverter
+import com.gatehill.corebot.backend.jobs.operation.factory.TriggerJobFactory
 import com.gatehill.corebot.chat.ChatGenerator
 import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.operation.factory.OperationFactory

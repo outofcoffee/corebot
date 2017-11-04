@@ -7,8 +7,8 @@ import com.gatehill.corebot.operation.factory.UnlockActionFactory
 import com.gatehill.corebot.operation.factory.UnlockOptionFactory
 import com.gatehill.corebot.chat.template.FactoryService
 import com.gatehill.corebot.chat.template.TemplateService
-import com.gatehill.corebot.backend.jobs.action.factory.DisableJobFactory
-import com.gatehill.corebot.backend.jobs.action.factory.EnableJobFactory
+import com.gatehill.corebot.backend.jobs.operation.factory.DisableJobFactory
+import com.gatehill.corebot.backend.jobs.operation.factory.EnableJobFactory
 import com.gatehill.corebot.operation.factory.StatusOptionFactory
 import javax.inject.Inject
 

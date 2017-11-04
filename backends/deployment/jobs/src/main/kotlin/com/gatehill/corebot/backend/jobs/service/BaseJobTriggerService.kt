@@ -2,12 +2,12 @@ package com.gatehill.corebot.backend.jobs.service
 
 import com.gatehill.corebot.action.ActionOutcomeService
 import com.gatehill.corebot.action.LockService
-import com.gatehill.corebot.operation.model.PerformActionResult
-import com.gatehill.corebot.operation.model.TriggerContext
 import com.gatehill.corebot.config.Settings
 import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.driver.model.ActionStatus
 import com.gatehill.corebot.driver.model.TriggeredAction
+import com.gatehill.corebot.operation.model.PerformActionResult
+import com.gatehill.corebot.operation.model.TriggerContext
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.util.Timer
@@ -31,30 +31,26 @@ abstract class BaseJobTriggerService(private val lockService: LockService,
     override fun trigger(trigger: TriggerContext, future: CompletableFuture<PerformActionResult>,
                          action: ActionConfig, args: Map<String, String>) {
 
-        // user specified options override static values
-        val allArgs = mutableMapOf<String, String>()
-        allArgs.putAll(action.options.map { Pair(it.key, it.value.value) })
-        allArgs.putAll(args)
-
         // trigger unless locked
-        lockService.checkActionLock(action) { actionLock ->
+        lockService.findActionLock(action) { actionLock ->
             actionLock?.let {
                 future.completeExceptionally(IllegalStateException(
                         "The '${action.name}' action is locked by <@${actionLock.owner}>"))
 
             } ?: run {
-                val (optionName, optionValue) = allArgs.entries.first()
+                // user specified options override static values
+                val allArgs = mutableMapOf<String, String>()
+                allArgs.putAll(action.options.map { Pair(it.key, it.value.value) })
+                allArgs.putAll(args)
 
-                lockService.checkOptionLock(optionName, optionValue, { optionLock ->
-                    optionLock?.let {
-                        future.completeExceptionally(IllegalStateException(
-                                "${optionLock.optionName} ${optionLock.optionValue} is locked by <@${optionLock.owner}>"))
+                lockService.findOptionLock(allArgs)?.let { optionLock ->
+                    future.completeExceptionally(IllegalStateException(
+                            "${optionLock.optionName} ${optionLock.optionValue} is locked by <@${optionLock.owner}>"))
 
-                    } ?: run {
-                        logger.info("Triggering action: {} with job ID: {} and args: {}", action.name, action.jobId, allArgs)
-                        triggerExecution(trigger, future, action, allArgs)
-                    }
-                })
+                } ?: run {
+                    logger.info("Triggering action: {} with job ID: {} and args: {}", action.name, action.jobId, allArgs)
+                    triggerExecution(trigger, future, action, allArgs)
+                }
             }
         }
     }
