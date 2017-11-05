@@ -1,16 +1,32 @@
 buildscript {
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$version_kotlin"
+        classpath "org.junit.platform:junit-platform-gradle-plugin:$version_junit_platform_gradle"
     }
 }
 
 apply plugin: 'kotlin'
+apply plugin: 'org.junit.platform.gradle.plugin'
+
+junitPlatform {
+    platformVersion version_junit_platform_gradle
+    filters {
+        engines {
+            include 'spek'
+        }
+    }
+}
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$version_kotlin"
 
     compile project(':backends:deployment:backends-deployment-jobs')
     compile project(':core:core-rest')
+
+    testCompile project(':backends:deployment:backends-deployment-rundeck')
+    testCompile project(':test:test-containers')
+    testCompile project(':backends:deployment:backends-deployment-test')
+    testCompile 'com.squareup.okhttp3:logging-interceptor:3.3.0'
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {

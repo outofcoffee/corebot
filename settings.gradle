@@ -17,6 +17,9 @@ project(':backends:deployment:rundeck').name = 'backends-deployment-rundeck'
 include ':backends:deployment:rundeck:plugin'
 project(':backends:deployment:rundeck:plugin').name = 'backends-deployment-rundeck-plugin'
 
+include ':backends:deployment:test'
+project(':backends:deployment:test').name = 'backends-deployment-test'
+
 include ':backends:items'
 project(':backends:items').name = 'backends-items'
 

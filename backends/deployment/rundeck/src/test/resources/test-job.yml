@@ -1,0 +1,7 @@
+- name: testJob
+  uuid: '0ae1f9ce-e3a2-4661-9aa4-ddb4c3319104'
+  description: 'Test Job'
+  loglevel: INFO
+  sequence:
+    commands:
+      - exec: echo 'hello world'

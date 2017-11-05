@@ -2,16 +2,16 @@ package com.gatehill.corebot.backend.rundeck.action
 
 import com.gatehill.corebot.action.ActionOutcomeService
 import com.gatehill.corebot.action.LockService
-import com.gatehill.corebot.operation.model.PerformActionResult
-import com.gatehill.corebot.operation.model.TriggerContext
-import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.backend.jobs.service.BaseJobTriggerService
-import com.gatehill.corebot.driver.model.ActionStatus
-import com.gatehill.corebot.driver.model.TriggeredAction
 import com.gatehill.corebot.backend.rundeck.model.ExecutionDetails
 import com.gatehill.corebot.backend.rundeck.model.ExecutionInfo
 import com.gatehill.corebot.backend.rundeck.model.ExecutionOptions
 import com.gatehill.corebot.backend.rundeck.model.ExecutionOutput
+import com.gatehill.corebot.config.model.ActionConfig
+import com.gatehill.corebot.driver.model.ActionStatus
+import com.gatehill.corebot.driver.model.TriggeredAction
+import com.gatehill.corebot.operation.model.PerformActionResult
+import com.gatehill.corebot.operation.model.TriggerContext
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import retrofit2.Call
@@ -25,7 +25,7 @@ import javax.inject.Inject
  *
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
-class RundeckJobTriggerService @Inject constructor(private val actionDriver: RundeckActionDriver,
+class RundeckJobTriggerService @Inject constructor(private val apiClientBuilder: RundeckApiClientBuilder,
                                                    lockService: LockService,
                                                    actionOutcomeService: ActionOutcomeService) : BaseJobTriggerService(lockService, actionOutcomeService) {
 
@@ -36,7 +36,7 @@ class RundeckJobTriggerService @Inject constructor(private val actionDriver: Run
 
         val call: Call<ExecutionDetails>
         try {
-            call = actionDriver.buildApiClient().runJob(
+            call = apiClientBuilder.buildApiClient().runJob(
                     jobId = action.jobId,
                     executionOptions = ExecutionOptions(
                             argString = buildArgString(args),
@@ -100,7 +100,7 @@ class RundeckJobTriggerService @Inject constructor(private val actionDriver: Run
     }
 
     override fun fetchExecutionInfo(trigger: TriggerContext, action: ActionConfig, executionId: Int, startTime: Long) {
-        val call = actionDriver.buildApiClient().fetchExecutionInfo(
+        val call = apiClientBuilder.buildApiClient().fetchExecutionInfo(
                 executionId = executionId.toString()
         )
 
@@ -122,7 +122,7 @@ class RundeckJobTriggerService @Inject constructor(private val actionDriver: Run
 
     override fun fetchExecutionOutput(trigger: TriggerContext, action: ActionConfig, executionId: Int) {
 
-        val call = actionDriver.buildApiClient().fetchExecutionOutput(
+        val call = apiClientBuilder.buildApiClient().fetchExecutionOutput(
                 executionId = executionId.toString()
         )
 
