@@ -1,4 +1,4 @@
-package com.gatehill.corebot.backend.jobs.action.factory
+package com.gatehill.corebot.backend.jobs.operation.factory
 
 import com.gatehill.corebot.operation.model.OperationType
 import com.gatehill.corebot.operation.model.CoreOperationType

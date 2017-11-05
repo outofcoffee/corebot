@@ -1,7 +1,7 @@
 import com.gatehill.corebot.operation.factory.NamedActionFactory
 import com.gatehill.corebot.test.TestMother
 import com.gatehill.corebot.config.ConfigService
-import com.gatehill.corebot.backend.jobs.action.factory.DisableJobFactory
+import com.gatehill.corebot.backend.jobs.operation.factory.EnableJobFactory
 import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
@@ -13,14 +13,14 @@ import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
 
 /**
- * Specification for `DisableJobFactory`.
+ * Specification for `EnableJobFactory`.
  */
-object DisableJobFactorySpec : Spek({
-    given("a disable job factory") {
+object EnableJobFactorySpec : Spek({
+    given("an enable job factory") {
         val configService = mock<ConfigService> {
             on { actions() } doReturn TestMother.actions
         }
-        val factory = DisableJobFactory(configService)
+        val factory = EnableJobFactory(configService)
 
         on("providing placeholders") {
             factory.placeholderValues += NamedActionFactory.actionPlaceholder to TestMother.actionName

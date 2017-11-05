@@ -1,6 +1,6 @@
 import com.gatehill.corebot.operation.factory.NamedActionFactory
 import com.gatehill.corebot.chat.ChatGenerator
-import com.gatehill.corebot.backend.jobs.action.factory.TriggerJobFactory
+import com.gatehill.corebot.backend.jobs.operation.factory.TriggerJobFactory
 import com.gatehill.corebot.test.TestMother
 import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.mock

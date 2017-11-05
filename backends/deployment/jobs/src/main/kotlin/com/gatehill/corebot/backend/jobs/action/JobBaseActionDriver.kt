@@ -6,7 +6,7 @@ import com.gatehill.corebot.operation.model.PerformActionResult
 import com.gatehill.corebot.operation.model.TriggerContext
 import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.driver.BaseActionDriver
-import com.gatehill.corebot.backend.jobs.action.factory.JobOperationType
+import com.gatehill.corebot.backend.jobs.operation.factory.JobOperationType
 import com.gatehill.corebot.backend.jobs.service.JobTriggerService
 import java.util.concurrent.CompletableFuture
 import javax.inject.Inject

@@ -38,7 +38,7 @@ abstract class BaseActionDriver @Inject constructor(private val lockService: Loc
     }
 
     private fun showActionStatus(future: CompletableFuture<PerformActionResult>, action: ActionConfig) {
-        lockService.checkActionLock(action) { lock ->
+        lockService.findActionLock(action) { lock ->
             future.complete(PerformActionResult(lockService.describeLockStatus("Status of *${action.name}*: ", lock)))
         }
     }

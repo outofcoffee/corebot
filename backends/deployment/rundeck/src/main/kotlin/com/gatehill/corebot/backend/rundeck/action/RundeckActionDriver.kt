@@ -9,7 +9,7 @@ import com.gatehill.corebot.config.model.ActionConfig
 import com.gatehill.corebot.driver.ActionDriver
 import com.gatehill.corebot.driver.base.action.ApiClientBuilder
 import com.gatehill.corebot.backend.jobs.action.JobBaseActionDriver
-import com.gatehill.corebot.backend.jobs.action.factory.JobOperationType
+import com.gatehill.corebot.backend.jobs.operation.factory.JobOperationType
 import com.gatehill.corebot.backend.rundeck.config.DriverSettings
 import java.util.concurrent.CompletableFuture
 import javax.inject.Inject

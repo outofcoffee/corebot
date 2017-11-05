@@ -1,7 +1,7 @@
 package com.gatehill.corebot.bot
 
-import com.gatehill.corebot.action.NoOpOperationFactoryConverter
-import com.gatehill.corebot.action.OperationFactoryConverter
+import com.gatehill.corebot.operation.NoOpOperationFactoryConverter
+import com.gatehill.corebot.operation.OperationFactoryConverter
 import com.gatehill.corebot.asSingleton
 import com.google.inject.AbstractModule
 import kotlin.system.exitProcess

@@ -1,6 +1,6 @@
 package com.gatehill.corebot.chat.template
 
-import com.gatehill.corebot.action.OperationFactoryConverter
+import com.gatehill.corebot.operation.OperationFactoryConverter
 import com.gatehill.corebot.operation.factory.OperationFactory
 import com.gatehill.corebot.operation.factory.Template
 import com.gatehill.corebot.chat.SessionService
