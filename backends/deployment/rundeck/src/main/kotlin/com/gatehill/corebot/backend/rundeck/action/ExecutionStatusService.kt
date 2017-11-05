@@ -1,8 +1,7 @@
 package com.gatehill.corebot.backend.rundeck.action
 
-import com.gatehill.corebot.action.LockService
-import com.gatehill.corebot.operation.model.PerformActionResult
 import com.gatehill.corebot.config.model.ActionConfig
+import com.gatehill.corebot.operation.model.PerformActionResult
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import retrofit2.Call
@@ -15,18 +14,16 @@ import javax.inject.Inject
 /**
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
-class ExecutionStatusService @Inject constructor(private val actionDriver: RundeckActionDriver,
-                                                 private val lockService: LockService) {
-
-    private val logger: Logger = LogManager.getLogger(RundeckActionDriver::class.java)
+class ExecutionStatusService @Inject constructor(private val apiClientBuilder: RundeckApiClientBuilder) {
+    private val logger: Logger = LogManager.getLogger(ExecutionStatusService::class.java)
 
     fun enableExecutions(future: CompletableFuture<PerformActionResult>, action: ActionConfig, enable: Boolean) {
         logger.info("Setting action: {} with job ID: {} enabled status to {}", action.name, action.jobId, enable)
 
         val call: Call<HashMap<String, Any>> =
-                if (enable) actionDriver.buildApiClient().enableExecution(
+                if (enable) apiClientBuilder.buildApiClient().enableExecution(
                         jobId = action.jobId
-                ) else actionDriver.buildApiClient().disableExecution(
+                ) else apiClientBuilder.buildApiClient().disableExecution(
                         jobId = action.jobId
                 )
 
