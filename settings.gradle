@@ -5,29 +5,17 @@ rootProject.name = 'corebot'
 include ':backends:deployment:jenkins'
 project(':backends:deployment:jenkins').name = 'backends-deployment-jenkins'
 
-include ':backends:deployment:jenkins:plugin'
-project(':backends:deployment:jenkins:plugin').name = 'backends-deployment-jenkins-plugin'
-
 include ':backends:deployment:jobs'
 project(':backends:deployment:jobs').name = 'backends-deployment-jobs'
 
 include ':backends:deployment:rundeck'
 project(':backends:deployment:rundeck').name = 'backends-deployment-rundeck'
 
-include ':backends:deployment:rundeck:plugin'
-project(':backends:deployment:rundeck:plugin').name = 'backends-deployment-rundeck-plugin'
-
 include ':backends:items'
 project(':backends:items').name = 'backends-items'
 
-include ':backends:items:plugin'
-project(':backends:items:plugin').name = 'backends-items-plugin'
-
 include ':backends:slack'
 project(':backends:slack').name = 'backends-slack'
-
-include ':backends:slack:plugin'
-project(':backends:slack:plugin').name = 'backends-slack-plugin'
 
 // bots
 
@@ -71,23 +59,14 @@ project(':frontends:common').name = 'frontends-common'
 include ':frontends:http'
 project(':frontends:http').name = 'frontends-http'
 
-include ':frontends:http:plugin'
-project(':frontends:http:plugin').name = 'frontends-http-plugin'
-
 include ':frontends:session'
 project(':frontends:session').name = 'frontends-session'
 
 include ':frontends:slack'
 project(':frontends:slack').name = 'frontends-slack'
 
-include ':frontends:slack:plugin'
-project(':frontends:slack:plugin').name = 'frontends-slack-plugin'
-
 include ':frontends:websocket'
 project(':frontends:websocket').name = 'frontends-websocket'
-
-include ':frontends:websocket:plugin'
-project(':frontends:websocket:plugin').name = 'frontends-websocket-plugin'
 
 // stores
 
@@ -101,6 +80,15 @@ include ':stores:mysql'
 project(':stores:mysql').name = 'stores-mysql'
 
 // plugins
+
+include ':plugins:items-backend-plugin'
+include ':plugins:jenkins-backend-plugin'
+include ':plugins:rundeck-backend-plugin'
+include ':plugins:slack-backend-plugin'
+
+include ':plugins:http-frontend-plugin'
+include ':plugins:slack-frontend-plugin'
+include ':plugins:websocket-frontend-plugin'
 
 include ':plugins:redis-store-plugin'
 include ':plugins:restapi-store-plugin'
