@@ -34,6 +34,12 @@ dependencies {
     testCompile project(':test:test-core')
 }
 
+jar {
+    manifest.attributes(
+            'Corebot-Version': "${project.version}"
+    )
+}
+
 task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'sources'
     from sourceSets.main.allSource
