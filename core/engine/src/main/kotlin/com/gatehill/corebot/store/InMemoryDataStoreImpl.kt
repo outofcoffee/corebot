@@ -1,17 +1,19 @@
 package com.gatehill.corebot.store
 
+import kotlin.reflect.KClass
+
 /**
  * A simple in-memory store.
  *
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
 class InMemoryDataStoreImpl : DataStore {
-    private val partitions = mutableMapOf<String, DataStorePartition<*, *>>()
-
     @Suppress("UNCHECKED_CAST")
-    override fun <K, V> partitionForClass(partitionId: String, valueClass: Class<V>): DataStorePartition<K, V> =
-            partitions[partitionId] as DataStorePartition<K, V>? ?:
-                    InMemoryDataStorePartitionImpl<K, V>().apply { partitions[partitionId] = this }
+    override fun <K, V : Any> partitionForClass(partitionId: String, valueClass: KClass<V>): DataStorePartition<K, V> =
+            partitions[partitionId] as DataStorePartition<K, V>?
+                    ?: InMemoryDataStorePartitionImpl<K, V>().apply { partitions[partitionId] = this }
+
+    private val partitions = mutableMapOf<String, DataStorePartition<*, *>>()
 }
 
 /**

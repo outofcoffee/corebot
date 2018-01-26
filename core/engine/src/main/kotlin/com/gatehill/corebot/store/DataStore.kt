@@ -1,20 +1,22 @@
 package com.gatehill.corebot.store
 
+import kotlin.reflect.KClass
+
 /**
  * Manages data store partitions.
  *
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
 interface DataStore {
-    fun <K, V> partitionForClass(partitionId: String, valueClass: Class<V>): DataStorePartition<K, V>
+    fun <K, V: Any> partitionForClass(partitionId: String, valueClass: KClass<V>): DataStorePartition<K, V>
 }
 
 /**
  * Syntactic sugar, which calls `DataStore.partitionForClass()` using the reified
  * type as the value class.
  */
-inline fun <K, reified V> DataStore.partition(partitionId: String) =
-        this.partitionForClass<K, V>(partitionId, V::class.java)
+inline fun <K, reified V: Any> DataStore.partition(partitionId: String) =
+        this.partitionForClass<K, V>(partitionId, V::class)
 
 /**
  * Stores a particular type of data in a store.

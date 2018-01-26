@@ -35,13 +35,13 @@ object RestDataStoreImplSpec : Spek({
             val partition = store.partition<String, Example>("test")
 
             it("saves objects") {
-                partition["test"] = Example().apply { original = "qux" }
+                partition["test"] = Example("qux")
             }
             it("loads objects") {
                 partition["test"]!!.original `should equal` "qux"
             }
             it("returns null for missing objects") {
-                partition["missing"]!!.original.`should be null`()
+                partition["missing"].`should be null`()
             }
         }
     }
@@ -51,6 +51,4 @@ object RestDataStoreImplSpec : Spek({
     }
 })
 
-class Example {
-    var original: String? = null
-}
+data class Example(val original: String)

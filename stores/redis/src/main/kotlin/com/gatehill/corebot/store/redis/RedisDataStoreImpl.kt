@@ -6,6 +6,7 @@ import com.gatehill.corebot.store.DataStorePartition
 import com.gatehill.corebot.store.redis.config.StoreSettings
 import com.gatehill.corebot.util.jsonMapper
 import redis.clients.jedis.Jedis
+import kotlin.reflect.KClass
 
 /**
  * A Redis store.
@@ -16,9 +17,9 @@ class RedisDataStoreImpl : DataStore {
     private val partitions = mutableMapOf<String, DataStorePartition<*, *>>()
 
     @Suppress("UNCHECKED_CAST")
-    override fun <K, V> partitionForClass(partitionId: String, valueClass: Class<V>): DataStorePartition<K, V> =
-            partitions[partitionId] as DataStorePartition<K, V>? ?:
-                    RedisDataStorePartitionImpl<K, V>(jsonMapper, valueClass, partitionId).apply { partitions[partitionId] = this }
+    override fun <K, V : Any> partitionForClass(partitionId: String, valueClass: KClass<V>): DataStorePartition<K, V> =
+            partitions[partitionId] as DataStorePartition<K, V>?
+                    ?: RedisDataStorePartitionImpl<K, V>(jsonMapper, valueClass.java, partitionId).apply { partitions[partitionId] = this }
 }
 
 /**
