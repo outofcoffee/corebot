@@ -5,6 +5,7 @@ import com.gatehill.corebot.classloader.ClassLoaderUtil
 import com.gatehill.corebot.plugin.config.PluginSettings
 import com.gatehill.corebot.plugin.model.PluginEnvironment
 import com.gatehill.corebot.plugin.model.PluginWrapper
+import com.gatehill.corebot.util.VersionUtil
 import com.gatehill.corebot.util.yamlMapper
 import com.gatehill.dlcl.Collector
 import com.gatehill.dlcl.Downloader
@@ -41,9 +42,10 @@ class PluginService {
 
             logger.debug("Fetching ${allDependencies.size} plugins")
 
-            allDependencies.forEach {
+            allDependencies.forEach { dependency ->
+                val coordinates = dependency.replace("\$VERSION", VersionUtil.version)
                 val downloader = Downloader(PluginSettings.localRepo, null, emptyList(), repos)
-                downloader.downloadSingleDependency(it)
+                downloader.downloadSingleDependency(coordinates)
             }
         }
     }

@@ -1,13 +1,13 @@
 ---
 frontends:
-- dependency: com.gatehill.corebot:slack-frontend-plugin:war:1.1.3-SNAPSHOT
+- dependency: com.gatehill.corebot:slack-frontend-plugin:war:$VERSION
   classes:
   - com.gatehill.corebot.frontend.slack.SlackModule
 
 backends:
-- dependency: com.gatehill.corebot:items-backend-plugin:war:1.1.3-SNAPSHOT
+- dependency: com.gatehill.corebot:items-backend-plugin:war:$VERSION
   classes:
   - com.gatehill.corebot.backend.items.ItemsDriverModule
 
 storage:
-- dependency: com.gatehill.corebot:mysql-store-plugin:war:1.1.3-SNAPSHOT
+- dependency: com.gatehill.corebot:mysql-store-plugin:war:$VERSION
