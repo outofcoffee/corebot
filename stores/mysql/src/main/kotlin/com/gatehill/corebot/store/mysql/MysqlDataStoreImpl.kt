@@ -16,6 +16,7 @@ import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.transactions.transaction
 import javax.sql.rowset.serial.SerialBlob
+import kotlin.reflect.KClass
 
 /**
  * A MySQL store.
@@ -34,9 +35,9 @@ class MysqlDataStoreImpl : DataStore {
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <K, V> partitionForClass(partitionId: String, valueClass: Class<V>): DataStorePartition<K, V> =
-            partitions[partitionId] as DataStorePartition<K, V>? ?:
-                    MysqlDataStorePartitionImpl<K, V>(jsonMapper, valueClass, partitionId).apply { partitions[partitionId] = this }
+    override fun <K, V : Any> partitionForClass(partitionId: String, valueClass: KClass<V>): DataStorePartition<K, V> =
+            partitions[partitionId] as DataStorePartition<K, V>?
+                    ?: MysqlDataStorePartitionImpl<K, V>(jsonMapper, valueClass.java, partitionId).apply { partitions[partitionId] = this }
 }
 
 object KeyValues : IntIdTable() {

@@ -3,6 +3,7 @@ package com.gatehill.corebot.store.rest
 import com.gatehill.corebot.store.DataStore
 import com.gatehill.corebot.store.DataStorePartition
 import com.gatehill.corebot.store.rest.config.StoreSettings
+import com.gatehill.corebot.store.rest.populator.PopulationStrategy
 import com.gatehill.corebot.util.jsonMapper
 import okhttp3.MediaType
 import okhttp3.RequestBody
@@ -13,7 +14,7 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Url
-import java.lang.reflect.Field
+import kotlin.reflect.KClass
 
 /**
  * A store that delegates to a RESTful backend.
@@ -24,9 +25,9 @@ class RestDataStoreImpl : DataStore {
     private val partitions = mutableMapOf<String, DataStorePartition<*, *>>()
 
     @Suppress("UNCHECKED_CAST")
-    override fun <K, V> partitionForClass(partitionId: String, valueClass: Class<V>): DataStorePartition<K, V> =
-            partitions[partitionId] as DataStorePartition<K, V>? ?:
-                    RestDataStorePartitionImpl<K, V>(valueClass).apply { partitions[partitionId] = this }
+    override fun <K, V : Any> partitionForClass(partitionId: String, valueClass: KClass<V>): DataStorePartition<K, V> =
+            partitions[partitionId] as DataStorePartition<K, V>?
+                    ?: RestDataStorePartitionImpl<K, V>(valueClass).apply { partitions[partitionId] = this }
 }
 
 /**
@@ -34,7 +35,7 @@ class RestDataStoreImpl : DataStore {
  *
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
-private class RestDataStorePartitionImpl<in K, V>(private val clazz: Class<V>) : DataStorePartition<K, V> {
+private class RestDataStorePartitionImpl<in K, V : Any>(private val clazz: KClass<V>) : DataStorePartition<K, V> {
     private val client by lazy {
         Retrofit.Builder()
                 .baseUrl(StoreSettings.baseUrl)
@@ -43,12 +44,8 @@ private class RestDataStorePartitionImpl<in K, V>(private val clazz: Class<V>) :
     }
 
     private fun mapValues(value: V) = StoreSettings.valueMap.map { (source, target) ->
-        val sourceField = getAccessibleField(source)
+        val sourceField = PopulationStrategy.getAccessibleField(clazz, source)
         target to sourceField.get(value) as String
-    }
-
-    private fun getAccessibleField(fieldName: String): Field = clazz.getDeclaredField(fieldName).apply {
-        isAccessible = true
     }
 
     /**
@@ -69,13 +66,19 @@ private class RestDataStorePartitionImpl<in K, V>(private val clazz: Class<V>) :
 
         return client.fetch(fetchUrl).execute().let { response ->
             if (response.isSuccessful) {
-                val value = clazz.newInstance()
-
-                StoreSettings.valueMap.forEach { (source, target) ->
-                    val sourceField = getAccessibleField(source)
-                    sourceField.set(value, jsonMapper.readValue(response.body().byteStream(), Map::class.java)[target])
+                return response.body().byteStream().use { bodyStream ->
+                    if (bodyStream.available() > 0) {
+                        val inputs = jsonMapper.readValue(bodyStream, Map::class.java)
+                        if (inputs.isNotEmpty()) {
+                            @Suppress("UNCHECKED_CAST")
+                            PopulationStrategy.infer(clazz).populate(inputs as Map<String, *>)
+                        } else {
+                            null
+                        }
+                    } else {
+                        null
+                    }
                 }
-                value
 
             } else {
                 throw IllegalStateException(response.errorBody().string())
