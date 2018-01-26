@@ -94,14 +94,17 @@ project(':frontends:websocket:plugin').name = 'frontends-websocket-plugin'
 include ':stores:redis'
 project(':stores:redis').name = 'stores-redis'
 
-include ':stores:redis:plugin'
-project(':stores:redis:plugin').name = 'stores-redis-plugin'
+include ':stores:restapi'
+project(':stores:restapi').name = 'stores-restapi'
 
 include ':stores:mysql'
 project(':stores:mysql').name = 'stores-mysql'
 
-include ':stores:mysql:plugin'
-project(':stores:mysql:plugin').name = 'stores-mysql-plugin'
+// plugins
+
+include ':plugins:redis-store-plugin'
+include ':plugins:restapi-store-plugin'
+include ':plugins:mysql-store-plugin'
 
 // test support
 
