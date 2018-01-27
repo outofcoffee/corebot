@@ -27,6 +27,8 @@ open class HttpChatServiceImpl @Inject constructor(private val factoryService: F
                                                    private val sessionService: HttpSessionService,
                                                    private val messageService: MessageService) : ChatService {
 
+    override val supportsUserTermination = true
+
     private var server: HttpServer? = null
 
     private fun configureRoutes(vertx: Vertx, router: Router) {

@@ -1,0 +1,13 @@
+---
+frontends:
+- dependency: com.gatehill.corebot:websocket-frontend-plugin:war:$VERSION
+  classes:
+  - com.gatehill.corebot.frontend.websocket.WebSocketModule
+
+backends:
+- dependency: com.gatehill.corebot:items-backend-plugin:war:$VERSION
+  classes:
+  - com.gatehill.corebot.backend.items.ItemsDriverModule
+
+storage:
+- dependency: com.gatehill.corebot:restapi-store-plugin:war:$VERSION

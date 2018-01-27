@@ -7,6 +7,8 @@ import com.google.inject.Guice.createInjector
 import com.google.inject.Module
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
+import java.io.BufferedReader
+import java.io.InputStreamReader
 import javax.inject.Inject
 
 /**
@@ -18,10 +20,25 @@ class Bot @Inject constructor(private val chatService: ChatService) {
      */
     fun start() {
         chatService.listenForEvents()
+
+        if (chatService.supportsUserTermination) {
+            try {
+                val reader = BufferedReader(InputStreamReader(System.`in`))
+                println("Press <ENTER> to terminate.")
+                reader.readLine()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                stop()
+            }
+        }
     }
 
     fun stop() {
+        println("Terminating...")
         chatService.stopListening()
+        println("Bye!")
+        System.exit(0)
     }
 
     /**

@@ -6,24 +6,10 @@ import com.gatehill.corebot.asSingleton
 import com.gatehill.corebot.backend.slack.SlackDriverModule
 import com.gatehill.corebot.frontend.http.HttpModule
 import com.google.inject.AbstractModule
-import java.io.BufferedReader
-import java.io.InputStreamReader
 
 fun main(args: Array<String>) {
     println("Warning: the HTTP bot is experimental.")
-
-    val bot = Bot.build(BotModule(), HttpModule())
-    bot.start()
-
-    try {
-        val reader = BufferedReader(InputStreamReader(System.`in`))
-        println("Please press a key to stop the server.")
-        reader.readLine()
-    } catch (e: Exception) {
-        e.printStackTrace()
-    } finally {
-        bot.stop()
-    }
+    Bot.build(BotModule(), HttpModule()).start()
 }
 
 private class BotModule : AbstractModule() {
