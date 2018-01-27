@@ -22,6 +22,11 @@ import javax.inject.Inject
 open class SlackChatServiceImpl @Inject constructor(private val sessionService: SlackSessionService,
                                                     private val messageService: MessageService) : ChatService {
 
+    /**
+     * The Slack library effectively acts as daemon.
+     */
+    override val supportsUserTermination = false
+
     private val logger: Logger = LogManager.getLogger(SlackChatServiceImpl::class.java)
     private val messageMatcher = Pattern.compile("<@(?<botUser>[a-zA-Z0-9]+)>:?(\\s(?<command>.+))?")
 
