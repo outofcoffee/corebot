@@ -7,6 +7,13 @@ import java.util.jar.Manifest
  */
 object VersionUtil {
     val version: String by lazy {
-        Manifest().mainAttributes["Corebot-Version"] as String? ?: "unspecified"
+        VersionUtil::class.java.classLoader.getResources("META-INF/MANIFEST.MF").toList().forEach { manifestUrl ->
+            manifestUrl.openStream()?.let {
+                Manifest().apply { this.read(it) }.mainAttributes.getValue("Corebot-Version")?.let { manifestVersion ->
+                    return@lazy manifestVersion
+                }
+            }
+        }
+        return@lazy "unspecified"
     }
 }
