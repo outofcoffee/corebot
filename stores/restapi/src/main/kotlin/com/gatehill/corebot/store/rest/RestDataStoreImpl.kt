@@ -5,6 +5,7 @@ import com.gatehill.corebot.store.DataStorePartition
 import com.gatehill.corebot.store.rest.config.StoreSettings
 import com.gatehill.corebot.store.rest.populator.PopulationStrategy
 import com.gatehill.corebot.util.jsonMapper
+import com.jayway.jsonpath.JsonPath
 import okhttp3.MediaType
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
@@ -14,6 +15,7 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Url
+import java.util.Objects.nonNull
 import kotlin.reflect.KClass
 
 /**
@@ -43,17 +45,21 @@ private class RestDataStorePartitionImpl<in K, V : Any>(private val clazz: KClas
                 .create(CrudApi::class.java)
     }
 
-    private fun mapValues(value: V) = StoreSettings.valueMap.map { (source, target) ->
-        val sourceField = PopulationStrategy.getAccessibleField(clazz, source)
-        target to sourceField.get(value) as String
-    }
-
     /**
      * Maps the fields in the value class to fields in the request body.
      */
     override fun set(key: K, value: V) {
+        val sourceObject: Map<String, *> = StoreSettings.jsonPath?.let {
+            JsonPath.read<Map<String, *>>(jsonMapper.writeValueAsString(value), StoreSettings.jsonPath)
+        } ?: run {
+            @Suppress("UNCHECKED_CAST")
+            jsonMapper.convertValue<Map<*, *>>(value, Map::class.java) as Map<String, *>
+        }
+
         val body = mutableMapOf(StoreSettings.keyField to key as String).apply {
-            putAll(mapValues(value))
+            putAll(StoreSettings.valueMap.map { (source, target) ->
+                target to sourceObject[source] as String
+            })
         }
         executeUpdate(body)
     }
@@ -62,6 +68,10 @@ private class RestDataStorePartitionImpl<in K, V : Any>(private val clazz: KClas
      * Fetches the current values and maps them onto a new instance of the value class.
      */
     override fun get(key: K): V? {
+        if (nonNull(StoreSettings.jsonPath)) {
+            throw IllegalArgumentException("Fetching from REST API not supported when JsonPath is specified")
+        }
+
         val fetchUrl = "${StoreSettings.resource}?${StoreSettings.keyField}=$key"
 
         return client.fetch(fetchUrl).execute().let { response ->

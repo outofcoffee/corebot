@@ -20,6 +20,7 @@ junitPlatform {
 dependencies {
     compile project(':core:core-engine')
     compile project(':core:core-rest')
+    compile "com.jayway.jsonpath:json-path:2.3.0"
 
     testCompile project(':test:test-core')
 }
