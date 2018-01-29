@@ -29,6 +29,6 @@ object StoreSettings : EnvironmentSettings() {
      * Fully qualified class representing the target of the JsonPath.
      * Doesn't use `lazy` to avoid caching issues when value changes.
      */
-    val jsonPathTargetClass: String?
+    val jsonPathTargetClass: String
         get() = getenv("MIRROR_JSON_PATH_TARGET") ?: throw IllegalArgumentException("Missing JsonPath target class")
 }

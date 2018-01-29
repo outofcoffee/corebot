@@ -40,7 +40,7 @@ class Bot @Inject constructor(private val chatService: ChatService) {
          */
         fun build(vararg extensionModules: Module): Bot {
             val modules = mutableListOf<Module>().apply {
-                addAll(coreModules.map { ClassLoaderUtil.classLoader.loadClass(it).newInstance() as Module })
+                addAll(coreModules.map { ClassLoaderUtil.loadClass<Module>(it).newInstance() })
                 add(object : AbstractModule() {
                     override fun configure() {
                         extensionModules.forEach {
