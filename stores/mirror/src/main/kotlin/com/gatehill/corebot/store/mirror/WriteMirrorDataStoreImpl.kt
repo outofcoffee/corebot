@@ -24,15 +24,11 @@ class WriteMirrorDataStoreImpl @Inject constructor(injector: Injector) : DataSto
     private val mirrorStore: DataStore
 
     init {
-        val classLoader = ClassLoaderUtil.classLoader
+        @Suppress("UNCHECKED_CAST")
+        backingStore = injector.getInstance(ClassLoaderUtil.loadClass(StoreSettings.backingStoreClass))
 
         @Suppress("UNCHECKED_CAST")
-        backingStore = injector.getInstance(
-                classLoader.loadClass(StoreSettings.backingStoreClass) as Class<DataStore>)
-
-        @Suppress("UNCHECKED_CAST")
-        mirrorStore = injector.getInstance(
-                classLoader.loadClass(StoreSettings.mirrorStoreClass) as Class<DataStore>)
+        mirrorStore = injector.getInstance(ClassLoaderUtil.loadClass(StoreSettings.mirrorStoreClass))
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -46,7 +42,7 @@ class WriteMirrorDataStoreImpl @Inject constructor(injector: Injector) : DataSto
      * differ from `valueClass`.
      */
     private fun <M : Any> loadMirrorClass(valueClass: KClass<M>) = StoreSettings.jsonPath?.let {
-        ClassLoaderUtil.classLoader.loadClass(StoreSettings.jsonPathTargetClass).kotlin
+        ClassLoaderUtil.loadClass<M>(StoreSettings.jsonPathTargetClass).kotlin
     } ?: valueClass
 
     private fun <K, V : Any, M : Any> createPartition(partitionId: String, valueClass: KClass<V>, mirrorClass: KClass<M>) =
