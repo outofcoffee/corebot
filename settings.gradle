@@ -76,6 +76,9 @@ project(':stores:redis').name = 'stores-redis'
 include ':stores:restapi'
 project(':stores:restapi').name = 'stores-restapi'
 
+include ':stores:mirror'
+project(':stores:mirror').name = 'stores-mirror'
+
 include ':stores:mysql'
 project(':stores:mysql').name = 'stores-mysql'
 
@@ -92,6 +95,7 @@ include ':plugins:websocket-frontend-plugin'
 
 include ':plugins:redis-store-plugin'
 include ':plugins:restapi-store-plugin'
+include ':plugins:mirror-store-plugin'
 include ':plugins:mysql-store-plugin'
 
 // test support

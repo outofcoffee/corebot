@@ -18,13 +18,6 @@ object StoreSettings : EnvironmentSettings() {
     val keyField: String by lazy { getenv("REST_KEY_FIELD") ?: throw IllegalStateException("Missing REST key field") }
 
     /**
-     * Optional JsonPath to identify target to persist.
-     * Doesn't use `lazy` to avoid caching issues when value changes.
-     */
-    val jsonPath: String?
-        get() = getenv("REST_JSON_PATH")
-
-    /**
      * Comma separated list of `key=value` elements that maps field names to body fields.
      *
      * Example: `foo=bar,baz=qux`
