@@ -29,7 +29,7 @@ object RedisDataStoreImplSpec : Spek({
 
         on("getting a partition") {
             val store = RedisDataStoreImpl()
-            val partition = store.partition<String, Example>("test")
+            val partition = store.partition<String, Example>("partition")
 
             it("saves objects") {
                 partition["key"] = Example("bar")

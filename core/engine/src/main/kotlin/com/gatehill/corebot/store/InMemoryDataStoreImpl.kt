@@ -7,13 +7,13 @@ import kotlin.reflect.KClass
  *
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
-class InMemoryDataStoreImpl : DataStore {
+open class InMemoryDataStoreImpl : DataStore {
     @Suppress("UNCHECKED_CAST")
     override fun <K, V : Any> partitionForClass(partitionId: String, valueClass: KClass<V>): DataStorePartition<K, V> =
             partitions[partitionId] as DataStorePartition<K, V>?
                     ?: InMemoryDataStorePartitionImpl<K, V>().apply { partitions[partitionId] = this }
 
-    private val partitions = mutableMapOf<String, DataStorePartition<*, *>>()
+    protected open val partitions = mutableMapOf<String, DataStorePartition<*, *>>()
 }
 
 /**
