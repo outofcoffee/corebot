@@ -33,6 +33,7 @@ class ClaimService @Inject constructor(private val configService: ConfigService,
      */
     @JsonIgnoreProperties(ignoreUnknown = true)
     data class ItemClaim(val owner: String,
+                         val ownerName: String?,
                          val reason: String,
                          val subItem: String?)
 
@@ -52,14 +53,19 @@ class ClaimService @Inject constructor(private val configService: ConfigService,
                 // check if on behalf of another user
                 val borrower = args[BorrowItemAsUserFactory.borrowerPlaceholder] ?: triggerMessageSenderId
 
-                itemClaims[itemName] = ItemClaims(claims.toMutableList().apply {
+                val borrowerName = try {
+                    sessionService.lookupUserRealName(trigger, borrower)
+                } catch (e: Exception) {
+                    "unknown"
+                }
 
+                itemClaims[itemName] = ItemClaims(claims.toMutableList().apply {
                     // any existing claim will be replaced
                     claims.firstOrNull { it.owner == borrower }?.let { existing ->
                         remove(existing)
                     }
 
-                    add(ItemClaim(borrower, reason, subItem))
+                    add(ItemClaim(borrower, borrowerName, reason, subItem))
                 })
 
                 val borrowerDescription = if (borrower == triggerMessageSenderId) " <@$borrower>, you've" else ", <@$borrower> has"
@@ -175,9 +181,9 @@ class ClaimService @Inject constructor(private val configService: ConfigService,
                 }
                 else -> {
                     val claimsList = StringBuilder()
-                    claims.forEach { (owner, reason, subItem) ->
-                        val subItemDescription = subItem?.let { if (it.isNotBlank()) "$it: " else null } ?: ""
-                        claimsList.append("\n${" ".repeat(4)}• $subItemDescription${describeOwner(trigger, owner)} - $reason")
+                    claims.forEach { claim ->
+                        val subItemDescription = claim.subItem?.let { if (it.isNotBlank()) "$it: " else null } ?: ""
+                        claimsList.append("\n${" ".repeat(4)}• $subItemDescription${describeOwner(trigger, claim.owner)} - ${claim.reason}")
                     }
 
                     "There are ${claims.size} borrowers of *$itemName*:$claimsList"
