@@ -8,6 +8,7 @@ import com.gatehill.corebot.util.jsonMapper
 import okhttp3.MediaType
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
+import org.apache.logging.log4j.LogManager
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.http.Body
@@ -36,6 +37,8 @@ class RestDataStoreImpl : DataStore {
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
 private class RestDataStorePartitionImpl<in K, V : Any>(private val clazz: KClass<V>) : DataStorePartition<K, V> {
+    private val logger = LogManager.getLogger(RestDataStorePartitionImpl::class.java)
+
     private val client by lazy {
         Retrofit.Builder()
                 .baseUrl(StoreSettings.baseUrl)
@@ -47,10 +50,13 @@ private class RestDataStorePartitionImpl<in K, V : Any>(private val clazz: KClas
      * Maps the fields in the value class to fields in the request body.
      */
     override fun set(key: K, value: V) {
-        val body = mutableMapOf(StoreSettings.keyField to key as String).apply {
+        logger.debug("Setting value: $key=$value")
+
+        val body = mutableMapOf<String, Any?>().apply {
+            put(StoreSettings.keyField, key)
             putAll(StoreSettings.valueMap.map { (source, target) ->
                 val sourceField = PopulationStrategy.getAccessibleField(clazz, source)
-                target to sourceField.get(value) as String
+                target to sourceField.get(value)
             })
         }
         executeUpdate(body)
@@ -61,6 +67,7 @@ private class RestDataStorePartitionImpl<in K, V : Any>(private val clazz: KClas
      */
     override fun get(key: K): V? {
         val fetchUrl = "${StoreSettings.resource}?${StoreSettings.keyField}=$key"
+        logger.debug("Fetching from: ${StoreSettings.baseUrl}$fetchUrl")
 
         return client.fetch(fetchUrl).execute().let { response ->
             if (response.isSuccessful) {
@@ -88,7 +95,8 @@ private class RestDataStorePartitionImpl<in K, V : Any>(private val clazz: KClas
      * Sets each mapped value to an empty string.
      */
     override fun remove(key: K) {
-        val body = mutableMapOf(StoreSettings.keyField to key as String).apply {
+        val body = mutableMapOf<String, Any?>().apply {
+            put(StoreSettings.keyField, key)
             putAll(StoreSettings.valueMap.map { (_, target) ->
                 target to ""
             })
@@ -96,9 +104,12 @@ private class RestDataStorePartitionImpl<in K, V : Any>(private val clazz: KClas
         executeUpdate(body)
     }
 
-    private fun executeUpdate(body: MutableMap<String, String>) {
+    private fun executeUpdate(body: MutableMap<String, *>) {
+        val bodyJson = jsonMapper.writeValueAsString(body)
+        logger.debug("Posting update to: ${StoreSettings.baseUrl}${StoreSettings.resource}: $bodyJson")
+
         client.update(StoreSettings.resource,
-                RequestBody.create(MediaType.parse("application/json"), jsonMapper.writeValueAsBytes(body))).execute()
+                RequestBody.create(MediaType.parse("application/json"), bodyJson)).execute()
     }
 }
 
