@@ -18,7 +18,7 @@ object VersionUtilSpec : Spek({
                 version.`should not be null`()
             }
             it("should provide a valid version") {
-                version `should not equal` "unspecified"
+                version `should not equal` VersionUtil.UNSPECIFIED_VERSION
             }
         }
     }

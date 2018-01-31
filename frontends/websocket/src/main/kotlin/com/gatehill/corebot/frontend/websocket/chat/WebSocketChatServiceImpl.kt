@@ -12,6 +12,8 @@ import org.glassfish.tyrus.server.Server
  * @author Pete Cornish {@literal <outofcoffee@gmail.com>}
  */
 open class WebSocketChatServiceImpl : ChatService {
+    override val supportsUserTermination = true
+
     private val server: Server by lazy { Server(hostname, port, "/", setOf(BotWebSocketEndPoint::class.java)) }
 
     override fun listenForEvents() {

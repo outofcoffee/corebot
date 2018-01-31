@@ -7,24 +7,10 @@ import com.gatehill.corebot.backend.items.ItemsDriverModule
 import com.gatehill.corebot.frontend.websocket.WebSocketModule
 import com.gatehill.corebot.frontend.websocket.chat.endpoint.CustomConfigurator
 import com.google.inject.AbstractModule
-import java.io.BufferedReader
-import java.io.InputStreamReader
 
 fun main(args: Array<String>) {
     println("Warning: the WebSocket bot is experimental.")
-
-    val bot = Bot.build(BotModule(), WebSocketModule())
-    bot.start()
-
-    try {
-        val reader = BufferedReader(InputStreamReader(System.`in`))
-        println("Please press a key to stop the server.")
-        reader.readLine()
-    } catch (e: Exception) {
-        e.printStackTrace()
-    } finally {
-        bot.stop()
-    }
+    Bot.build(BotModule(), WebSocketModule()).start()
 }
 
 private class BotModule : AbstractModule() {
