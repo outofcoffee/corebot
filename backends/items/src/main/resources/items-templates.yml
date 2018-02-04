@@ -17,9 +17,11 @@ evictUserFromItem:
 
 returnItem:
   - template: return {itemName}
+  - template: release {itemName}
 
 statusAllItems:
   - template: status
+  - template: list
 
 statusItem:
   - template: status {itemName}
