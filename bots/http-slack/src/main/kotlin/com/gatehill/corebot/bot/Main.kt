@@ -1,10 +1,10 @@
 package com.gatehill.corebot.bot
 
-import com.gatehill.corebot.action.NoOpOperationFactoryConverter
-import com.gatehill.corebot.action.OperationFactoryConverter
 import com.gatehill.corebot.asSingleton
 import com.gatehill.corebot.backend.slack.SlackDriverModule
 import com.gatehill.corebot.frontend.http.HttpModule
+import com.gatehill.corebot.operation.NoOpOperationFactoryConverter
+import com.gatehill.corebot.operation.OperationFactoryConverter
 import com.google.inject.AbstractModule
 
 fun main(args: Array<String>) {
