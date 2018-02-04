@@ -5,12 +5,17 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
+- Adds HTTP bot.
+- Adds Slack backend.
 - Adds a RESTful API store.
 - Adds a store implementation that mirrors writes to the backing store to another, separate, store implementation.
 - Allows chat service implementations to indicate support for user termination. 
+- Adds the ability to start with an empty action configuration.
+- Allows version placeholder to be used in plugin files.
 
 ### Changed
-- Moves plugins to single directory. Changed Maven artifact names for plugins.
+- Moves plugins to single directory.
+- Changes Maven artifact names for plugins.
 
 ## [1.1.2] - 2017-11-05
 ### Fixed
