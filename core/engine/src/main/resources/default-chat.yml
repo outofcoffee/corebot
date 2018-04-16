@@ -14,20 +14,20 @@ pleaseWait:
  - "Give me a min"
 
 goodNews:
- - "Hooray ${goodNewsEmoji}"
- - "Awesome ${goodNewsEmoji}"
- - "Good news ${goodNewsEmoji}"
- - "Sweet ${goodNewsEmoji}"
+ - "Hooray :${goodNewsEmoji}:"
+ - "Awesome :${goodNewsEmoji}:"
+ - "Good news :${goodNewsEmoji}:"
+ - "Sweet :${goodNewsEmoji}:"
     
 goodNewsEmoji:
  - "raised_hands"
  - "tada"
     
 badNews:
- - "Oh dear ${badNewsEmoji}"
- - "Oh no ${badNewsEmoji}"
- - "Bad news ${badNewsEmoji}"
- - "Uh oh ${badNewsEmoji}"
+ - "Oh dear :${badNewsEmoji}:"
+ - "Oh no :${badNewsEmoji}:"
+ - "Bad news :${badNewsEmoji}:"
+ - "Uh oh :${badNewsEmoji}:"
 
 badNewsEmoji:
  - "cry"
