@@ -22,7 +22,7 @@ object MysqlDataStoreImplSpec : Spek({
             mysql.start()
 
             StoreSettings.env = mapOf(
-                    "MYSQL_CONNECTION_STRING" to "${mysql.jdbcUrl}?useSSL=false",
+                    "MYSQL_CONNECTION_STRING" to mysql.jdbcUrl,
                     "MYSQL_USERNAME" to mysql.username,
                     "MYSQL_PASSWORD" to mysql.password
             )

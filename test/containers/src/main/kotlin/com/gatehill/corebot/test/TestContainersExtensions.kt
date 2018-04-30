@@ -5,7 +5,9 @@ import org.testcontainers.containers.MySQLContainer
 import org.testcontainers.containers.wait.HostPortWaitStrategy
 import java.time.Duration
 
-class KMySQLContainer : MySQLContainer<KMySQLContainer>()
+class KMySQLContainer : MySQLContainer<KMySQLContainer>("${MySQLContainer.IMAGE}:5.7") {
+    override fun getJdbcUrl(): String = "${super.getJdbcUrl()}?useSSL=false"
+}
 
 class KRedisContainer : GenericContainer<KRedisContainer>("redis:latest") {
     init {
