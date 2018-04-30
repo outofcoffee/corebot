@@ -18,7 +18,8 @@ object Settings {
     private val logger: Logger = LogManager.getLogger(Settings::class.java)
 
     class Execution {
-        val executionTimeout by lazy { (System.getenv("EXECUTION_STATUS_TIMEOUT")?.toInt() ?: 120) * 1000 }
+        val executionStatusTimeout by lazy { (System.getenv("EXECUTION_STATUS_TIMEOUT")?.toInt() ?: 120) * 1000 }
+        val executionStatusPoll by lazy { (System.getenv("EXECUTION_STATUS_POLL")?.toLong() ?: 5) * 1000 }
     }
 
     val execution = Execution()

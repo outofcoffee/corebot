@@ -23,7 +23,6 @@ abstract class BaseJobTriggerService(private val lockService: LockService,
                                      private val actionOutcomeService: ActionOutcomeService) : JobTriggerService {
 
     private val logger: Logger = LogManager.getLogger(BaseJobTriggerService::class.java)
-    protected val pollCheckInterval = 2000L
 
     /**
      * Check lock status then optionally trigger execution.
@@ -110,13 +109,13 @@ abstract class BaseJobTriggerService(private val lockService: LockService,
     protected fun doUnlessTimedOut(trigger: TriggerContext, action: ActionConfig, startTime: Long,
                                    blockDescription: String, block: () -> Unit) {
 
-        if (System.currentTimeMillis() - startTime < Settings.execution.executionTimeout) {
+        if (System.currentTimeMillis() - startTime < Settings.execution.executionStatusTimeout) {
             // enough time left to retry
             Timer().schedule(object : TimerTask() {
                 override fun run() {
                     block()
                 }
-            }, pollCheckInterval)
+            }, Settings.execution.executionStatusPoll)
 
         } else {
             actionOutcomeService.handleTimeout(trigger, action, blockDescription)

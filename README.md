@@ -116,8 +116,9 @@ Advanced variables to tune behaviour and performance:
 The cache expiry controls the period of time, in seconds, corebot holds the action configuration in memory after reading it from file.
 
     EXECUTION_STATUS_TIMEOUT="120"
+    EXECUTION_STATUS_POLL="10"
 
-The execution status timeout controls the period of time, in seconds, corebot will poll a running job for status updates, after which it gives up.
+The execution status timeout controls the period of time, in seconds, corebot will poll a running job for status updates, after which it gives up. You can also control the polling interval, also in seconds.
 
     SLACK_REPLY_IN_THREAD="true"
     
