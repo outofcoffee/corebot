@@ -202,7 +202,7 @@ class ClaimService @Inject constructor(private val configService: ConfigService,
         OwnerDisplayMode.REAL_NAME -> sessionService.lookupUserRealName(trigger, owner)
     }
 
-    fun describeAllItemStatus(trigger: TriggerContext) = "${chatGenerator.greeting()} :simple_smile: ${buildAllItemStatus(trigger)}"
+    fun describeAllItemStatus(trigger: TriggerContext) = "${chatGenerator.greeting()} ${buildAllItemStatus(trigger)}"
 
     private fun buildAllItemStatus(trigger: TriggerContext): String {
         val status = StringBuilder()

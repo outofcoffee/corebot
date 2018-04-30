@@ -8,9 +8,11 @@ package com.gatehill.corebot.frontend.slack.config
 object ChatSettings {
     class Chat {
         val authToken by lazy { System.getenv("SLACK_AUTH_TOKEN") ?: throw IllegalStateException("Slack auth token missing") }
-        val channelNames by lazy {
-            (System.getenv("SLACK_CHANNELS") ?: "corebot").split(",").map(String::trim)
-        }
+
+        val channelNames by lazy { (System.getenv("SLACK_CHANNELS") ?: "corebot").split(",").map(String::trim) }
+
+        val channelRegularExpressions by lazy { channelNames.map { channelName -> Regex(channelName) } }
+
         val postJoinMessage by lazy { System.getenv("SLACK_ENABLE_JOIN_MESSAGE")?.toBoolean() ?: true }
 
         /**

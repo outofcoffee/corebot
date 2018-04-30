@@ -2,8 +2,8 @@ package com.gatehill.corebot.frontend.slack.chat
 
 import com.gatehill.corebot.chat.ChatService
 import com.gatehill.corebot.chat.MessageService
-import com.gatehill.corebot.operation.model.TriggerContext
 import com.gatehill.corebot.frontend.slack.config.ChatSettings
+import com.gatehill.corebot.operation.model.TriggerContext
 import com.google.common.cache.CacheBuilder
 import com.ullink.slack.simpleslackapi.SlackSession
 import com.ullink.slack.simpleslackapi.events.SlackMessagePosted
@@ -51,10 +51,7 @@ open class SlackChatServiceImpl @Inject constructor(private val sessionService: 
      */
     protected open val messagePostedListeners = listOf(SlackMessagePostedListener { event, session ->
         // filter out messages from other channels
-        if (!ChatSettings.chat.channelNames
-                .map { channelName -> session.findChannelByName(channelName)?.id }
-                .filterNotNull()
-                .contains(event.channel.id)) return@SlackMessagePostedListener
+        if (ChatSettings.chat.channelRegularExpressions.none { it.matches(event.channel.name) }) return@SlackMessagePostedListener
 
         // ignore own messages
         if (session.sessionPersona().id == event.sender.id) return@SlackMessagePostedListener

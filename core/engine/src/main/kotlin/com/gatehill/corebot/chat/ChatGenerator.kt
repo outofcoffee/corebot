@@ -10,6 +10,7 @@ interface ChatGenerator {
     fun badNews(): String
     fun badNewsEmoji(): String
     fun greeting(): String
+    fun greetingEmoji(): String
     fun ready(): String
     fun confirmation(): String
 }

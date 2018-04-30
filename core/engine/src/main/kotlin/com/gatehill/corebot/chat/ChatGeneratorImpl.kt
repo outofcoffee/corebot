@@ -34,6 +34,7 @@ class ChatGeneratorImpl(dictionary: Map<String, List<String>>? = null) : ChatGen
     override fun badNews() = chooseOne("badNews")
     override fun badNewsEmoji() = chooseOne("badNewsEmoji")
     override fun greeting() = chooseOne("greeting")
+    override fun greetingEmoji() = chooseOne("greetingEmoji")
     override fun ready() = chooseOne("ready")
     override fun confirmation() = chooseOne("confirmation")
 }

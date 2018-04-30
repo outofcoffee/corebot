@@ -87,7 +87,7 @@ Configure the bot using the following environment variables.
     SLACK_CHANNELS="corebot"
     ACTION_CONFIG_FILE="/path/to/actions.yaml"
     
-> Note: `SLACK_CHANNELS` is a comma-separated list of channel names, such as `"channelA,channelB"`
+> Note: `SLACK_CHANNELS` is a comma-separated list of channel names, such as `"channelA,channelB"`. You can also use regular expressions to match channel names, such as `"channel.*"`.
 
 > Note: the default path for `ACTION_CONFIG_FILE` is `/opt/corebot/actions.yml`. When using corebot within a Docker container, it is typical to add your configuration file at this location, or bind-mount a file to this path.
 

@@ -22,7 +22,7 @@ goodNews:
 goodNewsEmoji:
  - "raised_hands"
  - "tada"
-    
+
 badNews:
  - "Oh dear :${badNewsEmoji}:"
  - "Oh no :${badNewsEmoji}:"
@@ -33,11 +33,14 @@ badNewsEmoji:
  - "cry"
  - "scream"
  - "face_with_head_bandage"
-    
+
 greeting:
- - "Hi"
- - "Hello"
- - "Hey"
+ - "Hi :${greetingEmoji}:"
+ - "Hello :${greetingEmoji}:"
+ - "Hey :${greetingEmoji}:"
+
+greetingEmoji:
+ - "simple_smile"
 
 confirmation:
  - "OK"

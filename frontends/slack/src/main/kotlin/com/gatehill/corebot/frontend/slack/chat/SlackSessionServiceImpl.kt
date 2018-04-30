@@ -1,9 +1,9 @@
 package com.gatehill.corebot.frontend.slack.chat
 
 import com.gatehill.corebot.chat.ChatGenerator
-import com.gatehill.corebot.operation.model.TriggerContext
-import com.gatehill.corebot.frontend.slack.config.ChatSettings
 import com.gatehill.corebot.config.ConfigService
+import com.gatehill.corebot.frontend.slack.config.ChatSettings
+import com.gatehill.corebot.operation.model.TriggerContext
 import com.ullink.slack.simpleslackapi.SlackChannel
 import com.ullink.slack.simpleslackapi.SlackPreparedMessage
 import com.ullink.slack.simpleslackapi.SlackSession
@@ -40,12 +40,16 @@ open class SlackSessionServiceImpl @Inject constructor(configService: ConfigServ
      */
     protected open val connectedListeners = listOf(SlackConnectedListener { _, theSession ->
         if (ChatSettings.chat.postJoinMessage && !postedJoinMessage) {
-            ChatSettings.chat.channelNames.forEach {
-                val joinMessage = configService.joinMessage ?:
-                        "${chatGenerator.greeting()} :simple_smile: ${chatGenerator.ready()}."
+            val matchingChannels = theSession.channels
+                    .map(SlackChannel::getName)
+                    .filter { channelName -> ChatSettings.chat.channelRegularExpressions.any { it.matches(channelName) } }
+                    .mapNotNull { theSession.findChannelByName(it) }
 
-                theSession.findChannelByName(it)?.let { channel -> theSession.sendMessage(channel, joinMessage) }
-                        ?: logger.warn("Unable to find channel: $it")
+            logger.debug("Found ${matchingChannels.size} matching channel(s) in which to post join message")
+
+            matchingChannels.forEach { channel ->
+                val joinMessage = configService.joinMessage ?: "${chatGenerator.greeting()} ${chatGenerator.ready()}."
+                theSession.sendMessage(channel, joinMessage)
             }
             postedJoinMessage = true
         }

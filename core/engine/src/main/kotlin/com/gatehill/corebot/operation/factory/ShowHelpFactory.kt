@@ -17,6 +17,6 @@ class ShowHelpFactory @Inject constructor(private val factoryService: FactorySer
     override val operationType = CoreOperationType.HELP
 
     override fun buildStartMessage(trigger: TriggerContext, options: Map<String, String>, actionConfig: ActionConfig?): String {
-        return "${chatGenerator.greeting()} :simple_smile: Try one of these:\r\n${factoryService.usage()}"
+        return "${chatGenerator.greeting()} Try one of these:\r\n${factoryService.usage()}"
     }
 }
