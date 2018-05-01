@@ -7,9 +7,11 @@ import com.gatehill.corebot.backend.jobs.JobsDriverModule
 import com.gatehill.corebot.backend.jobs.operation.TriggerOperationFactoryConverter
 import com.gatehill.corebot.backend.rundeck.RundeckDriverModule
 import com.gatehill.corebot.frontend.slack.SlackModule
+import com.gatehill.corebot.util.VersionUtil
 import com.google.inject.AbstractModule
 
 fun main(args: Array<String>) {
+    println("Starting Corebot [version ${VersionUtil.version}]")
     Bot.build(BotModule(), SlackModule()).start()
 }
 

@@ -7,6 +7,7 @@ import com.google.inject.AbstractModule
 import kotlin.system.exitProcess
 import com.gatehill.corebot.plugin.PluginService
 import com.gatehill.corebot.plugin.config.PluginSettings
+import com.gatehill.corebot.util.VersionUtil
 
 const val USAGE = """Usage: ./bots-generic <commands>
 
@@ -17,6 +18,8 @@ Commands:
 """
 
 fun main(args: Array<String>) {
+    println("Starting Corebot [version ${VersionUtil.version}]")
+
     if (args.isEmpty()) {
         exitWithMessage("No command specified\n$USAGE")
 

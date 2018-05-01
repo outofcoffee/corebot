@@ -6,9 +6,11 @@ import com.gatehill.corebot.asSingleton
 import com.gatehill.corebot.backend.items.ItemsDriverModule
 import com.gatehill.corebot.frontend.websocket.WebSocketModule
 import com.gatehill.corebot.frontend.websocket.chat.endpoint.CustomConfigurator
+import com.gatehill.corebot.util.VersionUtil
 import com.google.inject.AbstractModule
 
 fun main(args: Array<String>) {
+    println("Starting Corebot [version ${VersionUtil.version}]")
     println("Warning: the WebSocket bot is experimental.")
     Bot.build(BotModule(), WebSocketModule()).start()
 }

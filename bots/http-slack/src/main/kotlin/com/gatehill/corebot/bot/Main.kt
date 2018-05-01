@@ -5,9 +5,11 @@ import com.gatehill.corebot.backend.slack.SlackDriverModule
 import com.gatehill.corebot.frontend.http.HttpModule
 import com.gatehill.corebot.operation.NoOpOperationFactoryConverter
 import com.gatehill.corebot.operation.OperationFactoryConverter
+import com.gatehill.corebot.util.VersionUtil
 import com.google.inject.AbstractModule
 
 fun main(args: Array<String>) {
+    println("Starting Corebot [version ${VersionUtil.version}]")
     println("Warning: the HTTP bot is experimental.")
     Bot.build(BotModule(), HttpModule()).start()
 }

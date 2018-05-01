@@ -5,9 +5,11 @@ import com.gatehill.corebot.operation.NoOpOperationFactoryConverter
 import com.gatehill.corebot.asSingleton
 import com.gatehill.corebot.backend.items.ItemsDriverModule
 import com.gatehill.corebot.frontend.slack.SlackModule
+import com.gatehill.corebot.util.VersionUtil
 import com.google.inject.AbstractModule
 
 fun main(args: Array<String>) {
+    println("Starting Corebot [version ${VersionUtil.version}]")
     Bot.build(BotModule(), SlackModule()).start()
 }
 
