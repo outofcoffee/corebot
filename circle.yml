@@ -25,3 +25,9 @@ deployment:
     commands:
       - ./gradlew publish --stacktrace
       - /bin/bash ./scripts/docker-build.sh -e beta
+
+  alpha:
+    branch: task/upgrade-slack-api
+    commands:
+      - ./gradlew publish --stacktrace
+      - /bin/bash ./scripts/docker-build.sh -e alpha
