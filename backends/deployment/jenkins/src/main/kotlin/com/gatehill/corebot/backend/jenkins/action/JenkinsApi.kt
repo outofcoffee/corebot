@@ -22,12 +22,12 @@ interface JenkinsApi {
 
     @POST("job/{jobName}/build")
     @FormUrlEncoded
-    fun enqueueBuild(@Path("jobName") jobName: String,
+    fun enqueueBuild(@Path("jobName", encoded = true) jobName: String,
                      @Field("token") token: String?): Call<Void>
 
     @POST("job/{jobName}/buildWithParameters")
     @FormUrlEncoded
-    fun enqueueBuildWithParameters(@Path("jobName") jobName: String,
+    fun enqueueBuildWithParameters(@Path("jobName", encoded = true) jobName: String,
                                    @Field("token") token: String?,
                                    @FieldMap parameters: Map<String, String>): Call<Void>
 

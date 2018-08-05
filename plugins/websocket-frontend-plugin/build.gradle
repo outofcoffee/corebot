@@ -25,19 +25,19 @@ dependencies {
 }
 
 publishing {
-    publications {
-        maven(MavenPublication) {
-            from components.web
+        publications {
+            maven(MavenPublication) {
+                from components.web
 
-            repositories {
-                maven {
-                    url mavenSnapshotRepository
-                    credentials(AwsCredentials) {
-                        accessKey awsAccessKey
-                        secretKey awsSecretKey
+                repositories {
+                    maven {
+                        url mavenSnapshotRepository
+                        credentials(AwsCredentials) {
+                            accessKey awsAccessKey
+                            secretKey awsSecretKey
+                        }
                     }
                 }
             }
         }
-    }
 }
