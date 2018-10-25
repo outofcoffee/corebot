@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [1.3.0] - 2018-10-25
 ### Added
 - Adds more template aliases for items backend.
 - Enables channel names to be specified using regular expressions.
@@ -12,6 +12,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 - Fallback to username, then user ID if Slack user information is incomplete.
+
+### Fixed
+- Bumps Slack API version to handle channel rename event correctly (fixes #54).
 
 ## [1.2.0] - 2018-02-04
 ### Added
