@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+### Added
+- ...
+
 ## [1.3.0] - 2018-10-25
 ### Added
 - Adds more template aliases for items backend.
