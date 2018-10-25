@@ -5,7 +5,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
-- ...
+- Adds more template aliases for items backend.
+- Enables channel names to be specified using regular expressions.
+- Allows job status check polling interval to be configured.
+- Supports Jenkins job names containing slashes, such as multibranch builds.
+
+### Changed
+- Fallback to username, then user ID if Slack user information is incomplete.
 
 ## [1.2.0] - 2018-02-04
 ### Added
