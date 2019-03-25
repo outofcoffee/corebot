@@ -98,7 +98,7 @@ open class SlackSessionServiceImpl @Inject constructor(configService: ConfigServ
     }
 
     override fun lookupUsername(trigger: TriggerContext, userId: String): String =
-            session.findUserById(userId).userName ?: userId
+            session.findUserById(userId)?.userName ?: userId
 
     override fun lookupUserRealName(trigger: TriggerContext, userId: String): String =
             session.findUserById(userId)?.realName ?: lookupUsername(trigger, userId)
