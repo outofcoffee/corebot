@@ -7,12 +7,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - ...
 
+### Removed
+- Removes Slack backend. In future, use HTTP backend and [Slack Gateway](https://github.com/outofcoffee/slack-gateway) instead.
+
 ## [1.3.1] - 2019-03-25
 ### Changed
 - Falls back to user ID if username cannot be found.
-
-### Removed
-- Removes Slack backend. In future, use HTTP backend and [Slack Gateway](https://github.com/outofcoffee/slack-gateway) instead.
 
 ## [1.3.0] - 2018-10-25
 ### Added

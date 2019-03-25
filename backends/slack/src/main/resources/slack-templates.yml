@@ -1,4 +1,0 @@
-# Templates for slack backend.
----
-forwardMessage:
-  - template: forward {message} to {channel}

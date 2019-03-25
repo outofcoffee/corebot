@@ -17,9 +17,6 @@ project(':backends:deployment:test').name = 'backends-deployment-test'
 include ':backends:items'
 project(':backends:items').name = 'backends-items'
 
-include ':backends:slack'
-project(':backends:slack').name = 'backends-slack'
-
 // bots
 
 include ':bots:common'
@@ -27,9 +24,6 @@ project(':bots:common').name = 'bots-common'
 
 include ':bots:generic'
 project(':bots:generic').name = 'bots-generic'
-
-include ':bots:http-slack'
-project(':bots:http-slack').name = 'bots-http-slack'
 
 include ':bots:slack-deploy'
 project(':bots:slack-deploy').name = 'bots-slack-deploy'
@@ -90,7 +84,6 @@ project(':stores:mysql').name = 'stores-mysql'
 include ':plugins:items-backend-plugin'
 include ':plugins:jenkins-backend-plugin'
 include ':plugins:rundeck-backend-plugin'
-include ':plugins:slack-backend-plugin'
 
 include ':plugins:http-frontend-plugin'
 include ':plugins:slack-frontend-plugin'
