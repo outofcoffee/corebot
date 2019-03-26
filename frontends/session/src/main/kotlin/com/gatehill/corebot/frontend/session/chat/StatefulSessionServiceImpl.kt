@@ -24,15 +24,16 @@ abstract class StatefulSessionServiceImpl : StatefulSessionService {
         logger.debug("addReaction is not implemented")
     }
 
-    override fun findTriggerSession(trigger: TriggerContext) = findTriggerSession(trigger.channelId)
+    override fun findTriggerSession(trigger: TriggerContext): SessionHolder<*> =
+            findTriggerSession(trigger.channelId)
 
     override fun findTriggerSession(sessionId: String) =
             connectedSessions.first { it.sessionId == sessionId }
 
-    override fun lookupUsername(trigger: TriggerContext, userId: String): String =
+    override fun lookupUsername(trigger: TriggerContext, userId: String): String? =
             findTriggerSession(trigger).username
 
-    override fun lookupUserRealName(trigger: TriggerContext, userId: String): String =
+    override fun lookupUserRealName(trigger: TriggerContext, userId: String): String? =
             findTriggerSession(trigger).realName
 
     override fun terminateSession(trigger: TriggerContext) {

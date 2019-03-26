@@ -56,7 +56,7 @@ class ClaimService @Inject constructor(private val configService: ConfigService,
                 val borrowerName = try {
                     sessionService.lookupUserRealName(trigger, borrower)
                 } catch (e: Exception) {
-                    "unknown"
+                    unknownUserFullName
                 }
 
                 itemClaims[itemName] = ItemClaims(claims.toMutableList().apply {
@@ -177,13 +177,13 @@ class ClaimService @Inject constructor(private val configService: ConfigService,
                     val claim = claims.first()
                     val subItemDescription = claim.subItem?.let { if (it.isNotBlank()) " ($it)" else null } ?: ""
 
-                    "There is a single borrower of *$itemName*$subItemDescription: ${describeOwner(trigger, claim.owner)} - ${claim.reason}"
+                    "There is a single borrower of *$itemName*$subItemDescription: ${describeOwner(trigger, claim)} - ${claim.reason}"
                 }
                 else -> {
                     val claimsList = StringBuilder()
                     claims.forEach { claim ->
                         val subItemDescription = claim.subItem?.let { if (it.isNotBlank()) "$it: " else null } ?: ""
-                        claimsList.append("\n${" ".repeat(4)}• $subItemDescription${describeOwner(trigger, claim.owner)} - ${claim.reason}")
+                        claimsList.append("\n${" ".repeat(4)}• $subItemDescription${describeOwner(trigger, claim)} - ${claim.reason}")
                     }
 
                     "There are ${claims.size} borrowers of *$itemName*:$claimsList"
@@ -197,10 +197,10 @@ class ClaimService @Inject constructor(private val configService: ConfigService,
     /**
      * Describe the owner, based on the display mode.
      */
-    private fun describeOwner(trigger: TriggerContext, owner: String) = when (ItemSettings.ownerDisplayMode) {
-        OwnerDisplayMode.USERNAME -> sessionService.lookupUsername(trigger, owner)
-        OwnerDisplayMode.REAL_NAME -> sessionService.lookupUserRealName(trigger, owner)
-    }
+    private fun describeOwner(trigger: TriggerContext, claim: ItemClaim): String = when (ItemSettings.ownerDisplayMode) {
+        OwnerDisplayMode.USERNAME -> sessionService.lookupUsername(trigger, claim.owner) ?: claim.ownerName
+        OwnerDisplayMode.REAL_NAME -> sessionService.lookupUserRealName(trigger, claim.owner) ?: claim.ownerName
+    } ?: unknownUserFullName
 
     fun describeAllItemStatus(trigger: TriggerContext) = "${chatGenerator.greeting()} ${buildAllItemStatus(trigger)}"
 
@@ -217,5 +217,9 @@ class ClaimService @Inject constructor(private val configService: ConfigService,
         }
 
         return "Here's the latest:\n$status"
+    }
+
+    companion object {
+        private const val unknownUserFullName = "unknown"
     }
 }
