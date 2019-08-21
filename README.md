@@ -5,12 +5,11 @@ Trigger your [Rundeck](http://rundeck.org) or [Jenkins](https://jenkins.io) jobs
 _Example:_
 
     @corebot deploy user-service 1.0 to staging
-    
     > corebot:
     > OK, I'm deploying user-service version 1.0 to staging.
     > Status of job is: running
     > Details: http://rundeck/jobs/abc/123
-    
+
 > Why would you want this? Check out [ChatOps](http://blogs.atlassian.com/2016/01/what-is-chatops-adoption-guide/).
 
 ## What can it do?
@@ -62,26 +61,98 @@ If you'd like to run Corebot yourself as a Docker container, you can do the foll
 
 > Note: See the _Environment variables_ section for the available configuration settings.
 
-## Build
+## Creating a Slack app
 
-If instead you wish to build and run locally, you can run:
+As a Slack admin, create a Slack app: https://api.slack.com/apps/new
 
-    ./gradlew installDist
-    docker-compose build
+Add a bot user in the 'Bot Users' section:
 
-Once built, set the environment variables in `docker-compose.yml`. See the _Environment variables_ section.
+    https://api.slack.com/apps/<your app ID>/bots
 
-Then run with:
+Add the required scopes in the 'OAuth & Permissions' section:
 
-    docker-compose up
+    https://api.slack.com/apps/<your app ID>/oauth
 
-If you change anything, don't forget to rebuild before running again.
+The scopes are:
 
-## Environment variables
+    chat:write:bot
+
+> Don't forget to save changes after adding scopes.
+
+Install your app to your workspace. This will generate the token you need. You'll want to copy the 'Bot User OAuth Access Token'. It should look like this:
+
+    xoxp-123456789012-123456789012-abcdef1234567890abcdef1234567890
+
+## Drivers
+
+Corebot's capabilities are determined by its driver. For example, a driver might allow you to interact with a CI/CD system.
+
+### Jenkins driver
+
+A modern version (1.7+) of Jenkins is required - version 2.x or higher is preferred.
+
+Here is the official Jenkins Docker image:
+
+    docker run -it \
+        -p 8080:8080 \
+        jenkins
+
+Example usage:
+
+    @corebot deploy services v2 to staging
+    > corebot:
+    > OK, I'm deploying user-service version 1.0 to staging.
+    > Status of job is: running
+    > Details: http://rundeck/jobs/abc/123
+
+### Rundeck driver
+
+Any Rundeck instance can be used as long as it supports API v14 or higher.
+
+As an example, here is an unofficial Rundeck Docker image: https://hub.docker.com/r/jordan/rundeck/
+
+    docker run -it \
+        -p 4440:4440 \
+        -e SERVER_URL=http://localhost:4440 \
+        jordan/rundeck
+
+Example usage:
+
+    @corebot deploy services v2 to staging
+    > corebot:
+    > OK, I'm deploying user-service version 1.0 to staging.
+    > Status of job is: running
+    > Details: http://rundeck/jobs/abc/123
+
+### Items driver
+
+The items driver acts like a lending library. It allows users to borrow, return, or evict users from items in the library.
+
+An example use case is a group of people reserving a server/environment.
+
+Example usage:
+
+    @corebot list
+    > corebot:
+    > dev1 - no one is borrowing
+    > dev2 - in use by @alice, @bob
+    > staging - no one is borrowing
+    
+    @corebot borrow dev1 for bugfixing
+    > corebot:
+    > OK, you've borrowed dev1
+    
+    @corebot return dev1
+    > corebot:
+    > OK, you've returned dev1
+
+## Configuration
+
+### Environment variables
 
 Configure the bot using the following environment variables.
 
-### Common variables
+#### Common variables
 
     SLACK_AUTH_TOKEN="CHANGEME"
     SLACK_CHANNELS="corebot"
@@ -91,14 +162,14 @@ Configure the bot using the following environment variables.
 
 > Note: the default path for `ACTION_CONFIG_FILE` is `/opt/corebot/actions.yml`. When using corebot within a Docker container, it is typical to add your configuration file at this location, or bind-mount a file to this path.
 
-### Variables for Rundeck
+#### Variables for Rundeck
 
     RUNDECK_API_TOKEN="CHANGEME"
     RUNDECK_BASE_URL="http://rundeck:4440"
 
 > Note: ensure that the API token you generate in Rundeck has the necessary permissions to trigger builds. For more information, consult the Rundeck ACL documentation.
 
-### Variables for Jenkins
+#### Variables for Jenkins
 
     JENKINS_BASE_URL="http://localhost:8080"
     JENKINS_USERNAME="CHANGEME"
@@ -107,7 +178,7 @@ Configure the bot using the following environment variables.
     
 > Note: typically you will specify the username and password for accessing a Jenkins instance. The token approach is rarely used and can be omitted.
 
-### Advanced variables
+#### Advanced variables
 
 Advanced variables to tune behaviour and performance:
 
@@ -136,11 +207,11 @@ The path to an external YAML file containing custom chat lines. See the default 
 
 The path to an external YAML file containing system configuration. See the sample file, `system.yml`, for examples.
 
-## Operations and actions
+### Operations and actions
 
 Corebot has both built-in operations and external actions. Examples of built in operations are the lock/unlock actions. External actions are triggers for your Rundeck/Jenkins jobs, configured using a configuration file, typically called `actions.yml`.
 
-### Action configuration file
+#### Action configuration file
 
 > Note: the configuration file path is specified with the `ACTION_CONFIG_FILE` environment variable.
 
@@ -174,8 +245,9 @@ File structure:
 
 Actions should specify a driver. The available drivers are:
 
-* rundeck
-* jenkins
+* jenkins - use this to allow users to trigger Jenkins jobs
+* rundeck - use this to allow users to trigger Rundeck jobs
+* items - use this to allow users to borrow/return a set of items (e.g. books, servers etc.)
 
 > Note: if none is specified, the driver is assumed to be `rundeck`.
 
@@ -414,7 +486,7 @@ There are a number of built in actions, such as:
 * `@corebot enable {action or tag name}` - set the Rundeck execution status for a job - *Note:* this requires the Rundeck ACL to permit the API user to set the execution status of a job.
 * `@corebot disable {action or tag name}` - set the Rundeck execution status for a job - *Note:* this requires the Rundeck ACL to permit the API user to set the execution status of a job.
 
-## System and shared/default configuration
+### System and shared/default configuration
 
 You can set some default operations for all actions using the system configuration file.
 
@@ -467,30 +539,30 @@ You can load plugins by using the `generic-bot` distribution.
 > See `bots/generic/README.md` for information.
 > See the `examples/plugins` directory for plugin configuration examples.
 
-## More info
+## Building
 
-Slack API: https://api.slack.com/bot-users
+If you wish to build and run locally, you can run:
 
-### Rundeck
+    ./gradlew installDist
+    docker-compose build
 
-Any Rundeck instance can be used as long as it supports API v14 or higher.
+Once built, set the environment variables in `docker-compose.yml`. See the _Environment variables_ section.
 
-As an example, here is an unofficial Rundeck Docker image: https://hub.docker.com/r/jordan/rundeck/
+Then run with:
 
-    docker run -it \
-        -p 4440:4440 \
-        -e SERVER_URL=http://localhost:4440 \
-        jordan/rundeck
-        
-### Jenkins
+    docker-compose up
 
-A modern version (1.7+) of Jenkins is required - version 2.x or higher is preferred.
+If you change anything, don't forget to rebuild before running again.
 
-Here is the official Jenkins Docker image:
+#### Publishing
 
-    docker run -it \
-        -p 8080:8080 \
-        jenkins
+Dependencies can be published to the project Maven repository.
+
+> Note: Publishing to the repository requires appropriate AWS keys to be set in `gradle.properties`.
+
+## Embedding Corebot in your applications
+
+The Corebot libraries are published to our Maven repository. You can include them as dependencies in your project.
 
 ### Maven dependencies
 
@@ -510,14 +582,10 @@ repositories {
 ...then add a dependency:
 
 ```
-compile "com.gatehill.corebot:core:0.6.3-SNAPSHOT"
+compile "com.gatehill.corebot:core:0.7.0"
 ```
 
-#### Publishing
-
-Dependencies can be published to the project Maven repository.
-
-> Note: Publishing to the repository requires appropriate AWS keys to be set in `gradle.properties`.
+> Note: update the version with the latest stable [release](https://github.com/outofcoffee/corebot/tags).
 
 # Recent changes and Roadmap
   
