@@ -1,4 +1,4 @@
-FROM openjdk:8-jdk
+FROM eclipse-temurin:8u322-b06-jre-focal
 
 MAINTAINER Pete Cornish <outofcoffee@gmail.com>
 
