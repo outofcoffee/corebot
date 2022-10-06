@@ -1,0 +1,85 @@
+name: CI
+on: [ push ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [ '8' ]
+    permissions:
+      checks: write
+      contents: write
+    env:
+      AWS_REGION: "eu-west-1"
+      TESTCONTAINERS_RYUK_DISABLED: "true"
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up build environment
+        run: |
+          chmod +x ./scripts/*.sh
+          # Disable gradle daemon
+          mkdir -p ~/.gradle
+          echo "org.gradle.daemon=false" >> ~/.gradle/gradle.properties
+
+      - name: Determine effective branch
+        id: git-meta
+        run: |
+          EFFECTIVE_BRANCH_NAME="$( ./scripts/get-effective-branch.sh )"
+          echo "::set-output name=branch::${EFFECTIVE_BRANCH_NAME}"
+
+      - name: Test
+        run: ./gradlew test --info --stacktrace
+
+      - name: Publish Unit Test Results
+        if: always()
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          files: "**/test-results/**/*.xml"
+          comment_mode: off
+
+      - name: Build distribution
+        run: ./gradlew clean installdist --stacktrace
+
+      - name: Build and push Docker image
+        if: ${{ (startsWith(github.ref, 'refs/tags/') || steps.git-meta.outputs.branch == 'develop') && matrix.java == '8' }}
+        run: |
+          EFFECTIVE_BRANCH="${{ steps.git-meta.outputs.branch }}"
+          case "${EFFECTIVE_BRANCH}" in
+            main)
+              ./scripts/docker-build.sh latest
+              ;;
+            develop)
+              ./scripts/docker-build.sh beta
+              ;;
+            *)
+              echo "Publish not required for branch: ${EFFECTIVE_BRANCH}"
+              ;;
+            esac
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Release Java assets
+        if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.java == '8' }}
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const script = require('./.github/github-release.js')
+            await script({github, context})
+
+      - name: Publish Java Maven artifacts
+        if: ${{ (startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/develop') && matrix.java == '8' }}
+        run: ./gradlew publish --info --stacktrace
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
