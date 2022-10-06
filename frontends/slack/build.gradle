@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        version_slackapi = 'd3fe7de811'
+        version_slackapi = '1.4.0'
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
