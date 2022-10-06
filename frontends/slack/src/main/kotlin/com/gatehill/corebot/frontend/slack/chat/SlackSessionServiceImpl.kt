@@ -72,9 +72,9 @@ open class SlackSessionServiceImpl @Inject constructor(configService: ConfigServ
     private fun sendMessage(channel: SlackChannel, triggerMessageTimestamp: String,
                             triggerMessageThreadTimestamp: String?, message: String) {
 
-        val messageBuilder = SlackPreparedMessage.Builder().apply {
-            withMessage(message)
-            withUnfurl(true)
+        val messageBuilder = SlackPreparedMessage.builder().apply {
+            message(message)
+            unfurl(true)
 
             // the 'replyInThread' setting implies 'allowThreadedTriggers'
             if (ChatSettings.threads.replyInThread || ChatSettings.threads.allowThreadedTriggers) {
@@ -86,7 +86,7 @@ open class SlackSessionServiceImpl @Inject constructor(configService: ConfigServ
                     triggerMessageTimestamp
                 }
 
-                withThreadTimestamp(timestamp)
+                threadTimestamp(timestamp)
             }
         }
 
