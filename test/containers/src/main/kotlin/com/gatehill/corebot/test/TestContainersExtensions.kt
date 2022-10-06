@@ -28,7 +28,7 @@ class KRedisContainer : GenericContainer<KRedisContainer>("redis:latest") {
     }
 }
 
-class KRundeckContainer : GenericContainer<KRundeckContainer>("jordan/rundeck:latest") {
+class KRundeckContainer : GenericContainer<KRundeckContainer>("jordan/rundeck:2.6.11") {
     init {
         withExposedPorts(4440)
         waitingFor(HostPortWaitStrategy().withStartupTimeout(Duration.ofSeconds(120)))
