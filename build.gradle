@@ -14,7 +14,7 @@ allprojects {
         ext {
             kotlin_version = '1.7.10'
 
-            version_log4j = '2.5'
+            version_log4j = '2.19.0'
             version_jackson = '2.9.0'
             version_retrofit = '2.1.0'
             version_guava = '18.0'
