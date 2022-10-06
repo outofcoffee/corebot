@@ -24,7 +24,6 @@ import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
-import org.junit.Assert.fail
 import java.util.concurrent.CompletableFuture
 
 /**
@@ -77,13 +76,15 @@ object BaseJobTriggerServiceSpec : Spek({
             service.trigger(TestMother.trigger, future, actionConfig, emptyMap())
 
             it("fails to trigger") {
+                var gotResult = false
                 try {
                     future.get()
-                    fail("Future should complete exceptionally")
+                    gotResult = true
 
                 } catch (e: Exception) {
                     e.message?.`should contain`("locked by")
                 }
+                if (gotResult) { throw RuntimeException("Future should complete exceptionally") }
 
                 Verify on lockService that lockService.findActionLock(any(), any()) was called
                 VerifyNotCalled on lockService that lockService.findOptionLock(any())
@@ -109,13 +110,15 @@ object BaseJobTriggerServiceSpec : Spek({
             service.trigger(TestMother.trigger, future, actionConfig, args)
 
             it("fails to trigger") {
+                var gotResult = false
                 try {
                     future.get()
-                    fail("Future should complete exceptionally")
+                    gotResult = true
 
                 } catch (e: Exception) {
                     e.message?.`should contain`("locked by")
                 }
+                if (gotResult) { throw RuntimeException("Future should complete exceptionally") }
 
                 Verify on lockService that lockService.findActionLock(any(), any()) was called
                 Verify on lockService that lockService.findOptionLock(any()) was called
