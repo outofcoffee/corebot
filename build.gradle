@@ -3,7 +3,7 @@ plugins {
 }
 
 allprojects {
-    version = '1.4.0'
+    version = '1.4.1'
     group = 'com.gatehill.corebot'
 
     ext.mavenSnapshotRepository = 's3://gatehillsoftware-maven/snapshots'
