@@ -1,3 +1,7 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.7.10' apply false
+}
+
 allprojects {
     version = '1.3.3-SNAPSHOT'
     group = 'com.gatehill.corebot'
@@ -8,8 +12,9 @@ allprojects {
 
     buildscript {
         ext {
-            version_kotlin = '1.1.51'
-            version_log4j = '2.5'
+            kotlin_version = '1.7.10'
+
+            version_log4j = '2.19.0'
             version_jackson = '2.9.0'
             version_retrofit = '2.1.0'
             version_guava = '18.0'
@@ -20,9 +25,9 @@ allprojects {
             // testing
             version_junit_platform_gradle = '1.0.0'
             version_spek = '1.1.5'
-            version_kluent = '1.22'
+            version_kluent = '1.64'
             version_mockito_kotlin = '1.5.0'
-            version_testcontainers = '1.4.3'
+            version_testcontainers = '1.17.5'
         }
         repositories {
             mavenCentral()
@@ -31,16 +36,13 @@ allprojects {
 
     repositories {
         mavenCentral()
-        jcenter()
         maven { url "https://jitpack.io" }
-        maven { url "http://dl.bintray.com/kotlin/exposed" }
         maven { url 'https://gatehillsoftware-maven.s3.amazonaws.com/snapshots/' }
-        maven { url 'http://dl.bintray.com/jetbrains/spek' }
     }
 
     apply plugin: "maven-publish"
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = "4.2.1"
+wrapper {
+    gradleVersion = '6.8.1'
 }

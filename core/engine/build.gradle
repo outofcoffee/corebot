@@ -1,6 +1,6 @@
 buildscript {
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$version_kotlin"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.junit.platform:junit-platform-gradle-plugin:$version_junit_platform_gradle"
     }
 }
@@ -18,8 +18,8 @@ junitPlatform {
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib:$version_kotlin"
-    compile "org.jetbrains.kotlin:kotlin-reflect:$version_kotlin"
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
 
     compile "org.apache.logging.log4j:log4j-api:$version_log4j"
 

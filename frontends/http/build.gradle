@@ -3,7 +3,7 @@ buildscript {
         version_vertx = '3.4.2'
     }
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$version_kotlin"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 
@@ -16,7 +16,7 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib:$version_kotlin"
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
     compile project(':frontends:frontends-common')
     compile project(':frontends:frontends-session')

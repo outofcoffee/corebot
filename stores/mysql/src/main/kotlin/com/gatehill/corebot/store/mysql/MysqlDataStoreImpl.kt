@@ -11,7 +11,8 @@ import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.IntIdTable
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils.createMissingTablesAndColumns
-import org.jetbrains.exposed.sql.Slf4jSqlLogger
+import org.jetbrains.exposed.sql.Slf4jSqlDebugLogger
+import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -29,7 +30,7 @@ class MysqlDataStoreImpl : DataStore {
     init {
         Database.connect(StoreSettings.connectionString, driver = "com.mysql.jdbc.Driver", user = StoreSettings.username, password = StoreSettings.password)
         transaction {
-            logger.addLogger(Slf4jSqlLogger)
+            addLogger(Slf4jSqlDebugLogger)
             createMissingTablesAndColumns(KeyValues)
         }
     }
@@ -65,10 +66,10 @@ private class MysqlDataStorePartitionImpl<in K, V>(private val mapper: ObjectMap
 
     override fun set(key: K, value: V) {
         transaction {
-            logger.addLogger(Slf4jSqlLogger)
+            addLogger(Slf4jSqlDebugLogger)
 
             KeyValues.deleteWhere {
-                (KeyValues.key eq key) and (KeyValues.partition eq partitionId)
+                (KeyValues.key eq key as String) and (KeyValues.partition eq partitionId)
             }
 
             KeyValue.new {
@@ -80,10 +81,10 @@ private class MysqlDataStorePartitionImpl<in K, V>(private val mapper: ObjectMap
     }
 
     override fun get(key: K): V? = transaction {
-        logger.addLogger(Slf4jSqlLogger)
+        addLogger(Slf4jSqlDebugLogger)
 
         KeyValue.find {
-            (KeyValues.key eq key) and (KeyValues.partition eq partitionId)
+            (KeyValues.key eq key as String) and (KeyValues.partition eq partitionId)
 
         }.firstOrNull()?.let {
             mapper.readValue(it.value.binaryStream.use { it.readBytes() }, clazz)
@@ -92,10 +93,10 @@ private class MysqlDataStorePartitionImpl<in K, V>(private val mapper: ObjectMap
 
     override fun remove(key: K) {
         transaction {
-            logger.addLogger(Slf4jSqlLogger)
+            addLogger(Slf4jSqlDebugLogger)
 
             KeyValues.deleteWhere {
-                (KeyValues.key eq key) and (KeyValues.partition eq partitionId)
+                (KeyValues.key eq key as String) and (KeyValues.partition eq partitionId)
             }
         }
     }

@@ -1,6 +1,6 @@
 buildscript {
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$version_kotlin"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.junit.platform:junit-platform-gradle-plugin:$version_junit_platform_gradle"
     }
 }
@@ -20,8 +20,10 @@ junitPlatform {
 dependencies {
     compile project(':core:core-engine')
 
-    compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.42'
-    compile 'org.jetbrains.exposed:exposed:0.8'
+    compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.28'
+    compile('org.jetbrains.exposed:exposed:0.17.14') {
+        exclude group: 'com.h2database'
+    }
 
     testCompile project(':test:test-containers')
 }
