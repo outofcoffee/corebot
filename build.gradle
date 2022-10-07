@@ -12,7 +12,7 @@ allprojects {
 
     buildscript {
         ext {
-            kotlin_version = '1.7.10'
+            kotlin_version = '1.7.20'
 
             version_log4j = '2.19.0'
             version_jackson = '2.9.0'
