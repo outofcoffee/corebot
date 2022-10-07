@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+### Changed
+- ...
+
 ## [1.4.1] - 2022-10-07
 ### Changed
 - build: adds dependabot config.
