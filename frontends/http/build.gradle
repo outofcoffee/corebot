@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        version_vertx = '3.4.2'
+        version_vertx = '4.3.4'
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
