@@ -16,7 +16,9 @@ class KMySQLContainer : MySQLContainer<KMySQLContainer>("${MySQLContainer.IMAGE}
     override fun getJdbcUrl(): String = "${super.getJdbcUrl()}?useSSL=false"
 }
 
-class KRedisContainer : GenericContainer<KRedisContainer>("redis:latest") {
+class KRedisContainer : GenericContainer<KRedisContainer>("redis:4.0.14") {
+    val logger = LogManager.getLogger("redis")
+
     init {
         withExposedPorts(6379)
         waitingFor(HostPortWaitStrategy())
