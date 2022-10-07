@@ -3,9 +3,21 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
-### Added
-- ...
+## [1.4.0] - 2022-10-07
+### Changed
+- build: bumps JRE to 8u345.
+- build: bumps simple-slack-api to 1.4.0.
+- build: excludes mysql unneeded h2 transitive dependency.
+- build: bumps mysql connector version.
+- test: pins redis version.
+- test: pins rundeck version.
+- build: bumps testcontainers to 1.17.5.
+- build: bumps kluent to 1.64.
+- build: bumps exposed to 0.17.14.
+- build: bumps log4j2 dependency.
+- build: bumps Gradle to 6.9.1 and Kotlin to 1.7.10.
+- ci: removes CircleCI config.
+- ci: adds GitHub actions config.
 
 ## [1.3.2] - 2019-03-26
 ### Changed
