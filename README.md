@@ -1,4 +1,4 @@
-# Corebot: A Slack bot for Rundeck and Jenkins [![CircleCI](https://circleci.com/gh/outofcoffee/corebot.svg?style=svg)](https://circleci.com/gh/outofcoffee/corebot)
+# Corebot: A Slack bot for Rundeck and Jenkins [![CI](https://github.com/outofcoffee/corebot/actions/workflows/ci.yaml/badge.svg)](https://github.com/outofcoffee/corebot/actions/workflows/ci.yaml)
 
 Trigger your [Rundeck](http://rundeck.org) or [Jenkins](https://jenkins.io) jobs from [Slack](https://slack.com).
 
