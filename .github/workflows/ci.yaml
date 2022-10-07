@@ -57,6 +57,12 @@ jobs:
           case "${EFFECTIVE_BRANCH}" in
             main)
               ./scripts/docker-build.sh latest
+              
+              CURRENT_VERSION="$( git describe --tags --exact-match )"
+              if [[ "${CURRENT_VERSION:0:1}" == "v" ]]; then
+                  CURRENT_VERSION="$( echo ${CURRENT_VERSION} | cut -c 2- )"
+                ./scripts/docker-build.sh "${CURRENT_VERSION}"
+              fi
               ;;
             develop)
               ./scripts/docker-build.sh beta
