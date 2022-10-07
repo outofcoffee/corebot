@@ -27,7 +27,7 @@ allprojects {
             version_spek = '1.1.5'
             version_kluent = '1.64'
             version_mockito_kotlin = '1.5.0'
-            version_testcontainers = '1.4.3'
+            version_testcontainers = '1.17.5'
         }
         repositories {
             mavenCentral()
@@ -37,9 +37,7 @@ allprojects {
     repositories {
         mavenCentral()
         maven { url "https://jitpack.io" }
-        maven { url "http://dl.bintray.com/kotlin/exposed" }
         maven { url 'https://gatehillsoftware-maven.s3.amazonaws.com/snapshots/' }
-        maven { url 'http://dl.bintray.com/jetbrains/spek' }
     }
 
     apply plugin: "maven-publish"

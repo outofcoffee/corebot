@@ -1,11 +1,18 @@
 package com.gatehill.corebot.test
 
+import org.apache.logging.log4j.LogManager
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.MySQLContainer
-import org.testcontainers.containers.wait.HostPortWaitStrategy
+import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy
 import java.time.Duration
 
 class KMySQLContainer : MySQLContainer<KMySQLContainer>("${MySQLContainer.IMAGE}:5.7") {
+    val logger = LogManager.getLogger("mysql")
+
+    override fun start() {
+        super.start()
+        followOutput { logger.debug(it) }
+    }
     override fun getJdbcUrl(): String = "${super.getJdbcUrl()}?useSSL=false"
 }
 
@@ -13,6 +20,11 @@ class KRedisContainer : GenericContainer<KRedisContainer>("redis:latest") {
     init {
         withExposedPorts(6379)
         waitingFor(HostPortWaitStrategy())
+    }
+
+    override fun start() {
+        super.start()
+        followOutput { logger.debug(it) }
     }
 }
 
