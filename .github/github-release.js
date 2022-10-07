@@ -55,7 +55,7 @@ async function createRelease(releaseVersion, github) {
         owner: 'outofcoffee',
         repo: 'corebot',
         tag_name: releaseVersion,
-        body: 'See Docker images on [Docker Hub](https://hub.docker.com/r/outofcoffee/corebot).\n\nSee [change log](https://github.com/outofcoffee/corebot/blob/main/CHANGELOG.md).',
+        body: 'See Docker images on [Docker Hub](https://hub.docker.com/r/outofcoffee/corebot).\n\nSee [change log](https://github.com/outofcoffee/corebot/blob/master/CHANGELOG.md).',
     });
     return release.data.id;
 }
