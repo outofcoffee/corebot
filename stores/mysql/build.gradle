@@ -20,7 +20,7 @@ junitPlatform {
 dependencies {
     compile project(':core:core-engine')
 
-    compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.42'
+    compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.28'
     compile 'org.jetbrains.exposed:exposed:0.17.14'
 
     testCompile project(':test:test-containers')
