@@ -20,7 +20,7 @@ junitPlatform {
 dependencies {
     compile project(':core:core-engine')
 
-    compile('redis.clients:jedis:4.2.3')
+    compile('redis.clients:jedis:4.3.0')
 
     testCompile project(':test:test-containers')
 }
