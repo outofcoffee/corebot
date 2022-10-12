@@ -23,7 +23,7 @@ allprojects {
             version_dlcl = '0.3.2-SNAPSHOT'
 
             // testing
-            version_junit_platform_gradle = '1.0.0'
+            version_junit_platform_gradle = '1.2.0'
             version_spek = '1.1.5'
             version_kluent = '1.64'
             version_mockito_kotlin = '1.5.0'
