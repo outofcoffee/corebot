@@ -26,7 +26,7 @@ dependencies {
     testCompile project(':backends:deployment:backends-deployment-rundeck')
     testCompile project(':test:test-containers')
     testCompile project(':backends:deployment:backends-deployment-test')
-    testCompile 'com.squareup.okhttp3:logging-interceptor:3.3.0'
+    testCompile 'com.squareup.okhttp3:logging-interceptor:4.10.0'
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
